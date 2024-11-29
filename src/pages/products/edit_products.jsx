@@ -68,10 +68,10 @@ useEffect(() => {
         <ModalEdit_product closeModal={closeModal} _id={product_selected} nombre={nombre}/>
       )}
       <Navbar />
-      <Menu />
+      
       <div className="w-full h-full flex">
-        <div className="w-[15%]"></div>
-        <div className="w-[85%] flex justify-center items-center bg-[#EBEBEB] relative h-[89vh]">
+        
+        <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89vh]">
           <div className="bg-[white] w-[90%] rounded-[10px] items-center flex flex-col gap-4 px-[1.5rem] py-[2rem]">
             <p className="text-[1.5rem] font-semibold font-serif">Editar productos</p>
             <div className="flex w-full">

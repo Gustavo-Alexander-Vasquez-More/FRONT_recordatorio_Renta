@@ -121,20 +121,18 @@ function closeModal_recibido(){
     <Modal_recibido closeModal_recibido={closeModal_recibido} _id={_id}/>
   )}
   <Navbar/>
-  <Menu/>
+  
   <div className='flex w-full'>
-  <div className="w-[15%]"></div>
-
-   <div className='w-[85%] h-full overflow-y-auto overflow-x-auto bg-[white] flex flex-col'>
+  <div className='w-full h-full overflow-y-auto overflow-x-auto bg-[white] flex flex-col'>
    <table>
      <tr className='w-full flex justify-center text-center py-[1rem] bg-[#9B8767] text-[0.7rem]  text-white'>
-       <th className='w-full flex text-center justify-center'>N° Identificador</th>
+       <th className='w-full flex text-center justify-center'>Celular del arrendador</th>
        <th className='w-full flex text-center justify-center'>Responsable</th>
        <th className='w-full flex text-center justify-center'>Fecha de alta</th>
        <th className='w-full flex text-center justify-center'>Vencimiento</th>
-       <th className='w-full flex text-center justify-center'>Importe total</th>
-       <th className='w-full flex text-center justify-center'>Estado de la renta</th>
-       <th className='w-full flex text-center justify-center'>Acciones</th>
+       <th className='w-full flex text-center justify-center'>Importe</th>
+       <th className='w-full flex text-center justify-center'>Estado</th>
+       <th className='w-full flex text-center justify-center'>Recibir/</th>
        
        {/* <th>
          <img src={eye} alt="" />
@@ -145,7 +143,7 @@ function closeModal_recibido(){
      </tr>
      {datas.map(dat=>(
      <tr className='w-full flex justify-center text-center py-[0.5rem] text-[0.7rem]'>
-       <td className='w-full flex text-center justify-center'>{dat.identificador}</td>
+       <td className='w-full flex text-center justify-center'>{dat.celular_cliente}</td>
        <td className='w-full flex text-center justify-center'>{dat.usuario_retandor}</td>
        <td className='w-full flex text-center justify-center'>{dat.fecha_renta} {dat.hora_renta}</td>
        <td className='w-full flex text-center justify-center'>{dat.fecha_vencimiento}</td>

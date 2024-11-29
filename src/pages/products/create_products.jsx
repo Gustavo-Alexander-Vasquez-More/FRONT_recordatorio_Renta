@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
 import Swal from 'sweetalert2';
+import { uploadFoto } from '../../firebase/images.js';
 export default function create_products() {
   const notyf = new Notyf({
     position: {
@@ -61,37 +62,40 @@ function captureStock(){
 setStock(input_sotck.current.value)
 }
 
-const capture_foto = () => {
-  const file = input_foto.current.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFoto(reader.result); // Guardar la imagen en base64 en el estado
-    };
-    reader.readAsDataURL(file); // Convertir a base64
-  }
-};
+
 
 async function crear_products() {
-try {
-  if(nombre && foto && codigo && codigo && precio && stock){
-    Swal.fire({
-      title: 'Cargando, por favor espere...',
-      didOpen: () => {
-        Swal.showLoading();  // Mostrar el spinner de carga
-      }
-    });
+  Swal.fire({
+    title: 'Cargando, por favor espere...',
+    didOpen: () => {
+      Swal.showLoading();  // Mostrar el spinner de carga
+    }
+  });
+  if(!nombre || !codigo || !codigo || !precio || !stock){
+    notyf.error('Por favor complete los campos')
   }
+  
+  let fotoURL = '';
+  const selectedFile = input_foto.current.files[0];
+    if (selectedFile) {
+        try {
+            fotoURL = await uploadFoto(selectedFile); // Sube la foto y obtiene la URL
+            console.log('URL de descarga:', fotoURL);
+        } catch (error) {
+            notyf.error('Error al subir la foto. Intente nuevamente.');
+            return;
+        }
+    }
+
 const datos={
 nombre: nombre,
-foto: foto,
+foto: fotoURL || null,
 codigo:codigo,
 precio:precio,
 stock:stock
 }
-if(!nombre || !foto || !codigo || !codigo || !precio || !stock){
-  notyf.error('Por favor complete los campos')
-}
+console.log(datos.foto);
+try {
 await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/products/create`, datos)
 notyf.success('El producto se creó con éxito, se recargará esta página en 1 segundos')
 setTimeout(async () => {
@@ -106,10 +110,10 @@ window.location.reload();
 return (
     <>
     <Navbar/>
-    <Menu/>
+    
     <div className='w-full h-full flex'>
-    <div className='w-[15%]'></div>
-    <div className='w-[85%] flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
+    
+    <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
           <div className='bg-[white] w-[60%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[2rem]'>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Nombre del producto</label>
@@ -117,7 +121,7 @@ return (
           </div>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Foto del producto</label>
-            <input ref={input_foto} onChange={capture_foto} type="file" class="form-control" id="exampleInputPassword1"/>
+            <input ref={input_foto}  type="file" class="form-control" id="exampleInputPassword1"/>
           </div>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Código del producto</label>

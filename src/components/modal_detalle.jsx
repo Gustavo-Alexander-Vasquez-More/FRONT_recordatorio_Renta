@@ -64,12 +64,12 @@ export default function ModalDetalle({ closeModal, _id }) {
               <p className="text-center font-semibold text-[1.2rem] underline">Detalles de la renta</p>
               {datas.map((dat) => (
                 <div className="flex flex-col text-[0.9rem] pt-[1rem]" key={dat.identificador}>
-                  <p>N° Identificador: {dat.identificador}</p>
-                  <p>Cliente que rentó los equipos: {dat.nombre_cliente}</p>
-                  <p>N° Celular: {dat.celular_cliente}</p>
-                  <p>Personal a cargo de la renta: {dat.usuario_retandor}</p>
+                  <p>Folio: {dat.identificador}</p>
+                  <p>Arrendatario: {dat.nombre_cliente}</p>
+                  <p>Celular: {dat.celular_cliente}</p>
+                  <p>Encargado: {dat.usuario_retandor}</p>
                   <p>Fecha y hora de renta: {dat.fecha_renta} {dat.hora_renta}</p>
-                  <p>Fecha de devolución de los equipos: {dat.fecha_vencimiento}</p>
+                  <p>Fecha de retorno de arrendo: {dat.fecha_vencimiento}</p>
                   <p className="underline font-semibold pt-[1rem]">Productos rentados:</p>
 
                   <table

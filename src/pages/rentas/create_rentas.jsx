@@ -1,6 +1,6 @@
 import React, { Children, useEffect, useRef, useState } from 'react';
 import Navbar from '../../components/navbar';
-import Menu from '../../components/menu';
+import { uploadFoto } from '../../firebase/images';
 import axios from 'axios';
 import trash from '../../images/trash.png';
 import { Notyf } from 'notyf';
@@ -25,14 +25,16 @@ const [filteredDatas, setFilteredDatas] = useState([]); // productos filtrados
 const [selectedProducts, setSelectedProducts] = useState([]); //se almacenan los productos seleccionados
 const [searchTerm, setSearchTerm] = useState(''); //Se almacenan los terminos de busqueda
 const [loading, setLoading] = useState(true); //estado para spinner de carga
-const [images, setImages] = useState([]); //imagenes el blob
-const [base64, setBase64] = useState([]); //Imagenes solo en cadena base64
+
+const [files, setFiles]=useState([])
+console.log(files);
 const [identificador, setIdentificador]=useState()
 const [fecha_vencimiento, setFecha_Vencimiento]=useState(new Date())
 const [detalle, setDetalle]=useState('')
 const [nombre_cliente, setNombre_cliente]=useState()
 const [celular, setCelular]=useState()
 //USEREF
+const input_foto=useRef()
 const input_detalle=useRef()
 const input_nombre_cliente=useRef()
 const input_celular=useRef()
@@ -125,28 +127,23 @@ const handleQuantityChange = (codigo, delta) => {
 });};
 //FUNCION PARA ESCUCHAR LAS FOTOS QUE SE SUBEN Y PASARLAS A UN ARRAY DE FOTOS Y BASE64
 const handleFileChange = (event) => {
-  const files = Array.from(event.target.files);
-  // Convertir cada archivo a base64
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result; // Imagen en base64
-        setImages((prevImages) => [
-          ...prevImages,
-          { id: URL.createObjectURL(file), src: base64String, name: file.name },
-        ]);
-        setBase64((prevImages) => [
-          ...prevImages,
-          base64String
-        ]);};
-      reader.readAsDataURL(file); // Leer archivo como URL base64
-});};
-//FUNCION PARA ELIMINAR CADA IMAGEN SUBIDA
+  const selectedFiles = Array.from(event.target.files); // Convertir los archivos seleccionados a un array
+
+  // Subir los archivos directamente a setFiles con una URL temporal para cada imagen
+  setFiles((prevFiles) => [
+    ...prevFiles,
+    ...selectedFiles.map((file) => ({
+      id: file.name + Date.now(), // Un identificador único para cada imagen
+      file: file,
+      src: URL.createObjectURL(file), // Crear una URL temporal para la vista previa
+      name: file.name,
+    })),
+  ]);
+};
+
 const handleRemoveImage = (id, index) => {
-  setImages(images.filter((image) => image.id !== id)); // Eliminar por ID
-  setBase64((prevBase64) => prevBase64.filter((_, idx) => idx !== index));
-  // Reiniciar el valor del input file
-  document.getElementById('photoInput').value = null;
+  // Eliminar la imagen seleccionada del estado
+  setFiles((prevFiles) => prevFiles.filter((_, idx) => idx !== index));
 };
 
 function generarIdentificador() {
@@ -173,76 +170,98 @@ async function generar_rentas() {
       Swal.showLoading();  // Mostrar el spinner de carga
     }
   });
-  //FUNCION FECHA DE HOY
-const fecha=new Date()
-const dia=fecha.getDate().toString().padStart(2, '0')
-const mes=(fecha.getMonth()+1).toString().padStart(2, '0')
-const año=fecha.getFullYear()
-const minuto=fecha.getMinutes().toString().padStart(2, '0')
-const hora=fecha.getHours().toString().padStart(2, '0')
-const segundos=fecha.getSeconds().toString().padStart(2, '0')
-const fecha_hoy=`${dia}/${mes}/${año}`
-const hora_hoy=`${hora}:${minuto}:${segundos}`
-  if(!nombre_cliente || !celular || base64.length === 0){
-    return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.')
+
+  const fecha = new Date();
+  const dia = fecha.getDate().toString().padStart(2, '0');
+  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+  const año = fecha.getFullYear();
+  const minuto = fecha.getMinutes().toString().padStart(2, '0');
+  const hora = fecha.getHours().toString().padStart(2, '0');
+  const segundos = fecha.getSeconds().toString().padStart(2, '0');
+  const fecha_hoy = `${dia}/${mes}/${año}`;
+  const hora_hoy = `${hora}:${minuto}:${segundos}`;
+
+  if (!nombre_cliente || !celular) {
+    return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
-    const datos = {
-      productos: selectedProducts?.map((product) => ({
-        nombre: product.nombre, // Nombre del producto
-        cantidad:product.cantidad,
-        codigo:product.codigo,
-        precio_unitario: product.precio, // Precio por unidad
-        precio_total_cantidad: (product.precio * product.cantidad).toFixed(2), // Precio total según cantidad
-        _id:product._id
-      })),
-      importe_total: selectedProducts
-        .reduce((total, product) => total + product.precio * product.cantidad, 0)
-        .toFixed(2), // Importe total de todos los productos seleccionados
-      fotos_estado_inicial: base64, // Rutas de las fotos seleccionadas
-      usuario_retandor: localStorage.getItem('usuario') || '', // Usuario que está realizando la renta
-      fecha_renta:fecha_hoy,
-      hora_renta:hora_hoy,
-      observacion_inicial:detalle,
-      nombre_cliente:nombre_cliente,
-      celular_cliente:celular,
-      identificador:identificador,
-      fecha_vencimiento:vencimientoFormateado
-    };
+
+  // Subida de imágenes
+  let fotosEstadoInicial = [];
+  const selectedFiles = files; // Obtenemos todos los archivos seleccionados
+
+  for (let i = 0; i < selectedFiles.length; i++) {
+    const file = selectedFiles[i].file;
     
     try {
-      await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/create`, datos)
-      // Actualizar inventario de productos
-      selectedProducts.forEach(async (product) => {
-        const data_update = {
-          stock: product.stock - product.cantidad,
-        };
-        console.log(data_update);
-        await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`, data_update);
-      });
-      Swal.fire({
-        icon: 'success',
-        title: 'Renta generada',
-        text: `El N° identificador para tu renta es ${identificador}, con este numero podrás identificar tus rentas en la sección historial de rentas.`,
-        confirmButtonText: 'Aceptar',
-        allowOutsideClick: false, // Evita que se cierre al hacer clic fuera
-        allowEscapeKey: false, // Evita que se cierre al presionar la tecla Escape
-        confirmButtonColor:'#0D6EFD'
-      }).then(() => {
-        // Recargar la página después de que se haga clic en "Aceptar"
-        localStorage.removeItem('selectedProducts');
-        window.location.reload();
-      });
+      // Subir cada imagen y obtener la URL de Firebase
+      const fotoURL = await uploadFoto(file);  // Asumiendo que uploadFoto devuelve la URL accesible
+      fotosEstadoInicial.push(fotoURL);  // Guardar la URL en el array
     } catch (error) {
-      
+      notyf.error('Error al subir una o más fotos. Intente nuevamente.');
+      return;  // Detener la ejecución si hay un error
     }
   }
+
+  const datos = {
+    productos: selectedProducts?.map((product) => ({
+      nombre: product.nombre, // Nombre del producto
+      cantidad: product.cantidad,
+      codigo: product.codigo,
+      precio_unitario: product.precio, // Precio por unidad
+      precio_total_cantidad: (product.precio * product.cantidad).toFixed(2), // Precio total según cantidad
+      _id: product._id
+    })),
+    importe_total: selectedProducts
+      .reduce((total, product) => total + product.precio * product.cantidad, 0)
+      .toFixed(2), // Importe total de todos los productos seleccionados
+    fotos_estado_inicial: fotosEstadoInicial, // Las URLs de las fotos subidas
+    usuario_retandor: localStorage.getItem('usuario') || '', // Usuario que está realizando la renta
+    fecha_renta: fecha_hoy,
+    hora_renta: hora_hoy,
+    observacion_inicial: detalle,
+    nombre_cliente: nombre_cliente,
+    celular_cliente: celular,
+    identificador: identificador,
+    fecha_vencimiento: vencimientoFormateado
+  };
+
+  try {
+    // Enviar la solicitud POST con los datos, incluyendo las URLs de las fotos
+    await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/create`, datos);
+    
+    // Actualizar inventario de productos
+    selectedProducts.forEach(async (product) => {
+      const data_update = {
+        stock: product.stock - product.cantidad,
+      };
+      console.log(data_update);
+      await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`, data_update);
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Renta generada',
+      text: `El N° identificador para tu renta es ${identificador}, con este numero podrás identificar tus rentas en la sección historial de rentas.`,
+      confirmButtonText: 'Aceptar',
+      allowOutsideClick: false, // Evita que se cierre al hacer clic fuera
+      allowEscapeKey: false, // Evita que se cierre al presionar la tecla Escape
+      confirmButtonColor: '#0D6EFD'
+    }).then(() => {
+      // Recargar la página después de que se haga clic en "Aceptar"
+      localStorage.removeItem('selectedProducts');
+      window.location.reload();
+    });
+  } catch (error) {
+    console.error('Error al generar la renta:', error);
+  }
+}
   return (
     <>
       <Navbar />
-      <Menu />
+      
       <div className="w-full h-full flex">
-        <div className="w-[15%]"></div>
-        <div className="w-[85%] flex justify-center items-center bg-[#EBEBEB] relative h-[90.3vh]">
+        <div className="full"></div>
+        <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89.3vh]">
           <div className="w-[50%] items-center py-[1rem] overflow-y-auto h-full bg-[white] flex flex-col px-[1rem] gap-4">
             <p className="text-[1.2rem] font-semibold">Pedido de renta en curso</p>
             <table
@@ -305,21 +324,21 @@ const hora_hoy=`${hora}:${minuto}:${segundos}`
       {selectedProducts.length > 0 && (
         <div className='w-full flex flex-col text-[0.8rem]'>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Nombre del cliente</label>
+          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Nombre del cliente</label>
           <input ref={input_nombre_cliente} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Celular</label>
+          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Celular</label>
           <input ref={input_celular} onChange={captureCelular} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div class="mb-3 flex flex-col">
-          <label for="exampleInputPassword1" class="form-label">Fecha de vencimiento de la renta</label>
+          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Fecha de vencimiento de la renta</label>
           <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
         </div>
         <div className="mb-3">
     <label
       htmlFor="photoInput"
-      className="block text-sm font-medium text-gray-700 mb-2"
+      className="block font-semibold text-gray-700 mb-2"
     >
       Fotos de cómo recibe el cliente los productos
     </label>
@@ -327,12 +346,13 @@ const hora_hoy=`${hora}:${minuto}:${segundos}`
       type="file"
       id="photoInput"
       accept="image/*"
+      ref={input_foto}
       multiple
       onChange={handleFileChange}
       className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
     />
     <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
-      {images.map((image, index) => (
+      {files.map((image, index) => (
         <div key={image.id}  className="relative">
           <img
             src={image.src}
@@ -350,7 +370,7 @@ const hora_hoy=`${hora}:${minuto}:${segundos}`
     </div>
   </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Detalles (opcional)</label>
+          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Observació inicial (opcional)</label>
           <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
         </div>
         <div class="mb-1 w-full flex justify-center items-center">

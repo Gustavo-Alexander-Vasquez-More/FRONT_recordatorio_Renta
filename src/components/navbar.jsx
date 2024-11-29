@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import icon_logout from '../images/icon_logout.png'
-import persona from '../images/persona.png'
+import Menu from './menu';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-export default function navbar() {
+export default function navbar({}) {
 const [datas, setDatas]=useState([])
 const [fotoBase64, setFotoBase64] = useState('');
+const [menu, setMenu]=useState(false)
+function openMenu(){
+  setMenu(true)
+}
+function closeMenu(){
+  setMenu(false)
+}
 const path=window.location.pathname.slice(1);
 let path_letra=''
 if(path === 'Homepage'){
@@ -106,9 +113,19 @@ useEffect(() => {
   }
   return (
     <>
+    {menu === true && (
+      <Menu closeMenu={closeMenu}/>
+    )}
     {datas.map(dat=>(
-      <div className='w-full bg-[#f59600] flex justify-end px-[1rem] py-[1rem] gap-4 items-center text-white font-semibold relative'>
-        <div className='absolute top-[30%] left-[16%] flex gap-2'>
+      <div className='w-full bg-[#f59600] flex justify-between px-[1rem] py-[1rem] gap-5 items-center text-white font-semibold relative'>
+        <button onClick={openMenu}>
+        <svg class="w-10 h-10 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14"/>
+</svg>
+
+        </button>
+       <div className='flex gap-4 items-center'>
+       <div className=' flex gap-2'>
           <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"/>
           </svg>
@@ -132,6 +149,7 @@ useEffect(() => {
     </svg></button>
       )}
       <button onClick={LogOut} data-bs-toggle="tooltip" data-bs-title="Salir"><img className='w-[2rem] h-[2rem]' src={icon_logout}/></button>
+       </div>
     </div>
     ))}
     </>

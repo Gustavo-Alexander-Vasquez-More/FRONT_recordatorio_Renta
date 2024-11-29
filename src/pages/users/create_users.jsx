@@ -4,6 +4,8 @@ import Menu from '../../components/menu';
 import axios from 'axios';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+import {uploadFoto} from '../../firebase/images.js'
+import Swal from 'sweetalert2';
 export default function create_users() {
     const notyf = new Notyf({
         position: {
@@ -13,7 +15,6 @@ export default function create_users() {
         duration:3500
       });
 const [foto, setFoto]=useState()
-console.log(foto);
 const [fotoBuffer, setFotoBuffer]=useState()
 console.log(fotoBuffer);
 const [usuario, setUsuario]=useState()
@@ -43,46 +44,65 @@ const capture_rol = () => {
 setRol(input_rol.current.value)
 }
 const capture_foto = () => {
-    const file = input_foto.current.files[0];
+const file = input_foto.current.files[0];
     if (file) {
-        // 1. Crear el Blob URL para la previsualización
         const blobURL = URL.createObjectURL(file);
         setFoto(blobURL);  // Muestra la imagen previa al subir
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-        setFotoBuffer(reader.result);  
-        }}
+    }
 };
 
 
 async function crearUsuario() {
-if(!usuario || !contraseña || !rol ){
-return alert('Todos los campos son requeridos')
-}
-const datos={
-usuario:usuario,
-rol:rol,
-contraseña:contraseña,
-foto:fotoBuffer,
-}
-try {
-    await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/admins/create`, datos)
-    notyf.success('El usuario se creó con éxito, se recargará esta página en 1 segundos')
-    setTimeout(async () => {
-        window.location.reload();
+    Swal.fire({
+        title: 'Cargando, por favor espere...',
+        didOpen: () => {
+          Swal.showLoading();  // Mostrar el spinner de carga
+        }
+      });
+    if (!usuario || !contraseña || !rol) {
+        return alert('Todos los campos son requeridos');
+    }
+    let fotoURL = ''; // Variable temporal para almacenar la URL de la foto
+
+    // Verifica si hay un archivo seleccionado y sube la foto
+    const selectedFile = input_foto.current.files[0];
+    if (selectedFile) {
+        try {
+            fotoURL = await uploadFoto(selectedFile); // Sube la foto y obtiene la URL
+            console.log('URL de descarga:', fotoURL);
+        } catch (error) {
+            notyf.error('Error al subir la foto. Intente nuevamente.');
+            return;
+        }
+    }
+
+    // Si hay foto o si se permite enviar sin foto
+    const datos = {
+        usuario: usuario,
+        rol: rol,
+        contraseña: contraseña,
+        foto: fotoURL || null, // Envía la URL o null si no se seleccionó una foto
+    };
+
+    try {
+        await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/admins/create`, datos);
+        notyf.success('El usuario se creó con éxito. Se recargará esta página en 1 segundo.');
+        setTimeout(() => {
+            window.location.reload();
         }, 1000);
-} catch (error) {
-    notyf.error('Este usuario ya existe en la base de datos, intente con otro') 
+    } catch (error) {
+        console.error(error);
+        notyf.error('Este usuario ya existe en la base de datos, intente con otro.');
+    }
 }
-}
+
   return (
     <>
     <Navbar/>
-    <Menu/>
+    
     <div className='w-full h-full flex'>
-    <div className='w-[15%]'></div>
-    <div className='w-[85%] flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
+    
+    <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
           
         <div className='bg-[white] w-[35%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[1rem]'>
         {!foto && (
