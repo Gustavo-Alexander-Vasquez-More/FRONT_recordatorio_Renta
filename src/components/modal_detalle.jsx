@@ -64,13 +64,31 @@ export default function ModalDetalle({ closeModal, _id }) {
               <p className="text-center font-semibold text-[1.2rem] underline">Detalles de la renta</p>
               {datas.map((dat) => (
                 <div className="flex flex-col text-[0.9rem] pt-[1rem]" key={dat.identificador}>
-                  <p>Folio: {dat.identificador}</p>
-                  <p>Arrendatario: {dat.nombre_cliente}</p>
-                  <p>Celular: {dat.celular_cliente}</p>
-                  <p>Encargado: {dat.usuario_retandor}</p>
-                  <p>Fecha y hora de renta: {dat.fecha_renta} {dat.hora_renta}</p>
-                  <p>Fecha de retorno de arrendo: {dat.fecha_vencimiento}</p>
-                  <p className="underline font-semibold pt-[1rem]">Productos rentados:</p>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Folio:</p>
+                  <p>{dat.identificador}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Arrendatario:</p>
+                  <p>{dat.nombre_cliente}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Celular:</p>
+                  <p>{dat.celular_cliente}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Encargado:</p>
+                  <p>{dat.usuario_retandor}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Fecha y hora de renta:</p>
+                  <p>{dat.fecha_renta} {dat.hora_renta}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Fecha de retorno de arrendo:</p>
+                  <p>{dat.fecha_vencimiento}</p>
+                  </div>
+                  <p className="underline font-bold pt-[1rem]">Productos rentados:</p>
 
                   <table
                     style={{
@@ -115,12 +133,12 @@ export default function ModalDetalle({ closeModal, _id }) {
                     </tbody>
                   </table>
 
-                  <p className="font-semibold underline">Imágenes del estado inicial del producto (Como lo recibe el cliente)</p>
+                  <p className="font-bold underline">Imágenes del estado inicial del producto (Como lo recibe el cliente)</p>
                   <div className="flex w-full gap-2 py-[1rem]">
                   {dat?.fotos_estado_inicial?.map((foto, index) => (
           <div
             key={index}
-            className="w-[5rem] h-[5rem] bg-gray-200 cursor-pointer"
+            className="w-[5rem] h-[5rem] bg-gray-200 cursor-pointer transition-all duration-200 hover:brightness-50 "
             onClick={() => openLightbox(foto)}
           >
             <img className="w-full h-full object-cover" src={foto} alt={`Imagen ${index}`} />
@@ -128,7 +146,7 @@ export default function ModalDetalle({ closeModal, _id }) {
         ))}
                   </div>
 
-                  <p className="font-semibold underline">Observación inicial del responsable a cargo:</p>
+                  <p className="font-bold underline">Observación inicial del responsable a cargo:</p>
                   {!dat.observacion_inicial ? (
                     <p>Sin observaciones</p>
                   ) : (
@@ -139,21 +157,28 @@ export default function ModalDetalle({ closeModal, _id }) {
                   {dat.observacion_devolucion && (
                     <>
                       <p className="text-center font-semibold text-[1.2rem] underline">Datos de devolución</p>
-                      <p>Responsable que recibe los equipos: {dat.usuario_recibidor}</p>
-                      <p>Fecha y hora de devolución: {dat.fecha_devolucion} {dat.hora_devolucion}</p>
-                      <p className="font-semibold underline">Pruebas de devolución (Como recibe el responsable los equipos devueltos por el cliente)</p>
+                      <div className='flex gap-2'>
+                  <p className='font-bold'>Responsable que recibe los equipos:</p>
+                  <p>{dat.usuario_recibidor}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                  <p className='font-bold'>Fecha y hora de devolución:</p>
+                  <p>{dat.fecha_devolucion} {dat.hora_devolucion}</p>
+                  </div>
+                      
+                      <p className="font-bold underline">Pruebas de devolución (Como recibe el responsable los equipos devueltos por el cliente)</p>
                       <div className="flex w-full gap-2 py-[1rem]">
                   {dat?.fotos_estado_inicial?.map((foto, index) => (
           <div
             key={index}
-            className="w-[5rem] h-[5rem] bg-gray-200 cursor-pointer"
+            className="w-[5rem] h-[5rem] bg-gray-200 transition-all duration-200 hover:brightness-50 cursor-pointer"
             onClick={() => openLightbox(foto)}
           >
             <img className="w-full h-full object-cover" src={foto} alt={`Imagen ${index}`} />
           </div>
         ))}
                   </div>
-                      <p className="font-semibold underline">Observación de la devolución de los equipos:</p>
+                      <p className="font-bold underline">Observación de la devolución de los equipos:</p>
                       <p>{dat.observacion_devolucion}</p>
                     </>
                   )}

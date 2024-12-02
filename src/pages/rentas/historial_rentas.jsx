@@ -61,7 +61,6 @@ function closeModal_recibido(){
     get();
   }, []);
   async function deleteRenta(_id) {
-    console.log(_id);
     try {
       const datitos = { _id: _id };
       if (datitos._id) {
@@ -70,15 +69,48 @@ function closeModal_recibido(){
           showDenyButton: true,
           confirmButtonText: 'Sí',
           denyButtonText: 'No',
-          confirmButtonColor: '#3085d6',  // Cambia este color
-          denyButtonColor: '#d33', 
-          
+          confirmButtonColor: '#3085d6',
+          denyButtonColor: '#d33',
         });
-
+  
         if (confirmation.isConfirmed) {
+          Swal.fire({
+            title: 'Cargando, por favor espere...',
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+  
+          const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/read_especific?_id=${_id}`);
+          const datis = data.response?.[0];
+          const productos = datis?.productos;
+  
+          // Solo actualiza el stock si el estado de la renta es diferente de 'Entregado'
+          if (datis.estado_renta !== 'Entregado') {
+            for (const product of productos) {
+              try {
+                const productResponse = await axios.get(
+                  `https://backrecordatoriorenta-production.up.railway.app/api/products/read_especific?_id=${product._id}`
+                );
+                const currentStock = productResponse?.data?.response[0]?.stock;
+                if (currentStock !== undefined) {
+                  const newStock = currentStock + product.cantidad;
+                  await axios.put(
+                    `https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`,
+                    { stock: newStock }
+                  );
+                }
+              } catch (error) {
+                console.error(`Error al actualizar el stock del producto ${product._id}:`, error);
+              }
+            }
+          }
+  
+          // Eliminar la renta
           await axios.delete('https://backrecordatoriorenta-production.up.railway.app/api/rentas/delete', {
             data: datitos,
           });
+  
           Swal.fire({
             position: 'center',
             icon: 'success',
@@ -106,7 +138,7 @@ function closeModal_recibido(){
       });
     }
   }
-
+  
 
 
   return (
@@ -127,7 +159,7 @@ function closeModal_recibido(){
    <table>
      <tr className='w-full flex justify-center text-center py-[1rem] bg-[#9B8767] text-[0.7rem]  text-white'>
        <th className='w-full flex text-center justify-center'>Celular del arrendador</th>
-       <th className='w-full flex text-center justify-center'>Responsable</th>
+       <th className='w-full flex text-center justify-center'>Encargado</th>
        <th className='w-full flex text-center justify-center'>Fecha de alta</th>
        <th className='w-full flex text-center justify-center'>Vencimiento</th>
        <th className='w-full flex text-center justify-center'>Importe</th>

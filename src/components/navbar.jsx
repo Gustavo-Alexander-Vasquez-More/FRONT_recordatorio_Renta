@@ -50,6 +50,9 @@ if(path === 'update_renta'){
 if(path === 'hist_renta'){
   path_letra='Historial de rentas'
 }
+if(path === 'product_list'){
+  path_letra='Lista de productos'
+}
 useEffect(() => {
  get();
   }, []);

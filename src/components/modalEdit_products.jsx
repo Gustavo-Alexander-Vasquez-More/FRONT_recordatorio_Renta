@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import Swal from 'sweetalert2';
-
+import {uploadFoto} from "../firebase/images.js"
 export default function modalEdit_product({ _id, nombre, closeModal }) {
   const [datas, setDatas] = useState([]);
   const [fotoBase64, setFotoBase64] = useState('');
@@ -25,14 +25,14 @@ export default function modalEdit_product({ _id, nombre, closeModal }) {
   }
 
   function handleFileChange(e) {
-    const file = e.target.files[0]; // Obtener el archivo seleccionado
+    const file = e.target.files[0];
     if (file) {
+      setValorDato(file); // Guardar el archivo seleccionado para subir a Firebase
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFotoBase64(reader.result); // Actualizar la imagen redonda con la nueva cadena base64
-        setValorDato(reader.result); // Establecer la cadena base64 en el estado para el dato
+        setFotoBase64(reader.result); // Mostrar la previsualización de la imagen
       };
-      reader.readAsDataURL(file); // Leer el archivo como una URL de datos (base64)
+      reader.readAsDataURL(file);
     }
   }
 
@@ -59,41 +59,37 @@ export default function modalEdit_product({ _id, nombre, closeModal }) {
         Swal.showLoading(); // Mostrar el indicador de carga
       }
     });
-      const datos={
-       
-        [dato]: valorDato // Usamos la notación dinámica para pasar el dato que se está editando
-      }
-    
+  
+    let datos = {
+      [dato]: valorDato
+    };
   
     try {
-      if (datos) {
-        // Enviamos los datos con axios PUT
-        await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/products/update/${_id}`, datos, {
-          headers: {
-            'Content-Type': 'application/json' // Aseguramos que los datos sean enviados como JSON
-          }
-        });
-  
-        Swal.close();
-
-        Swal.fire({
-          position: 'center',
-          icon: 'success',
-          title: 'Cambios guardados',
-          showConfirmButton: false,
-          timer: 1500
-        });
-        closeModal()
-      } else {
-        // Si no hay datos para enviar, mostramos un error
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'No se pudieron guardar los cambios!'
-        });
+      if (dato === 'foto') {
+        // Subir imagen a Firebase si el dato es 'foto'
+        const urlFoto = await uploadFoto(valorDato); // Suponiendo que valorDato es el archivo
+        datos = { foto: urlFoto }; // Actualizar datos con la URL devuelta
       }
+  
+      // Enviamos los datos con axios PUT
+      await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/products/update/${_id}`, datos, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      Swal.close();
+  
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Cambios guardados',
+        showConfirmButton: false,
+        timer: 1500
+      });
+  
+      closeModal();
     } catch (error) {
-      // En caso de error en la solicitud
       console.error(error);
       Swal.fire({
         icon: 'error',
@@ -102,7 +98,6 @@ export default function modalEdit_product({ _id, nombre, closeModal }) {
       });
     }
   }
-  
   useEffect(() => {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggerList.forEach(tooltipTriggerEl => {

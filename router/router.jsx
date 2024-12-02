@@ -15,6 +15,7 @@ import Create_rentas from "../src/pages/rentas/create_rentas";
 import Delete_rentas from "../src/pages/rentas/delete_rentas";
 import Update_rentas from "../src/pages/rentas/update_rentas";
 import Historial_rentas from "../src/pages/rentas/historial_rentas";
+import Lista_productos from "../src/pages/products/lista_productos";
 import ProtectRutas from "../src/protect/protect_rutas";
 const router = createBrowserRouter([
 { path: "/", element: <ProtectLogin/>, children:[{index:true, element:<Index/>}] },
@@ -30,5 +31,6 @@ const router = createBrowserRouter([
 { path: "/delete_renta", element:<ProtectRutas/>  ,children:[{index:true, element:<Delete_rentas/> }]},
 { path: "/update_renta", element:<ProtectRutas/>  ,children:[{index:true, element:<Update_rentas/> }]},
 { path: "/hist_renta", element:<ProtectRutas/>  ,children:[{index:true, element:<Historial_rentas/> }]},
+{ path: "/product_list", element:<ProtectRutas/>  ,children:[{index:true, element:<Lista_productos/> }]},
 ])
 export default router

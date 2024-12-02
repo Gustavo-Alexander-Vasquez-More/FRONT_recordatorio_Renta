@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
 import Swal from 'sweetalert2';
+import {uploadFoto} from "../firebase/images.js"
 export default function modal_recibido({closeModal_recibido, _id}) {
 
 const [observacion, setObservacion]=useState()
-const [images, setImages] = useState([]); //imagenes el blob
-const [base64, setBase64] = useState([]); //Imagenes solo en cadena base64
+const [files, setFiles]=useState([])
+console.log(files);
 const [datas, setDatas]=useState()
 const [loading, setLoading]=useState()
 console.log(datas);
@@ -40,103 +41,116 @@ function captureDetalle(){
 setObservacion(input_detalle.current.value)
 }
 const handleFileChange = (event) => {
-    const files = Array.from(event.target.files);
-    // Convertir cada archivo a base64
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result; // Imagen en base64
-          setImages((prevImages) => [
-            ...prevImages,
-            { id: URL.createObjectURL(file), src: base64String, name: file.name },
-          ]);
-          setBase64((prevImages) => [
-            ...prevImages,
-            base64String
-          ]);};
-        reader.readAsDataURL(file); // Leer archivo como URL base64
-  });};
+  const selectedFiles = Array.from(event.target.files); // Convertir los archivos seleccionados a un array
+
+  // Subir los archivos directamente a setFiles con una URL temporal para cada imagen
+  setFiles((prevFiles) => [
+    ...prevFiles,
+    ...selectedFiles.map((file) => ({
+      id: file.name + Date.now(), // Un identificador único para cada imagen
+      file: file,
+      src: URL.createObjectURL(file), // Crear una URL temporal para la vista previa
+      name: file.name,
+    })),
+  ]);
+};
+
   //FUNCION PARA ELIMINAR CADA IMAGEN SUBIDA
   const handleRemoveImage = (id, index) => {
-    setImages(images.filter((image) => image.id !== id)); // Eliminar por ID
-    setBase64((prevBase64) => prevBase64.filter((_, idx) => idx !== index));
-    // Reiniciar el valor del input file
-    document.getElementById('photoInput').value = null;
+    // Eliminar la imagen seleccionada del estado
+    setFiles((prevFiles) => prevFiles.filter((_, idx) => idx !== index));
   };
-  async function marcarEntrega(){
+  async function marcarEntrega() {
     Swal.fire({
       title: 'Cargando, por favor espere...',
       didOpen: () => {
-        Swal.showLoading();  // Mostrar el spinner de carga
+        Swal.showLoading();
       }
     });
-    const fecha_constructor=new Date()
-    const dia=fecha_constructor.getDate().toString().padStart(2,'0')
-    const mes=(fecha_constructor.getMonth()+1).toString().padStart(2,'0')
-    const año=fecha_constructor.getFullYear()
-    const hora=fecha_constructor.getHours().toString().padStart(2,'0')
-    const minutos=fecha_constructor.getMinutes().toString().padStart(2,'0')
-    const datos={
-      usuario_recibidor:localStorage.getItem('usuario'),
-      estado_renta:'Entregado',
-      fecha_devolucion:`${dia}/${mes}/${año}`,
-      hora_devolucion:`${hora}:${minutos}`,
-      fotos_estado_devolucion:base64,
-      observacion_devolucion:observacion
-    }
-    if(!observacion || base64.length === 0){
-      return alert('Llena los campos por favor')
-    }
+  
     try {
-    await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/update/${_id}`, datos, {
-      headers: {
-        'Content-Type': 'application/json' // Aseguramos que los datos sean enviados como JSON
+      // Subir imágenes a Firebase y obtener las URLs
+      const urls = await Promise.all(
+        files.map(async (image) => {
+          return await uploadFoto(image.file); // Subir cada archivo y devolver la URL
+        })
+      );
+  
+      // Validación: Si no hay observaciones o las URLs están vacías, no continuar
+      if (!observacion || urls.length === 0) {
+        Swal.close();
+        return Swal.fire({
+          icon: 'error',
+          title: 'Campos incompletos',
+          text: 'Debe agregar observaciones y al menos una imagen.'
+        });
       }
-    })
-     
-
-    const datis = datas?.[0]; // Acceder al primer (y único) elemento de 'datas'
-    const productos = datis?.productos; // Acceder a la propiedad 'productos' del primer objeto
-    for (const product of productos) {
-      console.log(product._id);
-      try {
-        // Obtener el producto actual para saber su stock
-        const productResponse = await axios.get(
-          `https://backrecordatoriorenta-production.up.railway.app/api/products/read_especific?_id=${product._id}`
-        );
-        console.log(productResponse);
-        const currentStock = productResponse?.data?.response[0]?.stock// Stock actual del producto
-        console.log(currentStock);
-        console.log(`Stock actual de ${product._id}:`, currentStock);
-
-        if (currentStock !== undefined) {
-          // Sumamos la cantidad rentada para devolverla al stock
-          const newStock = currentStock + product.cantidad;
-          const dataUpdate = { stock: newStock };
-
-          // Actualizamos el stock del producto en la base de datos
-          await axios.put(
-            `https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`,
-            dataUpdate
-          );
-          console.log(`Stock actualizado de ${product._id}: ${newStock}`);
-        } else {
-          console.error(`El stock del producto ${product._id} no está disponible.`);
+  
+      // Preparar los datos
+      const fecha_constructor = new Date();
+      const dia = fecha_constructor.getDate().toString().padStart(2, '0');
+      const mes = (fecha_constructor.getMonth() + 1).toString().padStart(2, '0');
+      const año = fecha_constructor.getFullYear();
+      const hora = fecha_constructor.getHours().toString().padStart(2, '0');
+      const minutos = fecha_constructor.getMinutes().toString().padStart(2, '0');
+  
+      const datos = {
+        usuario_recibidor: localStorage.getItem('usuario'),
+        estado_renta: 'Entregado',
+        fecha_devolucion: `${dia}/${mes}/${año}`,
+        hora_devolucion: `${hora}:${minutos}`,
+        fotos_estado_devolucion: urls, // URLs subidas
+        observacion_devolucion: observacion
+      };
+  
+      // Enviar los datos a la API
+      await axios.put(
+        `https://backrecordatoriorenta-production.up.railway.app/api/rentas/update/${_id}`,
+        datos,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
-      } catch (error) {
-        console.error(`Error al actualizar el stock del producto ${product._id}:`, error);
+      );
+  
+      // Actualización del stock (mantiene tu lógica actual)
+      const datis = datas?.[0];
+      const productos = datis?.productos;
+      for (const product of productos) {
+        try {
+          const productResponse = await axios.get(
+            `https://backrecordatoriorenta-production.up.railway.app/api/products/read_especific?_id=${product._id}`
+          );
+          const currentStock = productResponse?.data?.response[0]?.stock;
+          if (currentStock !== undefined) {
+            const newStock = currentStock + product.cantidad;
+            await axios.put(
+              `https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`,
+              { stock: newStock }
+            );
+          }
+        } catch (error) {
+          console.error(`Error al actualizar el stock del producto ${product._id}:`, error);
+        }
       }
-    }
-
-    notyf.success('Se ha marcado la entrega de la renta.')
-setTimeout(async () => {
-window.location.reload();
-}, 1000);
-
+  
+      // Notificación y recarga de la página
+      notyf.success('Se ha marcado la entrega de la renta.');
+      setTimeout(() => window.location.reload(), 1000);
+  
     } catch (error) {
-      
+      Swal.close();
+      console.error('Error al marcar la entrega:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Hubo un error al procesar la entrega!'
+      });
     }
-    }
+  }
+  
+  
   return (
  <>
  <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
@@ -166,7 +180,7 @@ window.location.reload();
       className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
     />
     <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
-      {images.map((image, index) => (
+      {files.map((image, index) => (
         <div key={image.id}  className="relative">
           <img
             src={image.src}

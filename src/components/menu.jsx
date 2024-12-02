@@ -31,7 +31,7 @@ useEffect(() => {
   return (
   <>
    {datas.map(dat=>(
-    <div className='absolute z-50 top-0 left-0 bg-[#3B5A75] w-[15%] h-screen flex flex-col'>
+    <div className='absolute z-50 top-0 left-0 bg-[#3B5A75] w-[30%] h-screen flex flex-col'>
     <div className='w-full flex items-center bg-[#2d76b5] justify-between border-solid border-b-white border-b-[1px] h-[4.5rem] px-[1rem]'>
       <a href="/Homepage">
         <img className='w-[5rem]' src={logo} alt="" />
@@ -95,7 +95,7 @@ useEffect(() => {
             <a href="/create_products"><li className='text-white'>Crear un producto</li></a>
             <a href="/delete_products"><li className='text-white'>Eliminar un producto</li></a>
             <a href="/edit_products"><li className='text-white'>Editar un producto</li></a>
-            <a href="/"><li className='text-white'>Lista de productos</li></a>
+            <a href="/product_list"><li className='text-white'>Lista de productos</li></a>
           </ul>
         </div>
       </div>
@@ -104,7 +104,7 @@ useEffect(() => {
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_productos ? 'h-auto' : 'h-0'}`}>
         <div className='px-[1rem] py-2'>
           <ul className='flex flex-col gap-2'>
-            <a href="/"><li className='text-white'>Lista de productos</li></a>
+            <a href="/product_list"><li className='text-white'>Lista de productos</li></a>
           </ul>
         </div>
       </div>
