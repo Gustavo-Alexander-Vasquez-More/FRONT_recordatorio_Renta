@@ -260,9 +260,9 @@ async function generar_rentas() {
       <Navbar />
       
       <div className="w-full h-full flex">
-        <div className="full"></div>
-        <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89.3vh]">
-          <div className="w-[50%] items-center py-[1rem] overflow-y-auto h-full bg-[white] flex flex-col px-[1rem] gap-4">
+        
+        <div className="w-full flex lg:flex-row flex-col-reverse justify-center items-center bg-[#EBEBEB] relative h-[89.3vh]">
+          <div className="lg:w-[50%] w-full items-center py-[1rem] overflow-y-auto h-full bg-[white] flex flex-col px-[1rem] gap-4">
             <p className="text-[1.2rem] font-semibold">Pedido de renta en curso</p>
             <table
               style={{
@@ -379,7 +379,7 @@ async function generar_rentas() {
       </div>
       )}
       </div>
-          <div className="w-[50%] flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">
+          <div className="lg:w-[50%] w-full  flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">
             <p className="text-white text-[1.2rem] font-semibold">Selecciona los productos a rentar</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
