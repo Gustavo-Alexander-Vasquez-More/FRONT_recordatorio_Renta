@@ -114,7 +114,7 @@ export default function delete_products() {
         
         <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89vh]">
           <div className="bg-[white] w-[90%] rounded-[10px] items-center flex flex-col gap-4 px-[1.5rem] py-[2rem]">
-            <p className="text-[1.5rem] font-semibold font-serif">Eliminar productos</p>
+            <p className="text-[1.5rem] text-center font-semibold font-serif">Eliminar productos</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
                 <input
@@ -163,15 +163,16 @@ export default function delete_products() {
               <div className="flex flex-col gap-4 w-full overflow-y-auto max-h-[40vh]">
                 {filteredDatas.slice(0, 4).map((dat) => (
                   <div className="w-full bg-[#EBEBEB] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]" key={dat._id}>
-                    <div className="flex gap-4 items-center">
-                      {dat.foto && <img className="w-[3rem] h-[3rem]" src={dat.foto} alt="" />}
-                      <p>{dat.nombre}</p>
-                      <p>({dat.codigo})</p>
-                    </div>
-                    <button onClick={() => deleteProduct(dat._id)}>
-                      <img className="w-[1.5rem]" src={trash} alt="" />
-                    </button>
+                  <div className="flex gap-4 items-center">
+                    {dat.foto && <img className="w-[3rem] h-[3rem]" src={dat.foto} alt="" />}
+                    <p className="break-words w-[150px]">{dat.nombre}</p>
+                    <p className='lg:flex hidden'>({dat.codigo})</p>
                   </div>
+                  <button onClick={() => deleteProduct(dat._id)}>
+                    <img className="w-[1.5rem]" src={trash} alt="" />
+                  </button>
+                </div>
+                
                 ))}
               </div>
             )}

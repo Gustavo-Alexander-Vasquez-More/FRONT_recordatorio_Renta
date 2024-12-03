@@ -154,7 +154,7 @@ const handleFileChange = (event) => {
   return (
  <>
  <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
-    <div className="bg-white rounded-[10px] w-[80%] h-auto flex flex-col gap-4 py-[1rem] px-[1rem]">
+    <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] h-auto flex flex-col gap-4 py-[1rem] px-[1rem]">
         <div className="flex justify-end">
             <button onClick={closeModal_recibido}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x-circle-fill" viewBox="0 0 16 16">

@@ -42,7 +42,7 @@ export default function ModalDetalle({ closeModal, _id }) {
      />
     )}
       <div className="w-full h-screen absolute z-40 bg-[#d9d9d97b] flex justify-center items-center">
-        <div className="bg-white rounded-[10px] w-[80%] overflow-y-auto h-[90vh] flex flex-col gap-2 py-[1rem] px-[1rem]">
+        <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] overflow-y-auto h-[90vh] flex flex-col gap-2 py-[1rem] px-[1rem]">
           <div className="flex justify-between">
             <img className="w-[5rem]" src={logo} alt="" />
             <button onClick={closeModal}>
@@ -89,49 +89,45 @@ export default function ModalDetalle({ closeModal, _id }) {
                   <p>{dat.fecha_vencimiento}</p>
                   </div>
                   <p className="underline font-bold pt-[1rem]">Productos rentados:</p>
+                  <div className="w-full overflow-x-auto">
+  <table
+    className="min-w-max"
+    style={{
+      width: '100%',
+      borderCollapse: 'collapse',
+      textAlign: 'center',
+      fontSize: '0.8rem',
+    }}
+  >
+    <thead>
+      <tr>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Producto</th>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Código de producto</th>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Cantidad</th>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Precio x unidad</th>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Precio x cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      {dat.productos?.map((producto) => (
+        <tr key={producto.codigo}>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.nombre}</td>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.codigo}</td>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.cantidad}</td>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>${producto.precio_unitario}</td>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>${producto.precio_total_cantidad}</td>
+        </tr>
+      ))}
+      <tr>
+        <td colSpan="4" className="text-end py-[0.5rem] px-[1rem] whitespace-nowrap">
+          Importe total de la renta:
+        </td>
+        <td style={{ border: '1px solid #ccc', padding: '8px' }}>${dat.importe_total}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-                  <table
-                    style={{
-                      width: '100%',
-                      borderCollapse: 'collapse',
-                      textAlign: 'center',
-                      fontSize: '0.8rem',
-                      tableLayout: 'fixed',
-                    }}
-                  >
-                    <thead>
-                      <tr>
-                        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Producto</th>
-                        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Código de producto</th>
-                        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Cantidad</th>
-                        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Precio x unidad</th>
-                        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Precio x cantidad</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dat.productos?.map((producto) => (
-                        <tr key={producto.codigo}>
-                          <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.nombre}</td>
-                          <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.codigo}</td>
-                          <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                            <span className="mx-2">{producto.cantidad}</span>
-                          </td>
-                          <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                            <span className="mx-2">${producto.precio_unitario}</span>
-                          </td>
-                          <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                            ${producto.precio_total_cantidad}
-                          </td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <td colSpan="4" className="text-end py-[0.5rem] px-[1rem]">
-                          Importe total de la renta:
-                        </td>
-                        <td style={{ border: '1px solid #ccc', padding: '8px' }}>${dat.importe_total}</td>
-                      </tr>
-                    </tbody>
-                  </table>
 
                   <p className="font-bold underline">Imágenes del estado inicial del producto (Como lo recibe el cliente)</p>
                   <div className="flex w-full gap-2 py-[1rem]">

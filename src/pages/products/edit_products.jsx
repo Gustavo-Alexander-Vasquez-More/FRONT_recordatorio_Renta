@@ -124,15 +124,15 @@ useEffect(() => {
                   <div className="w-full bg-[#EBEBEB] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]" key={dat._id}>
                     <div className="flex gap-4 items-center">
                       {dat.foto && <img className="w-[3rem] h-[3rem] rounded-full" src={dat.foto} alt="" />}
-                      <p>{dat.nombre}</p>
-                      <p>({dat.codigo})</p>
+                      <p className="break-words w-[150px]">{dat.nombre}</p>
+                      <p className='lg:flex hidden'>({dat.codigo})</p>
                       {dat.stock > 0 && (
-                        <p>Cantidad: {dat.stock}</p>
+                        <p className='lg:flex hidden'>Cantidad: {dat.stock}</p>
                       )}
                       {dat.stock === 0 && (
-                        <p>Agotado</p>
+                        <p className='lg:flex hidden'>Agotado</p>
                       )}
-                      <p>${dat.precio} MXN</p>
+                      <p className='lg:flex hidden'>${dat.precio} MXN</p>
                     </div>
                     <button onClick={()=>{openModal(),setProductSelected(dat._id), setNombre(dat.nombre)}}>
                       <img className="w-[1.5rem]" src={pen} alt="" />

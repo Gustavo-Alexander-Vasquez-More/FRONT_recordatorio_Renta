@@ -41,7 +41,7 @@ export default function detalle_productos({closeModal, id}) {
      />
     )}
       <div className="w-full h-screen absolute z-40 bg-[#d9d9d97b] flex justify-center items-center">
-        <div className="bg-white rounded-[10px] w-[40%] overflow-y-auto h-[90vh] flex flex-col gap-2 py-[1rem] px-[1rem]">
+        <div className="bg-white rounded-[10px] w-[90%] lg:w-[40%] overflow-y-auto h-[90vh] flex flex-col gap-2 py-[1rem] px-[1rem]">
           <div className="flex justify-between">
             <img className="w-[5rem]" src={logo} alt="" />
             <button onClick={closeModal}>

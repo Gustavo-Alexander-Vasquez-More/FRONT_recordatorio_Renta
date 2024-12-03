@@ -104,7 +104,7 @@ async function crearUsuario() {
     
     <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
           
-        <div className='bg-[white] w-[35%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[1rem]'>
+        <div className='bg-[white] w-[90%] lg:w-[35%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[1rem]'>
         {!foto && (
              <div className=' w-[7rem] h-[7rem]  bg-gray-200 text-[white] border-solid border-[2px] rounded-full'>
              <svg  xmlns="http://www.w3.org/2000/svg"  fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">

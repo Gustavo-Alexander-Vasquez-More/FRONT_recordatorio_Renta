@@ -108,7 +108,7 @@ export default function modalEdit_product({ _id, nombre, closeModal }) {
 
   return (
     <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
-      <div className="bg-white rounded-[10px] w-[40%] h-auto flex flex-col gap-2 py-[1rem] px-[1rem]">
+      <div className="bg-white rounded-[10px] w-[90%] lg:w-[40%] h-auto flex flex-col gap-2 py-[1rem] px-[1rem]">
         {loading ? (
           <div className="w-full h-[30vh] flex justify-center items-center">
             <div className='flex flex-col items-center gap-2'>

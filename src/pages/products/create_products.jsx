@@ -114,7 +114,7 @@ return (
     <div className='w-full h-full flex'>
     
     <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
-          <div className='bg-[white] w-[60%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[2rem]'>
+          <div className='bg-[white] w-[90%] lg:w-[60%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[2rem]'>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Nombre del producto</label>
             <input ref={input_nombre} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>

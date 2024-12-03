@@ -31,7 +31,7 @@ useEffect(() => {
   return (
   <>
    {datas.map(dat=>(
-    <div className='absolute z-50 top-0 left-0 bg-[#3B5A75] w-[30%] h-screen flex flex-col'>
+    <div className='absolute z-50 top-0 left-0 bg-[#3B5A75] w-[70%] lg:w-[30%] h-screen flex flex-col'>
     <div className='w-full flex items-center bg-[#2d76b5] justify-between border-solid border-b-white border-b-[1px] h-[4.5rem] px-[1rem]'>
       <a href="/Homepage">
         <img className='w-[5rem]' src={logo} alt="" />
