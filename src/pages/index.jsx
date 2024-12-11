@@ -45,10 +45,10 @@ async function login() {
           });
     const { data } = await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/admins/login`, datos);
     
-
       let token = data.response.token;
       localStorage.setItem('token', token);
       localStorage.setItem('usuario', data.response.usuario);
+      localStorage.setItem('nombre', data.response.nombre);
 
       // Redirigir después de la autenticación
       window.location.href = `${window.location.origin}/Homepage`;

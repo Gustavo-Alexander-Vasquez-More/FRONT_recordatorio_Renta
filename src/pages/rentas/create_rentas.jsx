@@ -25,19 +25,22 @@ const [filteredDatas, setFilteredDatas] = useState([]); // productos filtrados
 const [selectedProducts, setSelectedProducts] = useState([]); //se almacenan los productos seleccionados
 const [searchTerm, setSearchTerm] = useState(''); //Se almacenan los terminos de busqueda
 const [loading, setLoading] = useState(true); //estado para spinner de carga
-
+const [detalle_maquinaria, setDetalle_maquinaria]=useState()
 const [files, setFiles]=useState([])
-console.log(files);
 const [identificador, setIdentificador]=useState()
 const [fecha_vencimiento, setFecha_Vencimiento]=useState(new Date())
 const [detalle, setDetalle]=useState('')
 const [nombre_cliente, setNombre_cliente]=useState()
 const [celular, setCelular]=useState()
+const [direccion, setDireccion]=useState()
+console.log(direccion);
 //USEREF
 const input_foto=useRef()
 const input_detalle=useRef()
 const input_nombre_cliente=useRef()
 const input_celular=useRef()
+const input_detalle_maquinaria=useRef()
+const input_direccion=useRef()
 //FUNCIONES PARA CAPTURAR
 function captureNombre(){
 setNombre_cliente(input_nombre_cliente.current.value)
@@ -48,6 +51,12 @@ setCelular(input_celular.current.value)
 function captureDetalle(){
 setDetalle(input_detalle.current.value)
 }
+function captureDetalle_maquinaria(){
+  setDetalle_maquinaria(input_detalle_maquinaria.current.value)
+  }
+  function captureDireccion(){
+    setDireccion(input_direccion.current.value)
+    }
 //FORMAT FECHA VENCIMIENTO
 const formatear_vencimiento = fecha_vencimiento.toISOString().replace(/[-T]/g, ':').split(':');
 const diaVencimiento=formatear_vencimiento[2]
@@ -181,7 +190,7 @@ async function generar_rentas() {
   const fecha_hoy = `${dia}/${mes}/${año}`;
   const hora_hoy = `${hora}:${minuto}:${segundos}`;
 
-  if (!nombre_cliente || !celular) {
+  if (!nombre_cliente || !celular || !localStorage.getItem('usuario') || !localStorage.getItem('nombre')) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
 
@@ -215,14 +224,17 @@ async function generar_rentas() {
       .reduce((total, product) => total + product.precio * product.cantidad, 0)
       .toFixed(2), // Importe total de todos los productos seleccionados
     fotos_estado_inicial: fotosEstadoInicial, // Las URLs de las fotos subidas
-    usuario_retandor: localStorage.getItem('usuario') || '', // Usuario que está realizando la renta
+    usuario_retandor: localStorage.getItem('usuario'), // Usuario que está realizando la renta
+    nombre_encargado:localStorage.getItem('nombre'),
     fecha_renta: fecha_hoy,
     hora_renta: hora_hoy,
     observacion_inicial: detalle,
     nombre_cliente: nombre_cliente,
     celular_cliente: celular,
     identificador: identificador,
-    fecha_vencimiento: vencimientoFormateado
+    fecha_vencimiento: vencimientoFormateado,
+    detalles_maquinaria:detalle_maquinaria,
+    direccion:direccion
   };
 
   try {
@@ -324,23 +336,27 @@ async function generar_rentas() {
       {selectedProducts.length > 0 && (
         <div className='w-full flex flex-col text-[0.8rem]'>
         <div class="mb-3">
-          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Nombre del cliente</label>
+          <label  for="exampleInputPassword1" class="form-label font-bold">Nombre del cliente:</label>
           <input ref={input_nombre_cliente} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div class="mb-3">
-          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Celular</label>
+          <label  for="exampleInputPassword1" class="form-label font-bold">WhatsApp:</label>
           <input ref={input_celular} onChange={captureCelular} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div class="mb-3 flex flex-col">
-          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Fecha de vencimiento de la renta</label>
+          <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento de la renta:</label>
           <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
+        </div>
+        <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Dirección donde se usará lo rentado: (para el contrato) *obligatorio</label>
+          <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div className="mb-3">
     <label
       htmlFor="photoInput"
-      className="block font-semibold text-gray-700 mb-2"
+      className="block font-bold text-gray-700 mb-2"
     >
-      Fotos de cómo recibe el cliente los productos
+      Fotos de cómo recibe el cliente los productos:
     </label>
     <input
       type="file"
@@ -369,8 +385,12 @@ async function generar_rentas() {
       ))}
     </div>
   </div>
+  <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Detalles de la maquinaria (para el contrato) *obligatorio:</label>
+          <textarea ref={input_detalle_maquinaria} onChange={captureDetalle_maquinaria} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
         <div class="mb-3">
-          <label className='font-semibold' for="exampleInputPassword1" class="form-label">Observació inicial (opcional)</label>
+          <label  for="exampleInputPassword1" class="form-label font-bold">Observación inicial (opcional):</label>
           <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
         </div>
         <div class="mb-1 w-full flex justify-center items-center">

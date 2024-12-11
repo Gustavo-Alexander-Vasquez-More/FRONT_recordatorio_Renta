@@ -19,12 +19,13 @@ const [nombre, setNombre]=useState()
 const [codigo, setCodigo]=useState()
 const [precio, setPrecio]=useState()
 const [stock, setStock]=useState()
-
+const [descripcion, setDescripcion]=useState()
 const input_nombre=useRef()
 const input_codigo=useRef()
 const input_precio=useRef()
 const input_sotck=useRef()
 const input_foto=useRef()
+const input_descripcion=useRef()
 
 function captureNombre(){
 setNombre(input_nombre.current.value)
@@ -32,6 +33,9 @@ setNombre(input_nombre.current.value)
 function captureCodigo(){
 setCodigo(input_codigo.current.value)
 }
+function captureDescripcion(){
+  setDescripcion(input_descripcion.current.value)
+  }
 function capturePrecio(event) {
   let value = event.target.value;
 
@@ -71,7 +75,7 @@ async function crear_products() {
       Swal.showLoading();  // Mostrar el spinner de carga
     }
   });
-  if(!nombre || !codigo || !codigo || !precio || !stock){
+  if(!nombre || !codigo || !codigo || !precio || !stock || !descripcion){
     notyf.error('Por favor complete los campos')
   }
   
@@ -92,7 +96,8 @@ nombre: nombre,
 foto: fotoURL || null,
 codigo:codigo,
 precio:precio,
-stock:stock
+stock:stock,
+descripcion:descripcion
 }
 console.log(datos.foto);
 try {
@@ -112,8 +117,7 @@ return (
     <Navbar/>
     
     <div className='w-full h-full flex'>
-    
-    <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
+    <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[100vh]'>
           <div className='bg-[white] w-[90%] lg:w-[60%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[2rem]'>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Nombre del producto</label>
@@ -126,6 +130,10 @@ return (
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Código del producto</label>
             <input ref={input_codigo} onChange={captureCodigo} type="text" class="form-control" id="exampleInputPassword1"/>
+          </div>
+          <div class="mb-3 w-full">
+            <label for="exampleInputPassword1" class="form-label">Descripción del producto</label>
+            <textarea ref={input_descripcion} onChange={captureDescripcion} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
           </div>
           <div class="mb-3 w-full">
   <label for="exampleInputPassword1" class="form-label">Precio de renta</label>

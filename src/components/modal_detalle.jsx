@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import logo from '../images/logo.png';
 import axios from 'axios';
 import Lightbox from './ligthbox';
+import Download_pdf from './download_pdf';
+import Download_pdf_nota from './download_pdf_nota';
+
 export default function ModalDetalle({ closeModal, _id }) {
   const [datas, setDatas] = useState([]);
+  const [modal, setModal]=useState(false)
+  const [modal2, setModal2]=useState(false)
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState("");
@@ -15,6 +20,18 @@ export default function ModalDetalle({ closeModal, _id }) {
   const closeLightbox = () => {
     setIsOpen(false);
   };
+  function openModal2(){
+    setModal(true)
+  }
+  function closeModal2(){
+    setModal(false)
+  }
+  function openModal3(){
+    setModal2(true)
+  }
+  function closeModal3(){
+    setModal2(false)
+  }
   async function get() {
     try {
       const { data } = await axios.get(
@@ -34,6 +51,16 @@ export default function ModalDetalle({ closeModal, _id }) {
 
   return (
     <>
+   {modal === true && (
+    <div className='w-full h-screen absolute bg-[#00000090] z-50 flex justify-center items-center'>
+      <Download_pdf id={_id} close_modal2={closeModal2}/>
+    </div>
+   )}
+   {modal2 === true && (
+    <div className='w-full h-screen absolute bg-[#00000090] z-50 flex justify-center items-center'>
+      <Download_pdf_nota id={_id} close_modal3={closeModal3}/>
+    </div>
+   )}
     {isOpen && (
        <Lightbox
        isOpen={isOpen}
@@ -88,6 +115,10 @@ export default function ModalDetalle({ closeModal, _id }) {
                   <p className='font-bold'>Fecha de retorno de arrendo:</p>
                   <p>{dat.fecha_vencimiento}</p>
                   </div>
+                  <div className='w-full flex items-start gap-2 flex-col py-[0.5rem]'>
+                  <button className='bg-primary px-[1rem] py-[0.3rem] text-white rounded-[5px]' onClick={openModal2}>Descargar contrato</button>
+                  <button className='bg-warning px-[1rem] py-[0.3rem] text-white rounded-[5px]' onClick={openModal3}>Descargar nota de resimión</button>
+                  </div>
                   <p className="underline font-bold pt-[1rem]">Productos rentados:</p>
                   <div className="w-full overflow-x-auto">
   <table
@@ -127,9 +158,7 @@ export default function ModalDetalle({ closeModal, _id }) {
     </tbody>
   </table>
 </div>
-
-
-                  <p className="font-bold underline">Imágenes del estado inicial del producto (Como lo recibe el cliente)</p>
+        <p className="font-bold underline">Imágenes del estado inicial del producto (Como lo recibe el cliente)</p>
                   <div className="flex w-full gap-2 py-[1rem]">
                   {dat?.fotos_estado_inicial?.map((foto, index) => (
           <div
