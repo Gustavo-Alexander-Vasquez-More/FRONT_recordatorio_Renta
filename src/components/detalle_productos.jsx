@@ -90,7 +90,12 @@ export default function detalle_productos({closeModal, id}) {
                     </div>
                     <div className='flex gap-2'>
                         <p className='font-bold'>Descripcion del producto:</p>
-                        <p>{dat.nombre}</p>
+                        {dat.descripcion && (
+                          <p>{dat.descripcion}</p>
+                        )}
+                        {!dat.descripcion && (
+                          <p>No hay descipcion.</p>
+                        )}
                     </div>
                 </div>
               ))}
