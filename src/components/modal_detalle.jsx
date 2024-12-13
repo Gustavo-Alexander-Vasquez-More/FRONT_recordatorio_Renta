@@ -56,11 +56,7 @@ export default function ModalDetalle({ closeModal, _id }) {
       <Download_pdf id={_id} close_modal2={closeModal2}/>
     </div>
    )}
-   {modal2 === true && (
-    <div className='w-full h-screen absolute bg-[#00000090] z-50 flex justify-center items-center'>
-      <Download_pdf_nota id={_id} close_modal3={closeModal3}/>
-    </div>
-   )}
+   
     {isOpen && (
        <Lightbox
        isOpen={isOpen}
@@ -97,11 +93,11 @@ export default function ModalDetalle({ closeModal, _id }) {
                   </div>
                   <div className='flex gap-2'>
                   <p className='font-bold'>Arrendatario:</p>
-                  <p>{dat.nombre_cliente}</p>
+                  <p>{dat.cliente.nombre}</p>
                   </div>
                   <div className='flex gap-2'>
                   <p className='font-bold'>Celular:</p>
-                  <p>{dat.celular_cliente}</p>
+                  <p>{dat.cliente.telefono}</p>
                   </div>
                   <div className='flex gap-2'>
                   <p className='font-bold'>Encargado:</p>
@@ -116,8 +112,8 @@ export default function ModalDetalle({ closeModal, _id }) {
                   <p>{dat.fecha_vencimiento}</p>
                   </div>
                   <div className='w-full flex items-start gap-2 flex-col py-[0.5rem]'>
-                  <button className='bg-primary px-[1rem] py-[0.3rem] text-white rounded-[5px]' onClick={openModal2}>Descargar contrato</button>
-                  <button className='bg-warning px-[1rem] py-[0.3rem] text-white rounded-[5px]' onClick={openModal3}>Descargar nota de resimión</button>
+                  <button className='bg-primary px-[1rem] py-[0.3rem] text-white rounded-[5px]' onClick={openModal2}>Descargar Contrato y Nota de remision</button>
+                  
                   </div>
                   <p className="underline font-bold pt-[1rem]">Productos rentados:</p>
                   <div className="w-full overflow-x-auto">

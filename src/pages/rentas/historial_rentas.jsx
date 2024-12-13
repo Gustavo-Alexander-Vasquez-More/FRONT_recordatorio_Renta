@@ -171,7 +171,7 @@ function closeModal_recibido(){
   <tbody>
     {datas.map((dat) => (
       <tr key={dat._id} className="text-center  ">
-        <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.celular_cliente}</td>
+        <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.cliente.telefono}</td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.usuario_retandor}</td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.fecha_renta} {dat.hora_renta}</td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.fecha_vencimiento}</td>

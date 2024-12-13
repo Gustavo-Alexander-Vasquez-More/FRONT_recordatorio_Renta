@@ -1,6 +1,7 @@
 import React, { Children, useEffect, useRef, useState } from 'react';
 import Navbar from '../../components/navbar';
 import { uploadFoto } from '../../firebase/images';
+import { uploadFoto_INE } from '../../firebase/foto_ines';
 import axios from 'axios';
 import trash from '../../images/trash.png';
 import { Notyf } from 'notyf';
@@ -9,6 +10,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
 import Swal from 'sweetalert2';
+
 export default function CreateRentas() {
 //NOTIFICACIONES
 const notyf = new Notyf({
@@ -33,7 +35,14 @@ const [detalle, setDetalle]=useState('')
 const [nombre_cliente, setNombre_cliente]=useState()
 const [celular, setCelular]=useState()
 const [direccion, setDireccion]=useState()
-console.log(direccion);
+const [selectedOption, setSelectedOption] = useState();
+const [info_registro, setInfo_registro]=useState()
+const [clients, setClients]=useState()
+const [cliente_Selected, setCliente_selected]=useState()
+const [foto_ine_delantero, setFoto_ine_delantero]=useState()
+const [foto_ine_trasero, setIne_trasero]=useState()
+
+
 //USEREF
 const input_foto=useRef()
 const input_detalle=useRef()
@@ -41,10 +50,25 @@ const input_nombre_cliente=useRef()
 const input_celular=useRef()
 const input_detalle_maquinaria=useRef()
 const input_direccion=useRef()
+const input_cliente_Selected=useRef()
+const inputIne_delantero=useRef()
+const inputIne_trasero=useRef()
 //FUNCIONES PARA CAPTURAR
+function captureFoto_delantera(event){
+  setFoto_ine_delantero(event.target.files)
+}
+function captureFoto_trasera(event){
+  setIne_trasero(event.target.files)
+}
+const capturarSelect = (event) => {
+  setSelectedOption(event.target.value);
+};
 function captureNombre(){
 setNombre_cliente(input_nombre_cliente.current.value)
 }
+function captureCliente(){
+  setCliente_selected(input_cliente_Selected.current.value)
+  }
 function captureCelular(){
 setCelular(input_celular.current.value)
 }
@@ -63,6 +87,20 @@ const diaVencimiento=formatear_vencimiento[2]
 const mesVencimiento=formatear_vencimiento[1]
 const añoVencimiento=formatear_vencimiento[0]
 const vencimientoFormateado=`${diaVencimiento}/${mesVencimiento}/${añoVencimiento}`
+
+
+async function getClients() {
+try {
+  const { data } = await axios.get('https://backrecordatoriorenta-production.up.railway.app/api/clients/');
+  setClients(data.response)
+} catch (error) {
+  console.log(error);
+}
+  
+}
+useEffect(() => {
+  getClients()
+}, []);
 
 //FUNCION GET PARA TRAER TODOS LOS PRODUCTOS
 async function get() {
@@ -171,6 +209,37 @@ useEffect(() => {
 generarIdentificador()
 }, []);
 
+
+async function create_clientes() {
+  Swal.fire({
+    title: 'Cargando, por favor espere...',
+    didOpen: () => {
+      Swal.showLoading();  // Mostrar el spinner de carga
+    }
+  });
+  const fotoURL_1 = await uploadFoto(foto_ine_delantero[0]);
+  const fotoURL_2 = await uploadFoto(foto_ine_trasero[0]);
+  const datos={
+    nombre:nombre_cliente,
+    telefono:celular,
+    foto_ine_delantero:fotoURL_1 || '',
+    foto_ine_trasero:fotoURL_2 || '',
+  }
+
+  try {
+    const {data}=await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/clients/create`, datos);
+    await setInfo_registro('confirm')
+    const response=data.response
+    await setCliente_selected(response._id)
+    Swal.close()
+    notyf.success('El cliente se ha registrado en la base de datos');
+  } catch (error) {
+    Swal.close()
+    notyf.error('Este cliente ya existe en la base de datos, genera uno nuevo o selecciona uno ya existente');
+    setInfo_registro('error')
+  }
+}
+
 //FUNCION PARA CREAR UNA RENTA
 async function generar_rentas() {
   Swal.fire({
@@ -190,7 +259,7 @@ async function generar_rentas() {
   const fecha_hoy = `${dia}/${mes}/${año}`;
   const hora_hoy = `${hora}:${minuto}:${segundos}`;
 
-  if (!nombre_cliente || !celular || !localStorage.getItem('usuario') || !localStorage.getItem('nombre')) {
+  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre')) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
 
@@ -229,8 +298,7 @@ async function generar_rentas() {
     fecha_renta: fecha_hoy,
     hora_renta: hora_hoy,
     observacion_inicial: detalle,
-    nombre_cliente: nombre_cliente,
-    celular_cliente: celular,
+    cliente:cliente_Selected,
     identificador: identificador,
     fecha_vencimiento: vencimientoFormateado,
     detalles_maquinaria:detalle_maquinaria,
@@ -335,15 +403,44 @@ async function generar_rentas() {
             </table>
       {selectedProducts.length > 0 && (
         <div className='w-full flex flex-col text-[0.8rem]'>
-        <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Nombre del cliente:</label>
-          <input ref={input_nombre_cliente} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>
+           <div className='flex flex-col gap-2 py-[1rem]'>
+      <h3 className='font-bold text-[1.1rem]'>Rellenar Datos del cliente:</h3>
+      <label className='flex gap-2'>
+        <input
+          type="radio"
+          name="options"
+          value="registrado"
+          checked={selectedOption === 'registrado'}
+          onChange={capturarSelect}
+        />
+        Usar datos de cliente registrado
+      </label>
+      <label className='flex gap-2'>
+        <input
+          type="radio"
+          name="options"
+          value="no registrado"
+          checked={selectedOption === 'no registrado'}
+          onChange={capturarSelect}
+        />
+        Registrar datos de cliente nuevo
+      </label>
+      
+    </div>
+    {selectedOption === 'registrado' && (
+      <>
+      <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Seleccionar cliente registrado:</label>
+            <select ref={input_cliente_Selected} onChange={captureCliente} class="form-select" aria-label="Default select example">
+              <option selected>Selecciona un cliente</option>
+              {clients.map(dat=>(
+                <option value={dat._id}>{dat.nombre}</option>
+              ))}
+            </select>
         </div>
-        <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">WhatsApp:</label>
-          <input ref={input_celular} onChange={captureCelular} type="text" class="form-control" id="exampleInputPassword1"/>
-        </div>
-        <div class="mb-3 flex flex-col">
+        {cliente_Selected && (
+          <>
+            <div class="mb-3 flex flex-col">
           <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento de la renta:</label>
           <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
         </div>
@@ -396,7 +493,92 @@ async function generar_rentas() {
         <div class="mb-1 w-full flex justify-center items-center">
           <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
         </div>
-      </div>
+          </>
+        )}
+      </>
+    )}
+       {selectedOption === 'no registrado' && (
+        <>
+         <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Nombre del cliente:</label>
+          <input ref={input_nombre_cliente} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>
+        </div>
+        <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">WhatsApp:</label>
+          <input ref={input_celular} onChange={captureCelular} type="text" class="form-control" id="exampleInputPassword1"/>
+        </div>
+        <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Foto INE Delantero:</label>
+          <input  ref={inputIne_delantero} onChange={captureFoto_delantera} type="file" class="form-control" id="exampleInputPassword1"/>
+        </div>
+        <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Foto INE Trasero:</label>
+          <input  ref={inputIne_trasero} onChange={captureFoto_trasera} type="file" class="form-control" id="exampleInputPassword1"/>
+        </div>
+        <div className='pb-[1rem]'>
+
+          <button onClick={create_clientes} disabled={info_registro === 'confirm'} className='bg-[#006aff] disabled:bg-[gray] text-white py-[0.5rem] px-[1rem] text-[1.05rem] rounded-[10px]'>Registrar Usuario</button>
+        </div>
+         {info_registro === 'confirm' && (
+          <>
+           <div class="mb-3 flex flex-col">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento de la renta:</label>
+          <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
+        </div>
+        <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Dirección donde se usará lo rentado: (para el contrato) *obligatorio</label>
+          <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
+        </div>
+        <div className="mb-3">
+    <label
+      htmlFor="photoInput"
+      className="block font-bold text-gray-700 mb-2"
+    >
+      Fotos de cómo recibe el cliente los productos:
+    </label>
+    <input
+      type="file"
+      id="photoInput"
+      accept="image/*"
+      ref={input_foto}
+      multiple
+      onChange={handleFileChange}
+      className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    />
+    <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
+      {files.map((image, index) => (
+        <div key={image.id}  className="relative">
+          <img
+            src={image.src}
+            alt={image.name}
+            className="h-24 w-24 object-cover rounded shadow"
+          />
+          <button
+            onClick={() => handleRemoveImage(image.id, index)}
+            className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0"
+          >
+            X
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Detalles de la maquinaria (para el contrato) *obligatorio:</label>
+          <textarea ref={input_detalle_maquinaria} onChange={captureDetalle_maquinaria} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label  for="exampleInputPassword1" class="form-label font-bold">Observación inicial (opcional):</label>
+          <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <div class="mb-1 w-full flex justify-center items-center">
+          <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
+        </div>
+          </>
+         )}
+        </>
+       )}
+        </div>
       )}
       </div>
           <div className="lg:w-[50%] w-full  flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">

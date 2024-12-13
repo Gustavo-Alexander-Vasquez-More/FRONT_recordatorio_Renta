@@ -18,6 +18,8 @@ import Historial_rentas from "../src/pages/rentas/historial_rentas";
 import Lista_productos from "../src/pages/products/lista_productos";
 import ProtectRutas from "../src/protect/protect_rutas";
 import Nota_remision from "../src/pages/PDF/nota_remision";
+import Create_clientes from '../src/pages/clientes/create_clientes'
+import Lista_clientes from '../src/pages/clientes/lista_clientes'
 const router = createBrowserRouter([
 { path: "/", element: <ProtectLogin/>, children:[{index:true, element:<Index/>}] },
 { path: "/Homepage", element: <ProtectSistem/> , children:[{index:true, element:<Homepage/>}] },
@@ -34,5 +36,6 @@ const router = createBrowserRouter([
 { path: "/hist_renta", element:<ProtectRutas/>  ,children:[{index:true, element:<Historial_rentas/> }]},
 { path: "/product_list", element:<ProtectRutas/>  ,children:[{index:true, element:<Lista_productos/> }]},
 { path: "/nota_remision/:_id", element: <Nota_remision/>},
+{ path: "/client_list", element: <Lista_clientes/>},
 ])
 export default router

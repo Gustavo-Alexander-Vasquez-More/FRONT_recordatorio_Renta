@@ -21,7 +21,7 @@ return (
       <PDFDownloadLink
             className='w-full '
              document={<Contrato _id={id} />}
-             fileName={`CONTRATO.pdf`}
+             fileName={`NOTA DE REMISION & CONTRATO.pdf`}
              >
              {({ loading}) =>
           loading ?
