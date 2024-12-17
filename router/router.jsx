@@ -37,5 +37,6 @@ const router = createBrowserRouter([
 { path: "/product_list", element:<ProtectRutas/>  ,children:[{index:true, element:<Lista_productos/> }]},
 { path: "/nota_remision/:_id", element: <Nota_remision/>},
 { path: "/client_list", element: <Lista_clientes/>},
+{ path: "/create_clients", element: <Create_clientes/>},
 ])
 export default router

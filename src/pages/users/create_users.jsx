@@ -16,16 +16,19 @@ export default function create_users() {
       });
 const [foto, setFoto]=useState()
 const [fotoBuffer, setFotoBuffer]=useState()
-console.log(fotoBuffer);
+
 const [usuario, setUsuario]=useState()
+console.log(usuario);
 const [contraseña, setContraseña]=useState()
 const [rol, setRol]=useState()
+const [nombre_completo, setNombre_completo]=useState()
 const [showPassword, setShowPassword] = useState(false);
 
 const input_foto=useRef()
 const input_contraseña=useRef()
 const input_rol=useRef()
 const input_usuario=useRef()
+const input_nombre=useRef()
 
 const togglePasswordVisibility = () => {setShowPassword(!showPassword);};
 useEffect(() => {
@@ -37,6 +40,9 @@ useEffect(() => {
 const capture_ususario = () => {
 setUsuario(input_usuario.current.value.trim())
 }
+const capture_nombre = () => {
+    setNombre_completo(input_nombre.current.value.trim())
+    }
 const capture_contraseña = () => {
 setContraseña(input_contraseña.current.value)
 }
@@ -59,7 +65,7 @@ async function crearUsuario() {
           Swal.showLoading();  // Mostrar el spinner de carga
         }
       });
-    if (!usuario || !contraseña || !rol) {
+    if (!usuario || !contraseña || !rol || !nombre_completo) {
         return alert('Todos los campos son requeridos');
     }
     let fotoURL = ''; // Variable temporal para almacenar la URL de la foto
@@ -81,6 +87,7 @@ async function crearUsuario() {
         usuario: usuario,
         rol: rol,
         contraseña: contraseña,
+        nombre:nombre_completo,
         foto: fotoURL || null, // Envía la URL o null si no se seleccionó una foto
     };
 
@@ -100,9 +107,9 @@ async function crearUsuario() {
     <>
     <Navbar/>
     
-    <div className='w-full h-full flex'>
+    <div className='w-full h-auto flex'>
     
-    <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative  h-[89vh]'>
+    <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative lg:py-0 py-[1rem]  lg:h-[89vh]'>
           
         <div className='bg-[white] w-[90%] lg:w-[35%] rounded-[10px] items-center flex flex-col  px-[1.5rem] py-[1rem]'>
         {!foto && (
@@ -119,8 +126,12 @@ async function crearUsuario() {
             </div>
            )}
             <div class="mb-3 w-full">
-                <label for="exampleInputPassword1" class="form-label">Nombre de usuario</label>
+                <label for="exampleInputPassword1" class="form-label">Usuario</label>
                 <input ref={input_usuario} onChange={capture_ususario} type="text" class="form-control" id="exampleInputPassword1"/>
+            </div>
+            <div class="mb-3 w-full">
+                <label for="exampleInputPassword1" class="form-label">Nombre completo</label>
+                <input ref={input_nombre} onChange={capture_nombre} placeholder='Escribe el nombre del encargado' type="text" class="form-control" id="exampleInputPassword1"/>
             </div>
             <div className="mb-3 w-full ">
                     <label htmlFor="password" className="form-label">Contraseña</label>
