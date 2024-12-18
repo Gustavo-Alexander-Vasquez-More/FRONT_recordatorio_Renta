@@ -4,7 +4,8 @@ import Menu from '../../components/menu';
 import Modal_estado_renta from '../../components/modal_estado_renta';
 import Modal_recibido from '../../components/modal_recibido';
 import axios from 'axios';
-import  Modal_detalle from '../../components/modal_detalle'
+import  Modal_detalle from '../../components/edit_clientes_modal'
+
 import Swal from 'sweetalert2';
 export default function lista_clientes() {
   const [datas, setDatas] = useState([]);
@@ -14,6 +15,7 @@ export default function lista_clientes() {
   const [modal_recibido, setModalRecibido]=useState(false)
   const [estado, setEstado]=useState()
   const [filteredDatas, setFilteredDatas] = useState([]);
+  const [client_selected, setClient_selected]=useState()
   const [_id, setId]=useState()
   const [loading, setLoading] = useState(true); // Estado de carga
 
@@ -21,6 +23,7 @@ function openModal(){
   setModalDetalle(true)
 }
 function closeModal(){
+  window.location.reload()
   setModalDetalle(false)
 }
 function openModal_estado(){
@@ -118,14 +121,9 @@ function closeModal_recibido(){
   return (
 <>
   {modal_detalle === true && (
-    <Modal_detalle closeModal={closeModal} _id={_id}/>
+    <Modal_detalle closeModal={closeModal} _id={_id} nombre={client_selected}/>
   )}
-  {modal_estado === true && (
-    <Modal_estado_renta closeModal_estado={closeModal_estado} estado={estado}/>
-  )}
-   {modal_recibido === true && (
-    <Modal_recibido closeModal_recibido={closeModal_recibido} _id={_id}/>
-  )}
+  
   <Navbar/>
   
   <div className='flex w-full'>
@@ -148,7 +146,7 @@ function closeModal_recibido(){
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]"><a href={dat.foto_ine_delantero} className='bg-primary px-[1rem] py-[0.3rem] text-white rounded-[5px]' target='_blank'>Ver</a></td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]"><a href={dat.foto_ine_trasero} className='bg-primary px-[1rem] py-[0.3rem] text-white rounded-[5px]' target='_blank'>Ver</a></td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">
-          <button className='px-2' onClick={() => { openModal(); setId(dat._id); }} 
+          <button className='px-2' onClick={() => { openModal(); setId(dat._id); setClient_selected(dat.nombre) }} 
                   data-bs-toggle="tooltip" 
                   data-bs-title="Editar">
            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-wide" viewBox="0 0 16 16">

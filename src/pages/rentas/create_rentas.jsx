@@ -453,7 +453,7 @@ async function generar_rentas() {
       htmlFor="photoInput"
       className="block font-bold text-gray-700 mb-2"
     >
-      Fotos de cómo recibe el cliente los productos:
+      Foto como se entrega el producto:
     </label>
     <input
       type="file"

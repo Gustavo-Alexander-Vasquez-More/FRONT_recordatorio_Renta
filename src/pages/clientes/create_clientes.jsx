@@ -59,6 +59,9 @@ async function create_clientes() {
     await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/clients/create`, datos);
     Swal.close()
     notyf.success('El cliente se ha registrado en la base de datos');
+    setTimeout(() => {
+      window.location.reload();
+  }, 1000);
   } catch (error) {
     Swal.close()
     notyf.error('Este cliente ya existe en la base de datos, genera uno nuevo o selecciona uno ya existente');
