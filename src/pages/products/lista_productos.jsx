@@ -69,8 +69,8 @@ function closeModal(){
       
       <div className="w-full h-full flex">
         
-        <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89vh]">
-          <div className="bg-[white] w-[90%] rounded-[10px] items-center flex flex-col gap-4 px-[1.5rem] py-[2rem]">
+        <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[90vh]">
+          <div className="bg-[white] w-[90%] h-[80vh] rounded-[10px] items-center flex flex-col gap-4 px-[1.5rem] py-[2rem]">
             <p className="text-[1.5rem] font-semibold font-serif">Lista de todos los equipos</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
@@ -117,8 +117,8 @@ function closeModal(){
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-4 w-full overflow-y-auto max-h-[40vh]">
-                {filteredDatas.slice(0, 4).map((dat) => (
+              <div className="flex flex-col gap-4 w-full overflow-y-auto max-h-[55vh]">
+                {filteredDatas.map((dat) => (
                   <div className="w-full bg-[#EBEBEB] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[1rem]" key={dat._id}>
                     <div className="flex gap-3  lg:gap-4 w-full overflow-x-auto items-center">
                       {dat.foto && <img className="w-[3rem] rounded-full h-[3rem]" src={dat.foto} alt="" />}

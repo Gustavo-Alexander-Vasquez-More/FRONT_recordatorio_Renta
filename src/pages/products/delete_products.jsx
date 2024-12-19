@@ -161,15 +161,15 @@ export default function delete_products() {
               </div>
             ) : (
               <div className="flex flex-col gap-4 w-full overflow-y-auto max-h-[40vh]">
-                {filteredDatas.slice(0, 4).map((dat) => (
-                  <div className="w-full bg-[#EBEBEB] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]" key={dat._id}>
+                {filteredDatas.map((dat) => (
+                  <div className="w-full bg-[#EBEBEB] rounded-[10px] gap-2 flex justify-between items-center px-[1rem] h-auto py-[0.5rem]" key={dat._id}>
                   <div className="flex gap-4 items-center">
                     {dat.foto && <img className="w-[3rem] h-[3rem]" src={dat.foto} alt="" />}
-                    <p className="break-words w-[150px]">{dat.nombre}</p>
-                    <p className='lg:flex hidden'>({dat.codigo})</p>
+                    <p className="break-words w-[100%]">{dat.nombre}</p>
+                   
                   </div>
                   <button onClick={() => deleteProduct(dat._id)}>
-                    <img className="w-[1.5rem]" src={trash} alt="" />
+                    <img className="max-w-[1.5rem] " src={trash} alt="" />
                   </button>
                 </div>
                 

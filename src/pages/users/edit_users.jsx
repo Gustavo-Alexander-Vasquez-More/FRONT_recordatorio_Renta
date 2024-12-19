@@ -118,7 +118,7 @@ useEffect(() => {
               </div>
             ) : (
               <div className="flex flex-col gap-4 w-full overflow-y-auto max-h-[40vh]">
-                {filteredDatas.slice(0, 4).map((dat) => (
+                {filteredDatas.map((dat) => (
                   <div className="w-full bg-[#EBEBEB] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]" key={dat._id}>
                     <div className="flex gap-4 items-center">
                       {dat.foto && <img className="w-[3rem] h-[3rem] rounded-full" src={dat.foto} alt="" />}
