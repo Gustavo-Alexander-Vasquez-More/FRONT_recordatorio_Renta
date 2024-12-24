@@ -75,7 +75,7 @@ async function crear_products() {
       Swal.showLoading();  // Mostrar el spinner de carga
     }
   });
-  if(!nombre || !codigo || !codigo || !precio || !stock || !descripcion){
+  if(!nombre || !codigo || !codigo || !precio || !descripcion){
     notyf.error('Por favor complete los campos')
   }
   
@@ -96,7 +96,6 @@ nombre: nombre,
 foto: fotoURL || null,
 codigo:codigo,
 precio:precio,
-stock:stock,
 descripcion:descripcion
 }
 console.log(datos.foto);
@@ -147,11 +146,6 @@ return (
     id="exampleInputPassword1"
   />
 </div>
-
-          <div class="mb-3 w-full">
-            <label for="exampleInputPassword1" class="form-label">Stock del producto</label>
-            <input ref={input_sotck} placeholder='Solo números' onChange={captureStock} type="number" class="form-control" id="exampleInputPassword1"/>
-          </div>
           <div className='w-full flex justify-center'>
                   <button onClick={crear_products} className='px-[2rem] text-white rounded-[5px] py-[0.5rem] font-semibold bg-primary'>Crear producto</button>
                 </div>

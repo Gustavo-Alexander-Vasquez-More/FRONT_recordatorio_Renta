@@ -27,10 +27,13 @@ const [filteredDatas, setFilteredDatas] = useState([]); // productos filtrados
 const [selectedProducts, setSelectedProducts] = useState([]); //se almacenan los productos seleccionados
 const [searchTerm, setSearchTerm] = useState(''); //Se almacenan los terminos de busqueda
 const [loading, setLoading] = useState(true); //estado para spinner de carga
-const [detalle_maquinaria, setDetalle_maquinaria]=useState()
 const [files, setFiles]=useState([])
 const [identificador, setIdentificador]=useState()
+const [hora_renta, setHora_renta]=useState()
+const [hora_vencimiento, setHora_vencimiento]=useState()
+const [fecha_renta, setFecha_renta]=useState(new Date())
 const [fecha_vencimiento, setFecha_Vencimiento]=useState(new Date())
+const [dias_contados, setDias_contados]=useState()
 const [detalle, setDetalle]=useState('')
 const [nombre_cliente, setNombre_cliente]=useState()
 const [celular, setCelular]=useState()
@@ -41,18 +44,26 @@ const [clients, setClients]=useState()
 const [cliente_Selected, setCliente_selected]=useState()
 const [foto_ine_delantero, setFoto_ine_delantero]=useState()
 const [foto_ine_trasero, setIne_trasero]=useState()
-
-
+useEffect(() => {
+  // Calcula la diferencia de días cuando cambian las fechas
+  if (fecha_renta && fecha_vencimiento) {
+    const diferenciaTiempo = new Date(fecha_vencimiento) - new Date(fecha_renta); // Diferencia en milisegundos
+    const diferenciaDias = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24)); // Convertir a días
+    setDias_contados(diferenciaDias);
+  }
+}, [fecha_renta, fecha_vencimiento]); 
 //USEREF
 const input_foto=useRef()
 const input_detalle=useRef()
 const input_nombre_cliente=useRef()
 const input_celular=useRef()
-const input_detalle_maquinaria=useRef()
 const input_direccion=useRef()
 const input_cliente_Selected=useRef()
 const inputIne_delantero=useRef()
 const inputIne_trasero=useRef()
+const input_hora_renta=useRef()
+const input_hora_vencimiento=useRef()
+
 //FUNCIONES PARA CAPTURAR
 function captureFoto_delantera(event){
   setFoto_ine_delantero(event.target.files)
@@ -75,18 +86,28 @@ setCelular(input_celular.current.value)
 function captureDetalle(){
 setDetalle(input_detalle.current.value)
 }
-function captureDetalle_maquinaria(){
-  setDetalle_maquinaria(input_detalle_maquinaria.current.value)
-  }
-  function captureDireccion(){
-    setDireccion(input_direccion.current.value)
-    }
+function captureDireccion(){
+  setDireccion(input_direccion.current.value)
+}
+function captureHora_renta(){
+  setHora_renta(input_hora_renta.current.value)
+}
+function captureHora_vencimiento(){
+  setHora_vencimiento(input_hora_vencimiento.current.value)
+}
 //FORMAT FECHA VENCIMIENTO
 const formatear_vencimiento = fecha_vencimiento.toISOString().replace(/[-T]/g, ':').split(':');
 const diaVencimiento=formatear_vencimiento[2]
 const mesVencimiento=formatear_vencimiento[1]
 const añoVencimiento=formatear_vencimiento[0]
 const vencimientoFormateado=`${diaVencimiento}/${mesVencimiento}/${añoVencimiento}`
+
+//FORMAT FECHA RENTA
+const formatear_fecha_renta = fecha_renta.toISOString().replace(/[-T]/g, ':').split(':');
+const diaRenta=formatear_fecha_renta[2]
+const mesRenta=formatear_fecha_renta[1]
+const añoRenta=formatear_fecha_renta[0]
+const fecha_renta_formateada=`${diaRenta}/${mesRenta}/${añoRenta}`
 
 
 async function getClients() {
@@ -249,16 +270,6 @@ async function generar_rentas() {
     }
   });
 
-  const fecha = new Date();
-  const dia = fecha.getDate().toString().padStart(2, '0');
-  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-  const año = fecha.getFullYear();
-  const minuto = fecha.getMinutes().toString().padStart(2, '0');
-  const hora = fecha.getHours().toString().padStart(2, '0');
-  const segundos = fecha.getSeconds().toString().padStart(2, '0');
-  const fecha_hoy = `${dia}/${mes}/${año}`;
-  const hora_hoy = `${hora}:${minuto}:${segundos}`;
-
   if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre')) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
@@ -290,18 +301,19 @@ async function generar_rentas() {
       _id: product._id
     })),
     importe_total: selectedProducts
-      .reduce((total, product) => total + product.precio * product.cantidad, 0)
+      .reduce((total, product) => (total + product.precio * product.cantidad) * dias_contados, 0)
       .toFixed(2), // Importe total de todos los productos seleccionados
     fotos_estado_inicial: fotosEstadoInicial, // Las URLs de las fotos subidas
     usuario_retandor: localStorage.getItem('usuario'), // Usuario que está realizando la renta
     nombre_encargado:localStorage.getItem('nombre'),
-    fecha_renta: fecha_hoy,
-    hora_renta: hora_hoy,
+    fecha_renta: fecha_renta_formateada,
+    hora_renta: hora_renta,
+    hora_vencimiento: hora_vencimiento,
     observacion_inicial: detalle,
     cliente:cliente_Selected,
     identificador: identificador,
     fecha_vencimiento: vencimientoFormateado,
-    detalles_maquinaria:detalle_maquinaria,
+    detalles_maquinaria: selectedProducts?.map((product) => product.descripcion || ''),
     direccion:direccion
   };
 
@@ -335,28 +347,17 @@ async function generar_rentas() {
     console.error('Error al generar la renta:', error);
   }
 }
-  return (
-    <>
-      <Navbar />
-      
-      <div className="w-full h-full flex">
-        
-        <div className="w-full flex lg:flex-row flex-col-reverse justify-center items-center bg-[#EBEBEB] relative h-[89.3vh]">
-          <div className="lg:w-[50%] w-full items-center py-[1rem] overflow-y-auto h-full bg-[white] flex flex-col px-[1rem] gap-4">
+return (
+  <>
+    <Navbar/>
+      <div className="w-full h-[90vh] flex">
+        <div className="w-full flex lg:flex-row flex-col-reverse justify-center items-center bg-[#EBEBEB] relative h-full">
+          <div className="lg:w-[50%] w-full  items-center py-[1rem] overflow-y-auto h-full bg-[white] flex flex-col px-[1rem] gap-4">
             <p className="text-[1.2rem] font-semibold">Pedido de renta en curso</p>
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                textAlign: 'center',
-                fontSize: '0.8rem',
-                tableLayout: 'fixed',
-              }}
-            >
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.8rem', tableLayout: 'fixed'}}>
               <thead>
                 <tr>
                   <th style={{ border: '1px solid #ccc', padding: '8px' }}>Producto</th>
-                  <th style={{ border: '1px solid #ccc', padding: '8px' }}>Clave</th>
                   <th style={{ border: '1px solid #ccc', padding: '8px' }}>Importe</th>
                   <th style={{ border: '1px solid #ccc', padding: '8px' }}>Cantidad</th>
                 </tr>
@@ -376,26 +377,22 @@ async function generar_rentas() {
                         {product.nombre}
                       </td>
                       <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                        {product.codigo}
-                      </td>
-                      <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                         ${(product.precio * product.cantidad).toFixed(2)}
                       </td>
                       <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                         <span className="mx-2">{product.cantidad}</span>
                       </td>
                     </tr>
-                   </>
-                   
+                    </>
                   ))
                 )}
                 {selectedProducts.length > 0 && (
                   <tr>
-          <td colSpan="3" className="text-end py-[0.5rem] px-[1rem]">
-            Importe total de la renta: 
+          <td colSpan="2" className="text-end py-[0.5rem] px-[1rem]">
+            Importe total por {dias_contados} días: 
           </td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-            ${selectedProducts.reduce((total, product) => total + (product.precio * product.cantidad), 0).toFixed(2)}
+            ${selectedProducts.reduce((total, product) => (total + (product.precio * product.cantidad) * dias_contados), 0).toFixed(2)}
           </td>
         </tr>
                 )}
@@ -440,66 +437,52 @@ async function generar_rentas() {
         </div>
         {cliente_Selected && (
           <>
-            <div class="mb-3 flex flex-col">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento de la renta:</label>
-          <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
-        </div>
+          <div class="mb-3 flex flex-col">
+            <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de Renta:</label>
+            <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_renta} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_renta(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
+          </div>
+          <div class="mb-3">
+            <label  for="exampleInputPassword1" class="form-label font-bold">Hora de la renta</label>
+            <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+         </div>
+          <div class="mb-3 flex flex-col">
+            <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento:</label>
+            <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
+          </div>
+          <div class="mb-3">
+            <label  for="exampleInputPassword1" class="form-label font-bold">Hora de vencimiento</label>
+            <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+         </div>
         <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Dirección donde se usará lo rentado: (para el contrato) *obligatorio</label>
+          <label  for="exampleInputPassword1" class="form-label font-bold">Dirección de uso: (Donde ser usarán los equipos) *obligatorio</label>
           <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div className="mb-3">
-    <label
-      htmlFor="photoInput"
-      className="block font-bold text-gray-700 mb-2"
-    >
-      Foto como se entrega el producto:
-    </label>
-    <input
-      type="file"
-      id="photoInput"
-      accept="image/*"
-      ref={input_foto}
-      multiple
-      onChange={handleFileChange}
-      className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-    />
-    <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
-      {files.map((image, index) => (
-        <div key={image.id}  className="relative">
-          <img
-            src={image.src}
-            alt={image.name}
-            className="h-24 w-24 object-cover rounded shadow"
-          />
-          <button
-            onClick={() => handleRemoveImage(image.id, index)}
-            className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0"
-          >
-            X
-          </button>
-        </div>
-      ))}
-    </div>
-  </div>
-  <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Detalles de la maquinaria (para el contrato) *obligatorio:</label>
-          <textarea ref={input_detalle_maquinaria} onChange={captureDetalle_maquinaria} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Observación inicial (opcional):</label>
-          <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-        </div>
-        <div class="mb-1 w-full flex justify-center items-center">
-          <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
-        </div>
+          <label htmlFor="photoInput" className="block font-bold text-gray-700 mb-2">Foto como se entrega el producto:</label>
+          <input type="file" id="photoInput" accept="image/*" ref={input_foto} multiple onChange={handleFileChange} className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
+          <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
+            {files.map((image, index) => (
+            <div key={image.id}  className="relative">
+              <img src={image.src} alt={image.name} className="h-24 w-24 object-cover rounded shadow"/>
+              <button onClick={() => handleRemoveImage(image.id, index)} className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0">X</button>
+            </div>
+            ))}
+          </div>
+          </div>
+          <div class="mb-3">
+            <label  for="exampleInputPassword1" class="form-label font-bold">Observación del encargado (opcional):</label>
+            <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+          </div>
+          <div class="mb-1 w-full flex justify-center items-center">
+            <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
+          </div>
           </>
         )}
       </>
     )}
-       {selectedOption === 'no registrado' && (
-        <>
-         <div class="mb-3">
+    {selectedOption === 'no registrado' && (
+      <>
+        <div class="mb-3">
           <label  for="exampleInputPassword1" class="form-label font-bold">Nombre del cliente:</label>
           <input ref={input_nombre_cliente} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
@@ -516,175 +499,106 @@ async function generar_rentas() {
           <input  ref={inputIne_trasero} onChange={captureFoto_trasera} type="file" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div className='pb-[1rem]'>
-
           <button onClick={create_clientes} disabled={info_registro === 'confirm'} className='bg-[#006aff] disabled:bg-[gray] text-white py-[0.5rem] px-[1rem] text-[1.05rem] rounded-[10px]'>Registrar Usuario</button>
         </div>
-         {info_registro === 'confirm' && (
+        {info_registro === 'confirm' && (
           <>
-           <div class="mb-3 flex flex-col">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento de la renta:</label>
-          <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
-        </div>
-        <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Dirección donde se usará lo rentado: (para el contrato) *obligatorio</label>
-          <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
-        </div>
-        <div className="mb-3">
-    <label
-      htmlFor="photoInput"
-      className="block font-bold text-gray-700 mb-2"
-    >
-      Fotos de cómo recibe el cliente los productos:
-    </label>
-    <input
-      type="file"
-      id="photoInput"
-      accept="image/*"
-      ref={input_foto}
-      multiple
-      onChange={handleFileChange}
-      className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-    />
-    <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
-      {files.map((image, index) => (
-        <div key={image.id}  className="relative">
-          <img
-            src={image.src}
-            alt={image.name}
-            className="h-24 w-24 object-cover rounded shadow"
-          />
-          <button
-            onClick={() => handleRemoveImage(image.id, index)}
-            className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0"
-          >
-            X
-          </button>
-        </div>
-      ))}
-    </div>
-  </div>
-  <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Detalles de la maquinaria (para el contrato) *obligatorio:</label>
-          <textarea ref={input_detalle_maquinaria} onChange={captureDetalle_maquinaria} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Observación inicial (opcional):</label>
-          <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-        </div>
-        <div class="mb-1 w-full flex justify-center items-center">
-          <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
-        </div>
+            <div class="mb-3 flex flex-col">
+              <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de Renta:</label>
+              <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_renta} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_renta(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
+            </div>
+            <div class="mb-3">
+              <label  for="exampleInputPassword1" class="form-label font-bold">Hora de la renta</label>
+              <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+            </div>
+            <div class="mb-3 flex flex-col">
+              <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento:</label>
+              <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
+            </div>
+            <div class="mb-3">
+              <label  for="exampleInputPassword1" class="form-label font-bold">Hora de vencimiento</label>
+              <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+            </div>
+            <div class="mb-3">
+              <label  for="exampleInputPassword1" class="form-label font-bold">Dirección de uso: (Donde ser usarán los equipos) *obligatorio</label>
+              <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="photoInput" className="block font-bold text-gray-700 mb-2">Fotos como se entrega el producto:</label>
+              <input type="file" id="photoInput" accept="image/*" ref={input_foto} multiple onChange={handleFileChange} className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
+              <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
+              {files.map((image, index) => (
+                <div key={image.id}  className="relative">
+                  <img src={image.src} alt={image.name} className="h-24 w-24 object-cover rounded shadow"/>
+                  <button onClick={() => handleRemoveImage(image.id, index)} className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0">X</button>
+                </div>
+              ))}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label  for="exampleInputPassword1" class="form-label font-bold">Observación del encargado (opcional):</label>
+              <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            </div>
+            <div class="mb-1 w-full flex justify-center items-center">
+              <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
+            </div>
           </>
-         )}
+          )}
         </>
-       )}
+        )}
         </div>
-      )}
-      </div>
+        )}
+        </div>
           <div className="lg:w-[50%] w-full  flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">
             <p className="text-white text-[1.2rem] font-semibold">Selecciona los productos a rentar</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
-                <input
-                  type="text"
-                  placeholder="Buscar producto por nombre o código de producto..."
-                  className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
+                <input type="text" placeholder="Buscar producto por nombre o código de producto..." className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
                 {searchTerm && (
                   <button onClick={clear} className="absolute right-2 top-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="25"
-                      height="25"
-                      fill="currentColor"
-                      className="bi bi-x"
-                      viewBox="0 0 16 16"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x" viewBox="0 0 16 16">
                       <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                     </svg>
                   </button>
                 )}
               </div>
-              <button
-                className="px-[2rem] bg-primary text-white font-semibold rounded-r-[10px]"
-                onClick={handleSearch}
-              >
-                Buscar
-              </button>
+              <button className="px-[2rem] bg-primary text-white font-semibold rounded-r-[10px]" onClick={handleSearch}>Buscar</button>
             </div>
             {loading && (
-               <div className="flex flex-col gap-2 text-center items-center">
-               <div className="spinner-border text-primary" role="status">
-                 <span className="visually-hidden">Loading...</span>
-               </div>
-               </div>
+              <div className="flex flex-col gap-2 text-center items-center">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
             )}
-            <div className="flex flex-col gap-2 w-full overflow-y-auto max-h-[40vh]">
-  {filteredDatas.map((dat) => (
-    <div
-      className="w-full bg-[white] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]"
-      key={dat.codigo}
-    >
-      <div className="flex gap-4 items-center">
-        {dat.foto && <img className="w-[3rem] h-[3rem]" src={dat.foto} alt={dat.nombre} />}
-        <p>
-          {dat.nombre}
-        </p>
-        
-      </div>
-
-      {dat.stock > 0 ? (
-        selectedProducts.some((p) => p.codigo === dat.codigo) ? (
-          <div className="flex gap-2">
-            <button
-              className="bg-primary rounded-[5px] text-white font-semibold px-[0.5rem]"
-              onClick={() => handleQuantityChange(dat.codigo, -1)}
-            >
-              -
-            </button>
-            <span className="mx-2">
-              {selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad}
-            </span>
-            <button
-              className={`bg-primary rounded-[5px] text-white font-semibold px-[0.5rem] ${selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock ? 'cursor-not-allowed opacity-50' : ''}`}
-              onClick={() => handleQuantityChange(dat.codigo, 1)}
-              disabled={selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock}
-            >
-              +
-            </button>
-            <button
-              className="rounded-[5px] text-white font-semibold px-[0.5rem]"
-              onClick={() => handleRemoveProduct(dat.codigo)}
-            >
-              <img className="w-[1rem]" src={trash} alt="" />
-            </button>
-          </div>
-        ) : (
-          <button
-            className="px-[1rem] bg-primary py-[0.3rem] text-white rounded-[5px]"
-            onClick={() => handleAddProduct(dat)}
-          >
-            Agregar
-          </button>
-        )
-      ) : (
-        <button
-          className="px-[1rem] py-[0.3rem] text-white rounded-[5px] bg-gray-400 cursor-not-allowed"
-          disabled
-        >
-          Agotado
-        </button>
-      )}
-    </div>
-  ))}
-</div>
-
+            <div className="flex flex-col gap-2 w-full overflow-y-auto max-h-[75vh]">
+            {filteredDatas.map((dat) => (
+              <div className="w-full bg-[white] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]"key={dat.codigo}>
+                <div className="flex gap-4 items-center">
+                {dat.foto && <img className="w-[3rem] h-[3rem]" src={dat.foto} alt={dat.nombre} />}
+                <p>{dat.nombre}</p>
+              </div>
+                {dat.stock > 0 ? ( selectedProducts.some((p) => p.codigo === dat.codigo) ? (
+                <div className="flex gap-2">
+            <button className="bg-primary rounded-[5px] text-white font-semibold px-[0.5rem]" onClick={() => handleQuantityChange(dat.codigo, -1)}>-</button>
+              <span className="mx-2">
+                {selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad}
+              </span>
+              <button className={`bg-primary rounded-[5px] text-white font-semibold px-[0.5rem] ${selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock ? 'cursor-not-allowed opacity-50' : ''}`} onClick={() => handleQuantityChange(dat.codigo, 1)} disabled={selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock}>+</button>
+              <button className="rounded-[5px] text-white font-semibold px-[0.5rem]" onClick={() => handleRemoveProduct(dat.codigo)}>
+                <img className="w-[1rem]" src={trash} alt="" />
+              </button>
+              </div>
+            ) : (
+            <button className="px-[1rem] bg-primary py-[0.3rem] text-white rounded-[5px]" onClick={() => handleAddProduct(dat)} >Agregar</button>
+            )) : (
+            <button className="px-[1rem] py-[0.3rem] text-white rounded-[5px] bg-gray-400 cursor-not-allowed" disabled>Agotado</button>
+            )}
+            </div>
+            ))}
           </div>
         </div>
       </div>
-    </>
-  );
-}
+    </div>
+  </>
+);}
