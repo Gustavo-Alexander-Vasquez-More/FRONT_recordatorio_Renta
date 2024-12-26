@@ -176,7 +176,7 @@ box_products:{
         },
         total:{
           position:'absolute',
-          top:713,
+          top:665,
           fontSize:11,
           left:495
         },
@@ -240,7 +240,19 @@ box_products:{
           fontFamily:'Helvetica-Bold',
           color:'red'
           
-        }
+        },
+        total_iva:{
+          position:'absolute',
+          top:713,
+          fontSize:11,
+          left:495
+        },
+        pocentaje_iva:{
+          position:'absolute',
+          top:690,
+          fontSize:11,
+          left:495
+        },
 });
 
 return (
@@ -264,7 +276,7 @@ return (
     <View style={styles.page}>
         <Image style={styles.plantilla} src={{ uri:`${page0}` , method: 'GET'}}/>
         <Text style={styles.nombre}>{dat.cliente.nombre}</Text>
-        <Text style={styles.estado}>Cd. Del carmen CAMPECHE</Text>
+        <Text style={styles.estado}>Cd. Del carmen Campeche</Text>
         <Text style={styles.fecha}>{dat.fecha_renta}</Text>
         <Text style={styles.hora}>{dat.hora_renta}</Text>
         <Text style={styles.total}>${dat.importe_total}</Text>
@@ -313,13 +325,32 @@ return (
           <Text style={styles.telefono}>{dat.cliente.telefono}</Text>
           <Text style={styles.vencimiento}>{dat.fecha_vencimiento}</Text>
           <Text style={styles.folio}>{dat.folio}</Text>
+          //LO QUE VA EN EL CAMPO IVA SI ESQUE APLICA
+          {dat.IVA === 'SI' && (
+            <Text style={styles.pocentaje_iva}>
+            ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+              parseFloat(dat.importe_total.replace(/,/g, '')) * 0.16
+            )}
+          </Text>
+          )}
+          //TOTAL DE TODO PERO CON IVA SUMADO
+          {dat.IVA === 'SI' && (
+            <Text style={styles.total_iva}>
+            ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+              parseFloat(dat.importe_total.replace(/,/g, '')) * 1.16
+            )}
+          </Text>
+          )}
+          {dat.IVA === 'NO' && (
+            <Text style={styles.total_iva}>${dat.importe_total}</Text>
+          )}
           <Text style={styles.encargado}>Personal que atendió: {dat.nombre_encargado}</Text>
     </View>
 </Page>
         <Page size='A4'>
             <View style={styles.page}>
                 <Image style={styles.plantilla} src={{ uri:`${page1}` , method: 'GET'}}/>
-                <Text style={styles.arrendador}>{dat.nombre_encargado.toUpperCase()}</Text>
+                <Text style={styles.arrendador}>ZAIR EMANUEL GARCIA CHABLE</Text>
                 <Text style={styles.arrendatario}>{dat.cliente.nombre.toUpperCase()}</Text>
                 <Text style={styles.dia_expedicion}>{dia_expedicion}</Text>
                 <Text style={styles.mes_expedicion}>{mes_expedicion}</Text>
@@ -349,7 +380,7 @@ return (
             <View style={styles.page}>
                 <Image style={styles.plantilla} src={{ uri:`${page4}` , method: 'GET'}}/>
                 <View style={styles.arrendador2}>
-                    <Text >{dat.nombre_encargado.toUpperCase()}</Text>
+                    <Text >ZAIR EMANUEL GARCIA CHABLE</Text>
                 </View>
                 <View style={styles.arrendatario2}>
                     <Text >{dat.cliente.nombre.toUpperCase()}</Text>

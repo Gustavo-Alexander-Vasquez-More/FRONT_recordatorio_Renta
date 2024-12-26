@@ -29,7 +29,7 @@ const [searchTerm, setSearchTerm] = useState(''); //Se almacenan los terminos de
 const [loading, setLoading] = useState(true); //estado para spinner de carga
 const [files, setFiles]=useState([])
 const [folio, setFolio]=useState()
-console.log(folio);
+const [selectedIVA, setSelectedIVA]=useState()
 const [hora_renta, setHora_renta]=useState()
 const [hora_vencimiento, setHora_vencimiento]=useState()
 const [fecha_renta, setFecha_renta]=useState(new Date())
@@ -60,6 +60,7 @@ const input_nombre_cliente=useRef()
 const input_celular=useRef()
 const input_direccion=useRef()
 const input_cliente_Selected=useRef()
+const input_iva_Selected=useRef()
 const inputIne_delantero=useRef()
 const inputIne_trasero=useRef()
 const input_hora_renta=useRef()
@@ -74,6 +75,10 @@ function captureFoto_trasera(event){
 }
 const capturarSelect = (event) => {
   setSelectedOption(event.target.value);
+};
+
+const capturarSelectIVA = (event) => {
+  setSelectedIVA(event.target.value);
 };
 function captureNombre(){
 setNombre_cliente(input_nombre_cliente.current.value)
@@ -325,7 +330,8 @@ async function generar_rentas() {
     fecha_vencimiento: vencimientoFormateado,
     detalles_maquinaria: selectedProducts?.map((product) => product.descripcion || ''),
     direccion:direccion,
-    dias_contados:dias_contados
+    dias_contados:dias_contados,
+    IVA:selectedIVA
   };
 
   try {
@@ -486,6 +492,30 @@ return (
             <label  for="exampleInputPassword1" class="form-label font-bold">Observación del encargado (opcional):</label>
             <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
           </div>
+          <div className='flex flex-col gap-2 py-[1rem]'>
+      <h3 className='font-bold text-[1.1rem]'>Aplica IVA?</h3>
+      <label className='flex gap-2'>
+        <input
+          type="radio"
+          name="options3"
+          value="SI"
+          checked={selectedIVA === 'SI'}
+          onChange={capturarSelectIVA}
+        />
+        SI
+      </label>
+      <label className='flex gap-2'>
+        <input
+          type="radio"
+          name="options3"
+          value="NO"
+          checked={selectedIVA === 'NO'}
+          onChange={capturarSelectIVA}
+        />
+        NO
+      </label>
+      
+    </div>
           <div class="mb-1 w-full flex justify-center items-center">
             <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
           </div>
@@ -552,6 +582,30 @@ return (
               <label  for="exampleInputPassword1" class="form-label font-bold">Observación del encargado (opcional):</label>
               <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
             </div>
+            <div className='flex flex-col gap-2 py-[1rem]'>
+      <h3 className='font-bold text-[1.1rem]'>Aplica IVA?</h3>
+      <label className='flex gap-2'>
+        <input
+          type="radio"
+          name="options2"
+          value="SI"
+          checked={selectedIVA === 'SI'}
+          onChange={capturarSelectIVA}
+        />
+        SI
+      </label>
+      <label className='flex gap-2'>
+        <input
+          type="radio"
+          name="options2"
+          value="NO"
+          checked={selectedIVA === 'NO'}
+          onChange={capturarSelectIVA}
+        />
+        NO
+      </label>
+      
+    </div>
             <div class="mb-1 w-full flex justify-center items-center">
               <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
             </div>
