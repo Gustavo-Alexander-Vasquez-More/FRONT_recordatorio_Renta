@@ -89,7 +89,7 @@ export default function ModalDetalle({ closeModal, _id }) {
                 <div className="flex flex-col text-[0.9rem] pt-[1rem]" key={dat.identificador}>
                   <div className='flex gap-2'>
                   <p className='font-bold'>Folio:</p>
-                  <p>{dat.identificador}</p>
+                  <p>{dat.folio}</p>
                   </div>
                   <div className='flex gap-2'>
                   <p className='font-bold'>Arrendatario:</p>
@@ -142,7 +142,8 @@ export default function ModalDetalle({ closeModal, _id }) {
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.codigo}</td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.cantidad}</td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>${producto.precio_unitario}</td>
-          <td style={{ border: '1px solid #ccc', padding: '8px' }}>${producto.precio_total_cantidad}</td>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>${(producto.precio_unitario * dat.dias_contados).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </td>
         </tr>
       ))}
       <tr>
@@ -154,7 +155,7 @@ export default function ModalDetalle({ closeModal, _id }) {
     </tbody>
   </table>
 </div>
-        <p className="font-bold underline">Imágenes del estado inicial del producto (Como lo recibe el cliente)</p>
+        <p className="font-bold underline">Fotos como se entregó el producto:</p>
                   <div className="flex w-full gap-2 py-[1rem]">
                   {dat?.fotos_estado_inicial?.map((foto, index) => (
           <div
@@ -187,7 +188,7 @@ export default function ModalDetalle({ closeModal, _id }) {
                   <p>{dat.fecha_devolucion} {dat.hora_devolucion}</p>
                   </div>
                       
-                      <p className="font-bold underline">Pruebas de devolución (Como recibe el responsable los equipos devueltos por el cliente)</p>
+                      <p className="font-bold underline">Fotos como el cliente devolvió los equipos:</p>
                       <div className="flex w-full gap-2 py-[1rem]">
                   {dat?.fotos_estado_inicial?.map((foto, index) => (
           <div

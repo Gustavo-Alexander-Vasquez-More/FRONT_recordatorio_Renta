@@ -28,7 +28,8 @@ const [selectedProducts, setSelectedProducts] = useState([]); //se almacenan los
 const [searchTerm, setSearchTerm] = useState(''); //Se almacenan los terminos de busqueda
 const [loading, setLoading] = useState(true); //estado para spinner de carga
 const [files, setFiles]=useState([])
-const [identificador, setIdentificador]=useState()
+const [folio, setFolio]=useState()
+console.log(folio);
 const [hora_renta, setHora_renta]=useState()
 const [hora_vencimiento, setHora_vencimiento]=useState()
 const [fecha_renta, setFecha_renta]=useState(new Date())
@@ -214,21 +215,7 @@ const handleRemoveImage = (id, index) => {
   setFiles((prevFiles) => prevFiles.filter((_, idx) => idx !== index));
 };
 
-function generarIdentificador() {
-  // Genera una cadena aleatoria de 11 números entre 1 y 9
-  let identificador = '';
-  for (let i = 0; i < 11; i++) {
-    identificador += Math.floor(Math.random() * 9) + 1; // Genera números entre 1 y 9
-  }
 
-  // Configura el identificador con el prefijo "R-"
-  const identificadorCompleto = `R-${identificador}`;
-  setIdentificador(identificadorCompleto);
-}
-
-useEffect(() => {
-generarIdentificador()
-}, []);
 
 
 async function create_clientes() {
@@ -260,6 +247,24 @@ async function create_clientes() {
     setInfo_registro('error')
   }
 }
+async function obtenerNuevoFolio() {
+  try {
+    
+    setFolio(nuevoFolio);
+    } catch (error) {
+    console.log(error);
+  }
+}
+async function folioactual() {
+  
+  try {
+    
+   await obtenerNuevoFolio();
+
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 //FUNCION PARA CREAR UNA RENTA
 async function generar_rentas() {
@@ -270,10 +275,15 @@ async function generar_rentas() {
     }
   });
 
-  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre')) {
+  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta || !hora_vencimiento) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
-
+  const response = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/`);
+    const permisosData = response.data.response
+    const ultimoPermiso = permisosData[permisosData.length - 1];
+    const ultimoFolio = ultimoPermiso.folio;
+    const numeroUltimoFolio = parseInt(ultimoFolio);
+    const nuevoFolio = (numeroUltimoFolio + 1).toString().padStart(7, '0');
   // Subida de imágenes
   let fotosEstadoInicial = [];
   const selectedFiles = files; // Obtenemos todos los archivos seleccionados
@@ -282,6 +292,7 @@ async function generar_rentas() {
     const file = selectedFiles[i].file;
     
     try {
+      
       // Subir cada imagen y obtener la URL de Firebase
       const fotoURL = await uploadFoto(file);  // Asumiendo que uploadFoto devuelve la URL accesible
       fotosEstadoInicial.push(fotoURL);  // Guardar la URL en el array
@@ -296,13 +307,12 @@ async function generar_rentas() {
       nombre: product.nombre, // Nombre del producto
       cantidad: product.cantidad,
       codigo: product.codigo,
-      precio_unitario: product.precio, // Precio por unidad
-      precio_total_cantidad: (product.precio * product.cantidad).toFixed(2), // Precio total según cantidad
+      precio_unitario: product.precio.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Precio por unidad
       _id: product._id
     })),
     importe_total: selectedProducts
-      .reduce((total, product) => (total + product.precio * product.cantidad) * dias_contados, 0)
-      .toFixed(2), // Importe total de todos los productos seleccionados
+    .reduce((total, product) => total + (product.precio * product.cantidad * dias_contados), 0) // Agrega 0 como valor inicial
+    .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Importe total de todos los productos seleccionados
     fotos_estado_inicial: fotosEstadoInicial, // Las URLs de las fotos subidas
     usuario_retandor: localStorage.getItem('usuario'), // Usuario que está realizando la renta
     nombre_encargado:localStorage.getItem('nombre'),
@@ -311,10 +321,11 @@ async function generar_rentas() {
     hora_vencimiento: hora_vencimiento,
     observacion_inicial: detalle,
     cliente:cliente_Selected,
-    identificador: identificador,
+    folio: nuevoFolio,
     fecha_vencimiento: vencimientoFormateado,
     detalles_maquinaria: selectedProducts?.map((product) => product.descripcion || ''),
-    direccion:direccion
+    direccion:direccion,
+    dias_contados:dias_contados
   };
 
   try {
@@ -333,7 +344,7 @@ async function generar_rentas() {
     Swal.fire({
       icon: 'success',
       title: 'Renta generada',
-      text: `El N° identificador para tu renta es ${identificador}, con este numero podrás identificar tus rentas en la sección historial de rentas.`,
+      text: `Para ver la renta generada ve a la seccion de historial de rentas.`,
       confirmButtonText: 'Aceptar',
       allowOutsideClick: false, // Evita que se cierre al hacer clic fuera
       allowEscapeKey: false, // Evita que se cierre al presionar la tecla Escape
@@ -350,7 +361,7 @@ async function generar_rentas() {
 return (
   <>
     <Navbar/>
-      <div className="w-full h-[90vh] flex">
+      <div className="w-full  lg:h-[90vh] flex">
         <div className="w-full flex lg:flex-row flex-col-reverse justify-center items-center bg-[#EBEBEB] relative h-full">
           <div className="lg:w-[50%] w-full  items-center py-[1rem] overflow-y-auto h-full bg-[white] flex flex-col px-[1rem] gap-4">
             <p className="text-[1.2rem] font-semibold">Pedido de renta en curso</p>
@@ -392,7 +403,9 @@ return (
             Importe total por {dias_contados} días: 
           </td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-            ${selectedProducts.reduce((total, product) => (total + (product.precio * product.cantidad) * dias_contados), 0).toFixed(2)}
+          ${selectedProducts
+  .reduce((total, product) => total + (product.precio * product.cantidad * dias_contados), 0) // Agrega 0 como valor inicial
+  .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </td>
         </tr>
                 )}
@@ -443,7 +456,7 @@ return (
           </div>
           <div class="mb-3">
             <label  for="exampleInputPassword1" class="form-label font-bold">Hora de la renta</label>
-            <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+            <input ref={input_hora_renta} onChange={captureHora_renta}  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
          </div>
           <div class="mb-3 flex flex-col">
             <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento:</label>
@@ -451,7 +464,7 @@ return (
           </div>
           <div class="mb-3">
             <label  for="exampleInputPassword1" class="form-label font-bold">Hora de vencimiento</label>
-            <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+            <input ref={input_hora_vencimiento} onChange={captureHora_vencimiento} placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
          </div>
         <div class="mb-3">
           <label  for="exampleInputPassword1" class="form-label font-bold">Dirección de uso: (Donde ser usarán los equipos) *obligatorio</label>
@@ -509,7 +522,7 @@ return (
             </div>
             <div class="mb-3">
               <label  for="exampleInputPassword1" class="form-label font-bold">Hora de la renta</label>
-              <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+              <input ref={input_hora_renta} onChange={captureHora_renta}  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
             </div>
             <div class="mb-3 flex flex-col">
               <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento:</label>
@@ -517,7 +530,7 @@ return (
             </div>
             <div class="mb-3">
               <label  for="exampleInputPassword1" class="form-label font-bold">Hora de vencimiento</label>
-              <input  placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
+              <input ref={input_hora_vencimiento} onChange={captureHora_vencimiento} placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
             </div>
             <div class="mb-3">
               <label  for="exampleInputPassword1" class="form-label font-bold">Dirección de uso: (Donde ser usarán los equipos) *obligatorio</label>
@@ -549,7 +562,7 @@ return (
         </div>
         )}
         </div>
-          <div className="lg:w-[50%] w-full  flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">
+          <div className="lg:w-[50%] w-full flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">
             <p className="text-white text-[1.2rem] font-semibold">Selecciona los productos a rentar</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
@@ -571,22 +584,22 @@ return (
                 </div>
               </div>
             )}
-            <div className="flex flex-col gap-2 w-full overflow-y-auto max-h-[75vh]">
+            <div className="flex flex-col gap-2 w-full overflow-y-auto  max-h-[75vh]">
             {filteredDatas.map((dat) => (
-              <div className="w-full bg-[white] rounded-[10px] flex justify-between items-center px-[1rem] h-auto py-[0.5rem]"key={dat.codigo}>
-                <div className="flex gap-4 items-center">
+              <div className="w-full bg-[white] rounded-[10px] gap-3  flex justify-between items-center px-[1rem] lg:h-auto py-[0.5rem]"key={dat.codigo}>
+                <div className="flex gap-4 items-center  overflow-x-auto">
                 {dat.foto && <img className="w-[3rem] h-[3rem]" src={dat.foto} alt={dat.nombre} />}
                 <p>{dat.nombre}</p>
               </div>
                 {dat.stock > 0 ? ( selectedProducts.some((p) => p.codigo === dat.codigo) ? (
                 <div className="flex gap-2">
-            <button className="bg-primary rounded-[5px] text-white font-semibold px-[0.5rem]" onClick={() => handleQuantityChange(dat.codigo, -1)}>-</button>
-              <span className="mx-2">
+            <button className="bg-primary rounded-[5px] lg:flex hidden text-white font-semibold px-[0.5rem]" onClick={() => handleQuantityChange(dat.codigo, -1)}>-</button>
+              <span className="mx-2 lg:flex hidden">
                 {selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad}
               </span>
-              <button className={`bg-primary rounded-[5px] text-white font-semibold px-[0.5rem] ${selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock ? 'cursor-not-allowed opacity-50' : ''}`} onClick={() => handleQuantityChange(dat.codigo, 1)} disabled={selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock}>+</button>
+              <button className={`bg-primary rounded-[5px] lg:flex hidden text-white font-semibold px-[0.5rem] ${selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock ? 'cursor-not-allowed opacity-50' : ''}`} onClick={() => handleQuantityChange(dat.codigo, 1)} disabled={selectedProducts.find((p) => p.codigo === dat.codigo)?.cantidad >= dat.stock}>+</button>
               <button className="rounded-[5px] text-white font-semibold px-[0.5rem]" onClick={() => handleRemoveProduct(dat.codigo)}>
-                <img className="w-[1rem]" src={trash} alt="" />
+                <img className="w-[2.5rem] lg:w-[1rem]" src={trash} alt="" />
               </button>
               </div>
             ) : (

@@ -124,7 +124,7 @@ useEffect(() => {
       <Menu closeMenu={closeMenu}/>
     )}
     {datas.map(dat=>(
-      <div className='w-full h-[10vh] bg-[#f59600] flex justify-between px-[1rem]  lg:gap-5 items-center text-white font-semibold relative'>
+      <div className='w-full h-[12vh] lg:h-[10vh] bg-[#f59600] flex justify-between px-[1rem]  lg:gap-5 items-center text-white font-semibold relative'>
         <button onClick={openMenu}>
         <svg class="lg:w-10 lg:h-10 w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
   <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14"/>

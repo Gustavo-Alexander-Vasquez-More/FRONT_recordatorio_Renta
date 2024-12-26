@@ -161,8 +161,8 @@ function closeModal_recibido(){
     <tr className="bg-[#9B8767] text-white text-center">
       <th className="px-2 py-1 whitespace-nowrap">Celular del arrendador</th>
       <th className="px-2 py-1  whitespace-nowrap">Encargado</th>
-      <th className="px-2 py-1  whitespace-nowrap">Fecha de alta</th>
-      <th className="px-2 py-1  whitespace-nowrap">Vencimiento</th>
+      <th className="px-2 py-1  whitespace-nowrap">Fecha de arriendo</th>
+      <th className="px-2 py-1  whitespace-nowrap">Fecha de Vencimiento</th>
       <th className="px-2 py-1  whitespace-nowrap">Importe</th>
       <th className="px-2 py-1  whitespace-nowrap">Estado</th>
       <th className="px-2 py-1  whitespace-nowrap">Recibir/Detalles/Eliminar</th>
@@ -173,7 +173,7 @@ function closeModal_recibido(){
       <tr key={dat._id} className="text-center  ">
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.cliente.telefono}</td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.usuario_retandor}</td>
-        <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.fecha_renta} {dat.hora_renta}</td>
+        <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.fecha_renta}</td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">{dat.fecha_vencimiento}</td>
         <td className="px-2 py-1 border-[1px] whitespace-nowrap border-solid border-[black]">${dat.importe_total}</td>
         <td className="px-2 py-2 border-[1px] whitespace-nowrap border-solid border-[black] flex justify-center text-center">

@@ -189,8 +189,14 @@ box_products:{
         telefono:{
           position:'absolute',
           fontSize:9,
-          top:173,
-          left:67
+          top:174,
+          left:69
+        },
+        vencimiento:{
+          position:'absolute',
+          fontSize:9,
+          top:197.5,
+          left:124
         },
         estado:{
           position:'absolute',
@@ -225,6 +231,15 @@ box_products:{
           top:750,
           left:20,
           
+        },
+        folio:{
+          position:'absolute',
+          fontSize:10,
+          top:95,
+          left:492,
+          fontFamily:'Helvetica-Bold',
+          color:'red'
+          
         }
 });
 
@@ -249,8 +264,8 @@ return (
     <View style={styles.page}>
         <Image style={styles.plantilla} src={{ uri:`${page0}` , method: 'GET'}}/>
         <Text style={styles.nombre}>{dat.cliente.nombre}</Text>
-        <Text style={styles.estado}>C. del carmen/CAMPECHE</Text>
-        <Text style={styles.fecha}>{fecha_renta}</Text>
+        <Text style={styles.estado}>Cd. Del carmen CAMPECHE</Text>
+        <Text style={styles.fecha}>{dat.fecha_renta}</Text>
         <Text style={styles.hora}>{dat.hora_renta}</Text>
         <Text style={styles.total}>${dat.importe_total}</Text>
         <View style={styles.observacion}>
@@ -269,13 +284,35 @@ return (
               <Text>${dat2.precio_unitario}</Text>
             </View>
             <View style={styles.box_4}>
-              <Text>${dat2.precio_total_cantidad}</Text>
+              <Text>${Number(dat2.precio_unitario * dat.dias_contados).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
             </View>
             
           </View>
         ))}
+        <View style={styles.box_datas}>
+            <View style={styles.box_1}>
+              <Text ></Text>
+            </View>
+            <View style={styles.box_2}>
+              {dat.dias_contados === '1' && (
+                <Text>Renta por {dat.dias_contados} día</Text>
+              )}
+              {dat.dias_contados != '1' && (
+                <Text>Renta por {dat.dias_contados} días</Text>
+              )}
+            </View>
+            <View style={styles.box_3}>
+              <Text></Text>
+            </View>
+            <View style={styles.box_4}>
+              <Text></Text>
+            </View>
+            
+          </View>
           </View>
           <Text style={styles.telefono}>{dat.cliente.telefono}</Text>
+          <Text style={styles.vencimiento}>{dat.fecha_vencimiento}</Text>
+          <Text style={styles.folio}>{dat.folio}</Text>
           <Text style={styles.encargado}>Personal que atendió: {dat.nombre_encargado}</Text>
     </View>
 </Page>
@@ -302,7 +339,9 @@ return (
             <View style={styles.page}>
                 <Image style={styles.plantilla} src={{ uri:`${page3}` , method: 'GET'}}/>
                 <View style={styles.box}>
-                    <Text style={styles.detalles}>{dat.detalles_maquinaria}</Text>
+                    {dat.detalles_maquinaria.map(dat3=>(
+                      <Text style={styles.detalles}>{dat3}</Text>
+                    ))}
                 </View>
             </View>
         </Page>
