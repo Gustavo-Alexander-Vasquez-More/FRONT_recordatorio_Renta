@@ -20,6 +20,7 @@ import ProtectRutas from "../src/protect/protect_rutas";
 import Nota_remision from "../src/pages/PDF/nota_remision";
 import Create_clientes from '../src/pages/clientes/create_clientes'
 import Lista_clientes from '../src/pages/clientes/lista_clientes'
+import PanelUsuarios from "../src/pages/users/panelUsuarios";
 const router = createBrowserRouter([
 { path: "/", element: <ProtectLogin/>, children:[{index:true, element:<Index/>}] },
 { path: "/Homepage", element: <ProtectSistem/> , children:[{index:true, element:<Homepage/>}] },
@@ -38,5 +39,6 @@ const router = createBrowserRouter([
 { path: "/nota_remision/:_id", element: <Nota_remision/>},
 { path: "/client_list", element: <Lista_clientes/>},
 { path: "/create_clients", element: <Create_clientes/>},
+{ path: "/users", element: <PanelUsuarios/>},
 ])
 export default router

@@ -131,20 +131,10 @@ useEffect(() => {
 </svg>
 
         </button>
-       <div className='flex gap-2 items-center'>
-       <div className=' flex gap-1 lg:gap-2'>
-          <svg class="lg:w-6 lg:h-6 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"/>
-          </svg>
-          <p className='lg:text-[1rem] text-[0.8rem]'>{path_letra}</p>
-        </div>
+       <div className='flex gap-3 items-center'>
        
-      <p className='flex items-center lg:text-[1rem] text-[0.8rem] '>
-      <svg class="lg:w-6 lg:h-6 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-  <path fill-rule="evenodd" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z" clip-rule="evenodd"/>
-</svg>
-{dat.usuario}
-      </p>
+       
+      <p className='flex items-center lg:text-[1rem] text-[0.8rem] font-normal '>{dat.nombre}</p>
       {dat.foto && (
         <button data-bs-toggle="tooltip" data-bs-title="Mi perfil"><img className='w-[2rem] h-[2rem]  lg:w-[2.5rem] lg:h-[2.5rem] rounded-full' src={fotoBase64}/></button>
       )}
@@ -154,7 +144,26 @@ useEffect(() => {
         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
     </svg></button>
       )}
-      <button onClick={LogOut} data-bs-toggle="tooltip" data-bs-title="Salir"><img className='lg:w-[2rem] lg:h-[2rem] w-[1.5rem] h-[1.5rem]' src={icon_logout}/></button>
+      <div class="dropdown">
+  <button class=" btn-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <svg class="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z" clip-rule="evenodd"/>
+</svg>
+
+
+
+  </button>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item flex gap-2" href="#"><svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z" clip-rule="evenodd"/>
+</svg>
+Mi Cuenta</a></li>
+    <li><a onClick={LogOut} class="dropdown-item flex gap-2" href="#"><svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H4m12 0-4 4m4-4-4-4m3-4h2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-2"/>
+</svg> Cerrar sesión</a></li>
+  </ul>
+</div>
+      {/* <button onClick={LogOut} data-bs-toggle="tooltip" data-bs-title="Salir"><img className='lg:w-[2rem] lg:h-[2rem] w-[1.5rem] h-[1.5rem]' src={icon_logout}/></button> */}
        </div>
     </div>
     ))}

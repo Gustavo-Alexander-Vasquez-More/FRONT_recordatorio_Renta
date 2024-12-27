@@ -5,7 +5,7 @@ import page2 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIM
 import page3 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0003.jpg'
 import page4 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0004.jpg'
 import page0 from '../../images/imagenes_pdf_contrato/rm remision_page-0001.jpg'
-import { useParams } from 'react-router-dom';
+import firma from '../../images/imagenes_pdf_contrato/firma.png';
 import axios from 'axios';
 
 const contrato= ({_id}) => {
@@ -253,6 +253,12 @@ box_products:{
           fontSize:11,
           left:495
         },
+        firma:{
+          position:'absolute',
+          top:370,
+          left:80,
+          width:'17%'
+        }
 });
 
 return (
@@ -385,6 +391,7 @@ return (
                 <View style={styles.arrendatario2}>
                     <Text >{dat.cliente.nombre.toUpperCase()}</Text>
                 </View>
+                <Image style={styles.firma} src={{ uri:`${firma}` , method: 'GET'}}/>
             </View>
         </Page> 
     </Document>

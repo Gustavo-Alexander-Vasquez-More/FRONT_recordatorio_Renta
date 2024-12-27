@@ -4,44 +4,54 @@ import Swal from 'sweetalert2';
 import {uploadFoto} from "../firebase/images.js"
 export default function modalEdit({ usuario, closeModal }) {
   const [datas, setDatas] = useState([]);
+  console.log(datas);
   const [fotoBase64, setFotoBase64] = useState('');
+  const [foto, setFoto] = useState();
+  const [foto_temporal, setFoto_temporal] = useState();
   const [dato, setDato] = useState();
-  console.log(dato);
   const [valorDato, setValorDato] = useState();
-  const [loading, setLoading] = useState(true);  // Estado para controlar el loader
-  const input_dato = useRef();
-  const input_valor_dato = useRef();
-
-  function captureValor_dato() {
-    setValorDato(input_valor_dato.current.value);
-  }
-
-  function captureDato() {
-    setDato(input_dato.current.value);
-    setValorDato('');  // Limpiar valorDato cuando se cambia el tipo de dato
-    if (input_dato.current.value !== 'foto') {
-      setFotoBase64(datas[0]?.foto || '');  // Restaurar foto original si no se está editando la foto
-    }
-  }
-
-  function handleFileChange(e) {
+  const [loading, setLoading] = useState(true); 
+  const [nombre_usuario, setNombre_usuario]=useState()
+  const [nombre_completo, setNombre_completo]=useState()
+  const [contraseña, setContraseña]=useState('***************')
+  const [rol, setRol]=useState()
+  const [modal_change_foto, setModal_change_foto]=useState(true)
+  const input_foto=useRef()
+  const handleFotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setValorDato(file); // Guardar el archivo seleccionado para subir a Firebase
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFotoBase64(reader.result); // Mostrar la previsualización de la imagen
-      };
-      reader.readAsDataURL(file);
+      setFoto_temporal(URL.createObjectURL(file)); // Actualiza la previsualización de la foto
     }
+  };
+  
+  const handleSaveFoto = async () => {
+    if(foto_temporal){
+      setFoto(foto_temporal)
+      closeModal_change_foto()
+    }
+  };
+  function clearField(setFieldValue) {
+    setFieldValue(''); // Limpia el valor del campo al hacer clic en el botón de editar
   }
+
+  function openModal_change_foto(){
+    setModal_change_foto(true)
+  }
+ function closeModal_change_foto(){
+  setModal_change_foto(false)
+  }
+
   async function get() {
     try {
-      const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/admins/read_especific?usuario=${usuario}`);
+      const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/admins/read_especific?usuario=gus`);
       setDatas(data.response);
-      if (data.response && data.response[0].foto) {
-        setFotoBase64(data.response[0].foto); // Aquí asumimos que 'foto' contiene la cadena base64
-      }
+      setNombre_completo(data.response[0].nombre)
+      setNombre_usuario(data.response[0].usuario)
+      setRol(data.response[0].rol)
+      setFoto(data.response[0].foto)
+      // if (data.response && data.response[0].foto) {
+      //   setFotoBase64(data.response[0].foto); // Aquí asumimos que 'foto' contiene la cadena base64
+      // }
       setLoading(false);  // Desactivar el loader cuando los datos se han cargado
     } catch (error) {
       console.error('Error fetching image data:', error);
@@ -64,12 +74,7 @@ export default function modalEdit({ usuario, closeModal }) {
     };
   
     try {
-      if (dato === 'foto') {
-        // Subir imagen a Firebase si el dato es 'foto'
-        const urlFoto = await uploadFoto(valorDato); // Suponiendo que valorDato es el archivo
-        datos = { foto: urlFoto }; // Actualizar datos con la URL devuelta
-      }
-  
+    
       // Enviar los datos con axios PUT
       await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/admins/update/${usuario}`, datos, {
         headers: {
@@ -96,94 +101,104 @@ export default function modalEdit({ usuario, closeModal }) {
       });
     }
   }
-  useEffect(() => {
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    tooltipTriggerList.forEach(tooltipTriggerEl => {
-      new window.bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    get();
-  }, []);
+useEffect(() => {
+  get();
+}, []);
 
   return (
-    <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
-      <div className="bg-white rounded-[10px] w-[90%] lg:w-[40%] h-auto flex flex-col gap-2 py-[1rem] px-[1rem]">
-        {loading ? (
-          <div className="w-full h-[30vh] flex justify-center items-center">
-            <div className='flex flex-col items-center gap-2'>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
-                <p className='font-semibold'>Cargando datos, por favor espere ...</p>
+    <>
+    {modal_change_foto === true && (
+      <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
+        <div className='flex flex-col items-center w-[35%] gap-3 bg-white py-[1rem] px-[1rem]'>
+          <p className=' font-semibold'>Selecciona una nueva foto</p>
+          <input ref={input_foto} onChange={handleFotoChange}  class="form-control" type="file" id="formFile"/>
+          <div className='flex w-full justify-between'>
+          <button  onClick={handleSaveFoto} className='bg-success text-white font-semibold px-[1rem] py-[0.3rem] rounded-[5px]'>Guardar</button>
+          <button  onClick={closeModal_change_foto} className='bg-[#808080] text-white font-semibold px-[1rem] py-[0.3rem] rounded-[5px]'>Cancelar</button>
+          </div>
+        </div>
+      </div>
+    )}
+    <div className="w-full h-screen absolute z-40 bg-[#d9d9d97b] flex justify-center items-center">
+      <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] h-auto flex flex-col">
+        <div className='bg-[gray] flex justify-between px-[1rem] items-center py-[0.5rem] border-b-[1px] border-b-[black] border-solid'>
+          <p className='text-white font-semibold'>Editar Usuarios</p>
+          <button onClick={closeModal}>
+            <svg class="w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+            </svg>
+          </button>
+        </div>
+        
+          <div className='w-full flex py-[1rem] '>
+          {/* //PARTE DE LA foto */}
+          <div className='w-[30%] flex justify-center'>
+            <div className='w-full items-center gap-2 flex flex-col'>
+              <img src={foto} className="w-[7rem] h-[7rem] rounded-full" />
+              <button onClick={openModal_change_foto} className='flex gap-1 items-center bg-[#808080]  px-[1rem] rounded-[5px] py-[0.3rem] justify-center text-white'><svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+</svg> Cambiar foto
+</button>
             </div>
           </div>
-        ) : (
-          <>
-            <div className="flex justify-end">
-              <button onClick={closeModal}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>
-              </button>
+          <div className='w-[70%] px-[1.5rem]'>
+            <p className='font-semibold text-[1.3rem] underline pb-3'>Datos del usuario</p>
+            <div className='flex flex-col'>
+            <div class="mb-2">
+    <label for="exampleInputEmail1" class="form-label">Usuario</label>
+    <div className='w-full flex gap-1'>
+      <input placeholder='Escribe el nuevo nombre de usuario' value={nombre_usuario}  onChange={(e) => setNombre_usuario(e.target.value)} className="w-full border rounded p-2" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+      <button onClick={() => clearField(setNombre_usuario)} className='flex gap-1 items-center underline'>
+        <svg class="w-6 h-6 text-[#808080]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="mb-2">
+    <label for="exampleInputEmail1" class="form-label">Nombre completo</label>
+    <div className='w-full flex gap-1'>
+      <input placeholder='Escribe el nuevo nombre' value={nombre_completo} onChange={(e) => setNombre_completo(e.target.value)} type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+      <button className='flex gap-1 items-center underline' onClick={() => clearField(setNombre_completo)}>
+        <svg class="w-6 h-6 text-[#808080]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="mb-2">
+    <label for="exampleInputEmail1" class="form-label">Contraseña</label>
+    <div className='w-full flex gap-1'>
+      <input placeholder='Escribe la nueva contraseña' value={contraseña} onChange={(e) => setContraseña(e.target.value)} type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+      <button className='flex gap-1 items-center underline' onClick={() => clearField(setContraseña)}>
+        <svg class="w-6 h-6 text-[#808080]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="mb-2">
+    <label for="exampleInputEmail1" class="form-label">Rol de usuario</label>
+    <div className='w-full flex gap-1'>
+      <input placeholder='Escribe el nuevo rol' value={rol} type="number" onChange={(e) => setRol(e.target.value)} class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+      <button className='flex gap-1 items-center underline' onClick={() => clearField(setRol)}>
+        <svg class="w-6 h-6 text-[#808080]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+        </svg>
+      </button>
+    </div>
+    <div id="emailHelp" class="form-text">1=Administrador 2=Empleado</div>
+  </div>
+  <div class="pb-4 pt-[1rem] flex justify-between">
+    <button className='bg-warning px-[1rem] py-[0.3rem] text-white font-semibold rounded-[5px]'>Guardar cambios</button>
+    <button onClick={closeModal} className='bg-[#808080] px-[1rem] py-[0.3rem] text-white font-semibold rounded-[5px]'>Cancelar</button>
+  </div>
             </div>
-            <div className="flex flex-col justify-center items-center gap-3">
-              {fotoBase64 && (
-                <img className="w-[10rem] h-[10rem] object-cover rounded-full" src={fotoBase64} alt="Foto de perfil" />
-              )}
-              {!fotoBase64 && (
-                <button onClick={()=>{setDato('foto')}} className='bg-[#80808073] rounded-full w-[10rem] h-[10rem] flex justify-center items-center text-white'>
-                    <p>+ add photo</p>
-                </button>
-              )}
-              <p className="font-semibold text-[1.2rem] bg-[#adadadc1] text-white px-[2rem] py-[0.5rem] rounded-[10px]">{usuario}</p>
-            </div>
-            <div className="w-full flex flex-col">
-              <div className="mb-3 w-full">
-                <label htmlFor="exampleInputPassword1" className="form-label">Tipo de dato a editar</label>
-                <select ref={input_dato} onChange={captureDato} className="form-select" aria-label="Default select example">
-                  <option selected>Selecciona el dato</option>
-                  <option value="usuario">Nombre de usuario</option>
-                  <option value="contraseña">Contraseña</option>
-                  <option value="rol">Tipo de rol</option>
-                  <option value="foto">Foto de perfil</option>
-                </select>
-              </div>
-              {dato === 'usuario' && (
-                <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Nombre de usuario</label>
-                  <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Escribe el nuevo nombre de usuario" className="form-control" id="exampleInputPassword1" />
-                </div>
-              )}
-              {dato === 'contraseña' && (
-                <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Contraseña</label>
-                  <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Escribe la nueva contraseña" className="form-control" id="exampleInputPassword1" />
-                </div>
-              )}
-              {dato === 'rol' && (
-                <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Tipo de rol</label>
-                  <select ref={input_valor_dato} onChange={captureValor_dato} className="form-select" aria-label="Default select example">
-                    <option selected>Selecciona el rol</option>
-                    <option value="1">Rol1 = Administrador</option>
-                    <option value="2">Rol2 = Empleado</option>
-                  </select>
-                </div>
-              )}
-              {dato === 'foto' && (
-                <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Foto</label>
-                  <input ref={input_valor_dato} onChange={handleFileChange} type="file" className="form-control" id="exampleInputPassword1" />
-                </div>
-              )}
-              {dato && (
-                <div className='w-full flex justify-center'>
-                  <button onClick={editarUsuario} className='px-[2rem] text-white rounded-[5px] py-[0.5rem] font-semibold bg-primary'>Guardar cambios</button>
-                </div>
-              )}
-            </div>
-          </>
-        )}
+          </div>
+        </div>
+        
       </div>
     </div>
+    </>
   );
 }

@@ -7,7 +7,7 @@ export default function Homepage() {
     <>
     <div className='w-full flex flex-col'>
     <Navbar/>
-    <div className='w-full h-[89.2vh] bg-cover bg-no-repeat' style={{ backgroundImage: `url(${background})`}}></div>
+    <div className='w-full h-[90vh] bg-cover bg-no-repeat' style={{ backgroundImage: `url(${background})`}}></div>
     </div>
     </>
   );
