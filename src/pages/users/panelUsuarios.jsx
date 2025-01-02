@@ -130,11 +130,11 @@ return (
     )}
 <Navbar/>
 <div className='flex flex-col bg-[#ececec] w-full lg:h-[90vh]'>
-    <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[1rem] lg:px-[2rem]'>
+    <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
         <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de usuarios</p>
         <button onClick={openModal2} className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'>+ Crear usuarios</button>
     </div>
-    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-2 lg:px-[2rem]'>
+    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem]'>
         <div className='flex flex-col'>
             <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Usuarios</p>
             <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier usuario creado.</div>
