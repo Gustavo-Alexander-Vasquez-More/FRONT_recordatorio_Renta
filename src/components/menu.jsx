@@ -66,9 +66,7 @@ useEffect(() => {
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_usuarios ? 'h-auto' : 'h-0'}`}>
         <div className='px-[1rem] py-2'>
           <ul className='flex flex-col gap-2'>
-            <a href="/create_users"><li className='text-white'>Crear usuarios</li></a>
-            <a href="/delete_users"><li className='text-white'>Eliminar usuarios</li></a>
-            <a href="/edit_users"><li className='text-white'>Editar usuarios</li></a>
+            <a href="/users_panel"><li className='text-white'>Panel de usuarios</li></a>
           </ul>
         </div>
       </div>

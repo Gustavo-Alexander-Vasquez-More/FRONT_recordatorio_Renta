@@ -39,6 +39,6 @@ const router = createBrowserRouter([
 { path: "/nota_remision/:_id", element: <Nota_remision/>},
 { path: "/client_list", element: <Lista_clientes/>},
 { path: "/create_clients", element: <Create_clientes/>},
-{ path: "/users", element: <PanelUsuarios/>},
+{ path: "/users_panel", element: <PanelUsuarios/>},
 ])
 export default router
