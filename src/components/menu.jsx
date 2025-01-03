@@ -92,9 +92,7 @@ useEffect(() => {
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_productos ? 'h-auto' : 'h-0'}`}>
         <div className='px-[1rem] py-2'>
           <ul className='flex flex-col gap-2'>
-            <a href="/create_products"><li className='text-white'>Crear un producto</li></a>
-            <a href="/delete_products"><li className='text-white'>Eliminar un producto</li></a>
-            <a href="/edit_products"><li className='text-white'>Editar un producto</li></a>
+            <a href="/products_panel"><li className='text-white'>Panel de productos</li></a>
             <a href="/product_list"><li className='text-white'>Lista de productos</li></a>
           </ul>
         </div>
