@@ -3,11 +3,12 @@ import Navbar from '../../components/navbar';
 import Menu from '../../components/menu';
 import axios from 'axios';
 import pen from '../../images/pen.png';
-import ModalEdit from '../../components/modal products/modal_edit_product';
-import Modal_create_users from '../../components/modal products/modal_create_products';
+import ModalEdit from '../../components/modal_clientes/editar_clientes';
+import Modal_detalles from '../../components/modal_clientes/modal_detalles';
+import Modal_create from '../../components/modal_clientes/crear_clientes';
 import Swal from 'sweetalert2';
 
-export default function panelProductos() {
+export default function panelClientes() {
       const [datas, setDatas] = useState([]);
       const [select, setSelect]=useState()
         const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +16,7 @@ export default function panelProductos() {
       const [loading, setLoading] = useState(true);
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
+      const [modal_detalles, setModal_detalles]=useState(false)
       function openModal(){
         setModalEdit(true)
       }
@@ -29,9 +31,16 @@ export default function panelProductos() {
         setModal_create(false)
         window.location.reload()
       }
+      function openModal_detalles(){
+        setModal_detalles(true)
+      }
+      function closeModal_detalles(){
+        setModal_detalles(false)
+        window.location.reload()
+      }
       async function get() {
         try {
-          const { data } = await axios.get('https://backrecordatoriorenta-production.up.railway.app/api/products/');
+          const { data } = await axios.get('https://backrecordatoriorenta-production.up.railway.app/api/clients/');
           setDatas(data.response);
           setFilteredDatas(data.response); // Al principio mostramos todos los datos
           setLoading(false); // Datos cargados, actualizamos el estado de carga
@@ -48,8 +57,7 @@ export default function panelProductos() {
       function handleSearch() {
         // Filtra_ids según el término de búsqueda
         const filtered = datas.filter((dat) =>
-          dat.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          dat.codigo.toLowerCase().includes(searchTerm.toLowerCase())
+          dat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredDatas(filtered);
       }
@@ -78,7 +86,7 @@ export default function panelProductos() {
           const datitos = { _id: _id };
           if (datitos._id) {
             const confirmation = await Swal.fire({
-              title: `¿Estás seguro de eliminar este producto?`,
+              title: `¿Estás seguro de eliminar este cliente?`,
               showDenyButton: true,
               confirmButtonText: 'Sí',
               denyButtonText: 'No',
@@ -93,13 +101,13 @@ export default function panelProductos() {
                   Swal.showLoading();  // Mostrar el spinner de carga
                 }
               });
-              await axios.delete('https://backrecordatoriorenta-production.up.railway.app/api/products/delete', {
+              await axios.delete('https://backrecordatoriorenta-production.up.railway.app/api/clients/delete', {
                 data: datitos,
               });
               Swal.fire({
                 position: 'center',
                 icon: 'success',
-                title: 'El producto se ha eliminado',
+                title: 'El cliente se ha eliminado',
                 showConfirmButton: false,
                 timer: 1500,
               });
@@ -109,16 +117,16 @@ export default function panelProductos() {
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'No se pudo eliminar este producto',
+              text: 'No se pudo eliminar este cliente',
               timer: 1500,
             });
           }
         } catch (error) {
-          console.log('Error al eliminar el producto:', error);
+          console.log('Error al eliminar el cliente:', error);
           Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Hubo un problema al eliminar el producto. Intenta nuevamente.',
+            text: 'Hubo un problema al eliminar el cliente. Intenta nuevamente.',
             timer: 1500,
           });
         }
@@ -126,25 +134,28 @@ export default function panelProductos() {
 return (
 <>
  {modaEdit === true && (
-        <ModalEdit closeModal={closeModal} _id={select} gett={get}/>
+        <ModalEdit _id={select}  closeModal={closeModal} gett={get}/>
     )}
     {modal_create === true && (
-        <Modal_create_users closeModal2={closeModal2}  gett={get}/>
+        <Modal_create closeModal2={closeModal2}  gett={get}/>
     )}
+    {modal_detalles === true && (
+        <Modal_detalles _id={select} closeModal_detalles={closeModal_detalles}  gett={get}/>
+)}
 <Navbar/>
 <div className='flex flex-col bg-[#ececec] w-full'>
-    <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
-        <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de Productos</p>
-        <button onClick={openModal2} className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'>+ Crear productos</button>
+    <div className='bg-[#ffffff] py-[1rem]  items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
+        <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de Clientes</p>
+        <button onClick={openModal2} className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'>+ Crear clientes</button>
     </div>
-    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem]'>
+    <div className='w-full h-auto flex flex-col min-h-[80vh] py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem]'>
         <div className='flex flex-col'>
-            <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Productos</p>
-            <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier producto creado.</div>
+            <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Clientes</p>
+            <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier cliente creado.</div>
         </div>
     <div className="flex w-full bg-[white] py-[1.5rem] px-[1.5rem] rounded-[10px]">
         <div className="relative w-full items-center">
-            <input type="text" placeholder="Buscar productos..." className="w-full py-2 px-[1rem] border bg-[#f1f1f1] border-gray-300 rounded-l-[5px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
+            <input type="text" placeholder="Buscar clientes..." className="w-full py-2 px-[1rem] border bg-[#f1f1f1] border-gray-300 rounded-l-[5px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
             {searchTerm && (
                 <button onClick={clear} className="absolute right-2 top-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x" viewBox="0 0 16 16">
@@ -174,7 +185,7 @@ return (
     ) : (
     <div className="flex flex-col bg-[white] py-[1.5rem] px-[1.5rem] gap-2 w-full overflow-x-hidden overflow-y-auto">
     <div className='flex justify-start border-b-[1px] border-solid '>
-        <p className='font-semibold text-[1.1rem] pb-3'>Foto / Nombre del producto</p>
+        <p className='font-semibold text-[1.1rem] pb-3'>Nombre del cliente</p>
     </div>
     
     <div className="w-full flex flex-col gap-[1rem] overflow-x-hidden overflow-y-auto max-h-[45vh]">
@@ -185,22 +196,16 @@ return (
     >
       {/* Contenedor de foto y nombre */}
       <div className="flex gap-2 items-center min-w-[200px] max-w-[400px] flex-shrink-0">
-        {dat.foto ? (
-          <img
-            className="w-[3rem] h-[3rem] border-solid border-[1px] border-gray-300 rounded-full"
-            src={dat.foto}
-            alt="Foto"
-          />
-        ) : (
+       
           <div
-            className="w-[3rem] h-[3rem] rounded-full bg-gray-100 border-solid border-[1px] border-gray-300 text-gray-600 flex justify-center items-center"
+            className=" rounded-full bg-gray-100 border-solid border-[1px] border-gray-300 text-gray-600 flex justify-center items-center"
             data-bs-toggle="tooltip"
             data-bs-title="Ver perfil"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
-              className="bi bi-person-circle w-[1.5rem] h-[1.5rem]"
+              className="bi bi-person-circle w-[2rem] h-[2rem]"
               viewBox="0 0 16 16"
             >
               <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
@@ -210,7 +215,7 @@ return (
               />
             </svg>
           </div>
-        )}
+        
         {/* Ajuste de texto para nombres largos */}
         <p className="text-sm lg:text-base break-words break-all lg:w-full w-[52%]">
           {dat.nombre}
@@ -219,6 +224,15 @@ return (
 
       {/* Contenedor de botones */}
       <div className="flex gap-3 flex-shrink-0">
+      <button
+          className="bg-info text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
+          onClick={() => {
+            openModal_detalles();
+            setSelect(dat._id);
+          }}
+        >
+        Detalles
+        </button>
         <button
           className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
           onClick={() => {

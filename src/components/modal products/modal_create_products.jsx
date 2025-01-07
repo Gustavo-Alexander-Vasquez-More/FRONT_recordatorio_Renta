@@ -94,7 +94,7 @@ export default function modal_create_products({closeModal2}) {
     foto: fotoURL || null,
     codigo:codigo,
     precio:precio,
-    descripcion:descripcion
+    descripcion:descripcion.toUpperCase()
     }
     console.log(datos.foto);
     try {

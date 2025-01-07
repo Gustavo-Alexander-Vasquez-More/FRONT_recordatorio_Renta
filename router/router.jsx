@@ -22,6 +22,7 @@ import Create_clientes from '../src/pages/clientes/create_clientes'
 import Lista_clientes from '../src/pages/clientes/lista_clientes'
 import PanelUsuarios from "../src/pages/users/panelUsuarios";
 import PanelProductos from "../src/pages/products/panelProductos";
+import PanelClientes from "../src/pages/clientes/panel_clientes";
 const router = createBrowserRouter([
 { path: "/", element: <ProtectLogin/>, children:[{index:true, element:<Index/>}] },
 { path: "/Homepage", element: <ProtectSistem/> , children:[{index:true, element:<Homepage/>}] },
@@ -42,5 +43,6 @@ const router = createBrowserRouter([
 { path: "/create_clients", element: <Create_clientes/>},
 { path: "/users_panel", element: <PanelUsuarios/>},
 { path: "/products_panel", element: <PanelProductos/>},
+{ path: "/clients_panel", element: <PanelClientes/>},
 ])
 export default router
