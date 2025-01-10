@@ -9,9 +9,11 @@ import Swal from 'sweetalert2';
 
 export default function panelProductos() {
       const [datas, setDatas] = useState([]);
+      const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('products_current_page')))
+      const [itemsPerPage] = useState(4);
       const [select, setSelect]=useState()
-        const [searchTerm, setSearchTerm] = useState('');
-        const [filteredDatas, setFilteredDatas] = useState([]);
+      const [searchTerm, setSearchTerm] = useState('');
+      const [filteredDatas, setFilteredDatas] = useState([]);
       const [loading, setLoading] = useState(true);
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
@@ -21,6 +23,7 @@ export default function panelProductos() {
       function closeModal(){
         setModalEdit(false)
         window.location.reload()
+       
       }
       function openModal2(){
         setModal_create(true)
@@ -51,20 +54,23 @@ export default function panelProductos() {
           dat.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
           dat.codigo.toLowerCase().includes(searchTerm.toLowerCase())
         );
+      
+        // Establece la página actual a la primera si la búsqueda produce resultados diferentes
         setFilteredDatas(filtered);
+        setCurrent_page(1); // Restablece la página actual a la 1
       }
-    
-      // Limpiar el término de búsqueda
-      function clear() {
-        setSearchTerm('');
-      }
-    
-      // Ejecutar handleSearch cuando searchTerm se vacíe
+      
       useEffect(() => {
         if (searchTerm === '') {
           handleSearch();
         }
       }, [searchTerm]);
+      
+      // Limpiar el término de búsqueda
+      function clear() {
+        setSearchTerm('');
+      }
+    
 
       const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -123,6 +129,55 @@ export default function panelProductos() {
           });
         }
       }
+
+      const indexOfLastItem = current_page * itemsPerPage;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+      const currentItems = filteredDatas?.slice(indexOfFirstItem, indexOfLastItem);
+      
+      const totalPages = Math.ceil(filteredDatas.length / itemsPerPage);
+      
+      // Cambiar página
+      const changePage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+          setCurrent_page(page);
+        }
+      };
+  const generatePaginationButtons = () => {
+    let buttons = [];
+  
+    if (totalPages <= 4) {
+      // Mostrar todas las páginas si son pocas
+      for (let i = 1; i <= totalPages; i++) {
+        buttons.push(i);
+      }
+    } else {
+      const startPage = Math.max(2, current_page - 1); // Páginas antes de la actual
+      const endPage = Math.min(totalPages - 1, current_page + 1); // Páginas después de la actual
+  
+      buttons.push(1); // Primera página
+  
+      if (startPage > 2) {
+        buttons.push("..."); // Puntos suspensivos antes
+      }
+  
+      for (let i = startPage; i <= endPage; i++) {
+        buttons.push(i);
+      }
+  
+      if (endPage < totalPages - 1) {
+        buttons.push("..."); // Puntos suspensivos después
+      }
+  
+      buttons.push(totalPages); // Última página
+    }
+  
+    return buttons;
+  };
+  useEffect(() => {
+    if (current_page) {
+      localStorage.setItem('products_current_page', current_page); // Guardar en localStorage
+    }
+  }, [current_page]);
 return (
 <>
  {modaEdit === true && (
@@ -137,7 +192,7 @@ return (
         <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de Productos</p>
         <button onClick={openModal2} className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'>+ Crear productos</button>
     </div>
-    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem]'>
+    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem] min-h-[81vh]'>
         <div className='flex flex-col'>
             <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Productos</p>
             <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier producto creado.</div>
@@ -172,13 +227,13 @@ return (
         <button onClick={() => window.location.reload()} className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4">Refrescar</button>
     </div>
     ) : (
-    <div className="flex flex-col bg-[white] py-[1.5rem] px-[1.5rem] gap-2 w-full overflow-x-hidden overflow-y-auto">
-    <div className='flex justify-start border-b-[1px] border-solid '>
+    <div className="flex flex-col bg-[white] py-[1.5rem] px-[0.5rem] lg:px-[1.5rem] lg:gap-2 w-full overflow-x-hidden overflow-y-auto">
+    <div className=' justify-start border-b-[1px] border-solid lg:flex hidden'>
         <p className='font-semibold text-[1.1rem] pb-3'>Foto / Nombre del producto</p>
     </div>
-    
-    <div className="w-full flex flex-col gap-[1rem] overflow-x-hidden overflow-y-auto max-h-[45vh]">
-  {filteredDatas.map((dat) => (
+    {/* ESTO ES PARA MODO WEB */}
+    <div className="w-full lg:flex flex-col hidden gap-[1rem] overflow-x-hidden  ">
+  {currentItems.map((dat) => (
     <div
       key={dat.id}
       className="flex flex-wrap w-full gap-2 justify-between border-b-[1px] border-gray-300 py-[1rem] px-[1rem] bg-white rounded-lg shadow-md"
@@ -235,8 +290,79 @@ return (
           Eliminar
         </button>
       </div>
+      
     </div>
   ))}
+ <div className="flex justify-center gap-2 mt-4">
+  {generatePaginationButtons().map((button, index) =>
+    button === "..." ? (
+      <span key={index} className="px-3 py-1 text-gray-500">
+        ...
+      </span>
+    ) : (
+      <button
+        key={index}
+        className={`px-3 py-1 rounded ${
+          current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
+        }`}
+        onClick={() => changePage(button)}
+      >
+        {button}
+      </button>
+    )
+  )}
+</div>
+</div>
+
+ {/* ESTO ES PARA MODO CELULAR */}
+ <div className="w-full flex flex-col lg:hidden ">
+  <div className="flex flex-wrap ">
+    {currentItems.map((dat, index) => (
+      <div key={index} className=" w-1/2">
+        {/* Aquí va el contenido de cada card */}
+        <div className="bg-white px-1 py-3  rounded-lg flex flex-col gap-2">
+          <img src={dat.foto} alt="" />
+          <p className='text-[0.7rem] text-center font-semibold'>{dat.nombre.toUpperCase()}</p>
+        <div className='flex flex-col gap-2'>
+        <button
+          className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center  text-[0.8rem] justify-center text-center shadow-md"
+          onClick={() => {
+            openModal();
+            setSelect(dat._id);
+          }}
+        >
+          Editar
+        </button>
+        <button
+          className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md text-[0.8rem] justify-center text-center"
+          onClick={() => deleteProduct(dat._id)}
+        >
+          Eliminar
+        </button>
+        </div>
+        </div>
+      </div>
+    ))}
+  </div>
+  <div className="flex justify-center gap-2 mt-4">
+    {generatePaginationButtons().map((button, index) =>
+      button === "..." ? (
+        <span key={index} className="px-3 py-1 text-gray-500">
+          ...
+        </span>
+      ) : (
+        <button
+          key={index}
+          className={`px-3 py-1 rounded ${
+            current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
+          }`}
+          onClick={() => changePage(button)}
+        >
+          {button}
+        </button>
+      )
+    )}
+  </div>
 </div>
 
 
