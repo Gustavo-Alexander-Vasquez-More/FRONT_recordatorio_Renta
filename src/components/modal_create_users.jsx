@@ -164,6 +164,7 @@ async function crearUsuario() {
                     <option selected>Selecciona el rol</option>
                     <option value="1">Aministrador</option>
                     <option value="2">Empleado</option>
+                    <option value="3">Cliente</option>
                 </select>
             </div>
             <div className="flex justify-center items-center w-full pt-[1rem]">

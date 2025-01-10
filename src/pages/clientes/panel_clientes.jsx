@@ -6,13 +6,16 @@ import pen from '../../images/pen.png';
 import ModalEdit from '../../components/modal_clientes/editar_clientes';
 import Modal_detalles from '../../components/modal_clientes/modal_detalles';
 import Modal_create from '../../components/modal_clientes/crear_clientes';
+import user_foto from '../../images/foto_user_empty.jpg'
 import Swal from 'sweetalert2';
 
 export default function panelClientes() {
       const [datas, setDatas] = useState([]);
       const [select, setSelect]=useState()
-        const [searchTerm, setSearchTerm] = useState('');
-        const [filteredDatas, setFilteredDatas] = useState([]);
+      const [searchTerm, setSearchTerm] = useState('');
+      const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('products_current_page')))
+      const [itemsPerPage] = useState(4);
+      const [filteredDatas, setFilteredDatas] = useState([]);
       const [loading, setLoading] = useState(true);
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
@@ -66,7 +69,17 @@ export default function panelClientes() {
       function clear() {
         setSearchTerm('');
       }
-    
+      function handleSearch() {
+        // Filtra_ids según el término de búsqueda
+        const filtered = datas.filter((dat) =>
+          dat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      
+        // Establece la página actual a la primera si la búsqueda produce resultados diferentes
+        setFilteredDatas(filtered);
+        setCurrent_page(1); // Restablece la página actual a la 1
+      }
+      
       // Ejecutar handleSearch cuando searchTerm se vacíe
       useEffect(() => {
         if (searchTerm === '') {
@@ -131,6 +144,55 @@ export default function panelClientes() {
           });
         }
       }
+      
+            const indexOfLastItem = current_page * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            const currentItems = filteredDatas?.slice(indexOfFirstItem, indexOfLastItem);
+            
+            const totalPages = Math.ceil(filteredDatas.length / itemsPerPage);
+            
+            // Cambiar página
+            const changePage = (page) => {
+              if (page >= 1 && page <= totalPages) {
+                setCurrent_page(page);
+              }
+            };
+        const generatePaginationButtons = () => {
+          let buttons = [];
+        
+          if (totalPages <= 4) {
+            // Mostrar todas las páginas si son pocas
+            for (let i = 1; i <= totalPages; i++) {
+              buttons.push(i);
+            }
+          } else {
+            const startPage = Math.max(2, current_page - 1); // Páginas antes de la actual
+            const endPage = Math.min(totalPages - 1, current_page + 1); // Páginas después de la actual
+        
+            buttons.push(1); // Primera página
+        
+            if (startPage > 2) {
+              buttons.push("..."); // Puntos suspensivos antes
+            }
+        
+            for (let i = startPage; i <= endPage; i++) {
+              buttons.push(i);
+            }
+        
+            if (endPage < totalPages - 1) {
+              buttons.push("..."); // Puntos suspensivos después
+            }
+        
+            buttons.push(totalPages); // Última página
+          }
+        
+          return buttons;
+        };
+        useEffect(() => {
+          if (current_page) {
+            localStorage.setItem('clients_current_page', current_page); // Guardar en localStorage
+          }
+        }, [current_page]);
 return (
 <>
  {modaEdit === true && (
@@ -188,24 +250,31 @@ return (
         <p className='font-semibold text-[1.1rem] pb-3'>Nombre del cliente</p>
     </div>
     
-    <div className="w-full flex flex-col gap-[1rem] overflow-x-hidden overflow-y-auto max-h-[45vh]">
-  {filteredDatas.map((dat) => (
+ {/* ESTO ES PARA MODO WEB */}
+ <div className="w-full lg:flex flex-col hidden gap-[1rem] overflow-x-hidden  ">
+  {currentItems.map((dat) => (
     <div
       key={dat.id}
       className="flex flex-wrap w-full gap-2 justify-between border-b-[1px] border-gray-300 py-[1rem] px-[1rem] bg-white rounded-lg shadow-md"
     >
       {/* Contenedor de foto y nombre */}
       <div className="flex gap-2 items-center min-w-[200px] max-w-[400px] flex-shrink-0">
-       
+        {dat.foto ? (
+          <img
+            className="w-[3rem] h-[3rem] border-solid border-[1px] border-gray-300 rounded-full"
+            src={user_foto}
+            alt="Foto"
+          />
+        ) : (
           <div
-            className=" rounded-full bg-gray-100 border-solid border-[1px] border-gray-300 text-gray-600 flex justify-center items-center"
+            className="w-[3rem] h-[3rem] rounded-full bg-gray-100 border-solid border-[1px] border-gray-300 text-gray-600 flex justify-center items-center"
             data-bs-toggle="tooltip"
             data-bs-title="Ver perfil"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
-              className="bi bi-person-circle w-[2rem] h-[2rem]"
+              className="bi bi-person-circle w-[1.5rem] h-[1.5rem]"
               viewBox="0 0 16 16"
             >
               <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
@@ -215,7 +284,7 @@ return (
               />
             </svg>
           </div>
-        
+        )}
         {/* Ajuste de texto para nombres largos */}
         <p className="text-sm lg:text-base break-words break-all lg:w-full w-[52%]">
           {dat.nombre}
@@ -224,15 +293,6 @@ return (
 
       {/* Contenedor de botones */}
       <div className="flex gap-3 flex-shrink-0">
-      <button
-          className="bg-info text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
-          onClick={() => {
-            openModal_detalles();
-            setSelect(dat._id);
-          }}
-        >
-        Detalles
-        </button>
         <button
           className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
           onClick={() => {
@@ -249,8 +309,79 @@ return (
           Eliminar
         </button>
       </div>
+      
     </div>
   ))}
+ <div className="flex justify-center gap-2 mt-4">
+  {generatePaginationButtons().map((button, index) =>
+    button === "..." ? (
+      <span key={index} className="px-3 py-1 text-gray-500">
+        ...
+      </span>
+    ) : (
+      <button
+        key={index}
+        className={`px-3 py-1 rounded ${
+          current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
+        }`}
+        onClick={() => changePage(button)}
+      >
+        {button}
+      </button>
+    )
+  )}
+</div>
+</div>
+
+ {/* ESTO ES PARA MODO CELULAR */}
+ <div className="w-full flex flex-col lg:hidden ">
+  <div className="flex flex-wrap ">
+    {currentItems.map((dat, index) => (
+      <div key={index} className=" w-1/2">
+        {/* Aquí va el contenido de cada card */}
+        <div className="bg-white px-1 py-3  rounded-lg flex flex-col gap-2">
+          <img src={user_foto} alt="" />
+          <p className='text-[0.7rem] text-center font-semibold'>{dat.nombre.toUpperCase()}</p>
+        <div className='flex flex-col gap-2'>
+        <button
+          className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center  text-[0.8rem] justify-center text-center shadow-md"
+          onClick={() => {
+            openModal();
+            setSelect(dat._id);
+          }}
+        >
+          Editar
+        </button>
+        <button
+          className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md text-[0.8rem] justify-center text-center"
+          onClick={() => deleteProduct(dat._id)}
+        >
+          Eliminar
+        </button>
+        </div>
+        </div>
+      </div>
+    ))}
+  </div>
+  <div className="flex justify-center gap-2 mt-4">
+    {generatePaginationButtons().map((button, index) =>
+      button === "..." ? (
+        <span key={index} className="px-3 py-1 text-gray-500">
+          ...
+        </span>
+      ) : (
+        <button
+          key={index}
+          className={`px-3 py-1 rounded ${
+            current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
+          }`}
+          onClick={() => changePage(button)}
+        >
+          {button}
+        </button>
+      )
+    )}
+  </div>
 </div>
 
 

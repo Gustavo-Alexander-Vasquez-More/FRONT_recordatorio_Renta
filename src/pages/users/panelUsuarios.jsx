@@ -5,11 +5,14 @@ import axios from 'axios';
 import pen from '../../images/pen.png';
 import ModalEdit from '../../components/modalEdit';
 import Modal_create_users from '../../components/modal_create_users';
+import foto_user from '../../images/foto_user_empty.jpg'
 import Swal from 'sweetalert2';
 
 export default function panelUsuarios() {
       const [datas, setDatas] = useState([]);
       const [user_selected, setUserSelected]=useState()
+       const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('usuarios_current_page')))
+            const [itemsPerPage] = useState(4);
       const [searchTerm, setSearchTerm] = useState('');
       const [filteredDatas, setFilteredDatas] = useState([]);
       const [loading, setLoading] = useState(true);
@@ -46,11 +49,14 @@ export default function panelUsuarios() {
       }, []);
     
       function handleSearch() {
-        // Filtrar los usuarios cuando se haga clic en el botón de búsqueda
+        // Filtra_ids según el término de búsqueda
         const filtered = datas.filter((dat) =>
           dat.usuario.toLowerCase().includes(searchTerm.toLowerCase())
         );
+      
+        // Establece la página actual a la primera si la búsqueda produce resultados diferentes
         setFilteredDatas(filtered);
+        setCurrent_page(1); // Restablece la página actual a la 1
       }
      // Limpiar el término de búsqueda
      function clear() {
@@ -120,6 +126,54 @@ export default function panelUsuarios() {
           });
         }
       }
+            const indexOfLastItem = current_page * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            const currentItems = filteredDatas?.slice(indexOfFirstItem, indexOfLastItem);
+            
+            const totalPages = Math.ceil(filteredDatas.length / itemsPerPage);
+            
+            // Cambiar página
+            const changePage = (page) => {
+              if (page >= 1 && page <= totalPages) {
+                setCurrent_page(page);
+              }
+            };
+        const generatePaginationButtons = () => {
+          let buttons = [];
+        
+          if (totalPages <= 4) {
+            // Mostrar todas las páginas si son pocas
+            for (let i = 1; i <= totalPages; i++) {
+              buttons.push(i);
+            }
+          } else {
+            const startPage = Math.max(2, current_page - 1); // Páginas antes de la actual
+            const endPage = Math.min(totalPages - 1, current_page + 1); // Páginas después de la actual
+        
+            buttons.push(1); // Primera página
+        
+            if (startPage > 2) {
+              buttons.push("..."); // Puntos suspensivos antes
+            }
+        
+            for (let i = startPage; i <= endPage; i++) {
+              buttons.push(i);
+            }
+        
+            if (endPage < totalPages - 1) {
+              buttons.push("..."); // Puntos suspensivos después
+            }
+        
+            buttons.push(totalPages); // Última página
+          }
+        
+          return buttons;
+        };
+        useEffect(() => {
+          if (current_page) {
+            localStorage.setItem('usuarios_current_page', current_page); // Guardar en localStorage
+          }
+        }, [current_page]);
 return (
 <>
  {modaEdit === true && (
@@ -129,12 +183,12 @@ return (
         <Modal_create_users closeModal2={closeModal2}  gett={get}/>
     )}
 <Navbar/>
-<div className='flex flex-col bg-[#ececec] w-full lg:h-[90vh]'>
+<div className='flex flex-col bg-[#ececec] w-full '>
     <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
         <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de usuarios</p>
         <button onClick={openModal2} className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'>+ Crear usuarios</button>
     </div>
-    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem]'>
+    <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem] min-h-[81vh]'>
         <div className='flex flex-col'>
             <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Usuarios</p>
             <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier usuario creado.</div>
@@ -169,98 +223,148 @@ return (
         <button onClick={() => window.location.reload()} className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4">Refrescar</button>
     </div>
     ) : (
-    <div className="flex flex-col bg-[white] py-[1.5rem] px-[1.5rem] gap-1 w-full overflow-x-hidden overflow-y-auto min-h-[52vh] max-h-[52vh] ">
-    <div className='flex justify-start border-b-[1px] border-solid '>
+    <div className="flex flex-col bg-[white] py-[1.5rem] px-[0.5rem] lg:px-[1.5rem] lg:gap-2 w-full ">
+    <div className='lg:flex hidden justify-start border-b-[1px] border-solid h-auto '>
         <p className='font-semibold text-[1.1rem] pb-3'>Foto / Nombre de usuario</p>
     </div>
-    {filteredDatas.map((dat) => (
-  <div
-    className="w-full border-b-[1px] overflow-x-auto overflow-y-hidden border-solid flex justify-between items-center px-[1rem] py-[0.5rem]"
-    key={dat._id}
-  >
-    <div className="flex w-full gap-2 lg:gap-4 items-center min-w-[180px] max-w-[300px]">
-      {dat.foto && (
-        <img
-          className="w-[3rem] h-[3rem] border-solid border-1 rounded-full"
-          src={dat.foto}
-          alt=""
-        />
-      )}
-      {!dat.foto && (
-        <div
-          className="w-[3rem] h-[3rem] rounded-full bg-gray-100 border-solid border-1 text-white flex justify-center items-center"
-          data-bs-toggle="tooltip"
-          data-bs-title="Ver perfil"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            className="bi bi-person-circle"
-            viewBox="0 0 16 16"
+   {/* ESTO ES PARA MODO WEB */}
+   <div className="w-full lg:flex flex-col hidden gap-[1rem] overflow-x-hidden ">
+  {currentItems.map((dat) => (
+    <div
+      key={dat.id}
+      className="flex flex-wrap w-full gap-2 justify-between border-b-[1px] border-gray-300 py-[1rem] px-[1rem] bg-white rounded-lg shadow-md"
+    >
+      {/* Contenedor de foto y nombre */}
+      <div className="flex gap-2 items-center min-w-[200px] max-w-[400px] flex-shrink-0">
+        {dat.foto ? (
+          <img
+            className="w-[3rem] h-[3rem] border-solid border-[1px] border-gray-300 rounded-full"
+            src={dat.foto}
+            alt="Foto"
+          />
+        ) : (
+          <div
+            className="w-[3rem] h-[3rem] rounded-full bg-gray-100 border-solid border-[1px] border-gray-300 text-gray-600 flex justify-center items-center"
+            data-bs-toggle="tooltip"
+            data-bs-title="Ver perfil"
           >
-            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-            <path
-              fillRule="evenodd"
-              d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-            />
-          </svg>
-        </div>
-      )}
-      <p className="text-sm lg:text-base">{dat.usuario}</p>
-    </div>
-    <div className="flex gap-3 min-w-[250px]">
-      <button
-        className="bg-primary text-white rounded-[5px] px-[1rem] py-[0.3rem] flex gap-1"
-        onClick={() => {
-          openModal(), setUserSelected(dat._id);
-        }}
-      >
-        <svg
-          className="w-6 h-6 text-white"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-          />
-        </svg>
-        Editar
-      </button>
-      <button
-        className="bg-[red] text-white rounded-[5px] px-[1rem] py-[0.3rem] flex gap-1"
-        onClick={() => deleteUser(dat.usuario)}
-      >
-        <svg
-          className="w-6 h-6 text-white"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-          />
-        </svg>
-        Eliminar
-      </button>
-    </div>
-  </div>
-))}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              className="bi bi-person-circle w-[1.5rem] h-[1.5rem]"
+              viewBox="0 0 16 16"
+            >
+              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+              <path
+                fillRule="evenodd"
+                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
+              />
+            </svg>
+          </div>
+        )}
+        {/* Ajuste de texto para nombres largos */}
+        <p className="text-sm lg:text-base break-words break-all lg:w-full w-[52%]">
+          {dat.usuario}
+        </p>
+      </div>
 
+      {/* Contenedor de botones */}
+      <div className="flex gap-3 flex-shrink-0">
+        <button
+          className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
+          onClick={() => {
+            openModal();
+            setUserSelected(dat._id);
+          }}
+        >
+          Editar
+        </button>
+        <button
+          className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
+          onClick={() => deleteUser(dat._id)}
+        >
+          Eliminar
+        </button>
+      </div>
+      
+    </div>
+  ))}
+ <div className="flex justify-center gap-2 mt-4">
+  {generatePaginationButtons().map((button, index) =>
+    button === "..." ? (
+      <span key={index} className="px-3 py-1 text-gray-500">
+        ...
+      </span>
+    ) : (
+      <button
+        key={index}
+        className={`px-3 py-1 rounded ${
+          current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
+        }`}
+        onClick={() => changePage(button)}
+      >
+        {button}
+      </button>
+    )
+  )}
+</div>
+</div>
+
+ {/* ESTO ES PARA MODO CELULAR */}
+ <div className="w-full flex flex-col lg:hidden ">
+  <div className="flex flex-wrap ">
+    {currentItems.map((dat, index) => (
+      <div key={index} className=" w-1/2">
+        {/* Aquí va el contenido de cada card */}
+        <div className="bg-white px-1 py-3  rounded-lg flex flex-col gap-2">
+          {dat.foto && (
+            <img src={dat.foto} alt="" />
+          )}
+          {!dat.foto && (
+            <img src={foto_user} alt="" />
+          )}
+          <p className='text-[0.7rem] text-center font-semibold'>{dat.usuario}</p>
+        <div className='flex flex-col gap-2'>
+        <button
+          className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center  text-[0.8rem] justify-center text-center shadow-md"
+          onClick={() => {
+            openModal();
+            setUserSelected(dat._id);
+          }}
+        >
+          Editar
+        </button>
+        <button
+          className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md text-[0.8rem] justify-center text-center"
+          onClick={() => deleteUser(dat._id)}
+        >
+          Eliminar
+        </button>
+        </div>
+        </div>
+      </div>
+    ))}
+  </div>
+  <div className="flex justify-center gap-2 mt-4">
+    {generatePaginationButtons().map((button, index) =>
+      button === "..." ? (
+        <span key={index} className="px-3 py-1 text-gray-500">
+          ...
+        </span>
+      ) : (
+        <button
+          key={index}
+          className={`px-3 py-1 rounded ${
+            current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
+          }`}
+          onClick={() => changePage(button)}
+        >
+          {button}
+        </button>
+      )
+    )}
+  </div>
+</div>
     </div>
     )}
     </div>

@@ -659,7 +659,7 @@ return (
             ) : (
             <button className="px-[1rem] bg-primary py-[0.3rem] text-white rounded-[5px]" onClick={() => handleAddProduct(dat)} >Agregar</button>
             )) : (
-            <button className="px-[1rem] py-[0.3rem] text-white rounded-[5px] bg-gray-400 cursor-not-allowed" disabled>Agotado</button>
+            <button className="px-[1rem] py-[0.3rem] text-danger font-semibold rounded-[5px] bg-[#d2d1d15e] cursor-not-allowed" disabled>Agotado</button>
             )}
             </div>
             ))}
