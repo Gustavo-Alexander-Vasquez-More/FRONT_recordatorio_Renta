@@ -84,7 +84,7 @@ return(
   <View style={styles.page}>
 <Image style={styles.plantilla} src={{ uri:`${plantilla}` , method: 'GET'}}/>
 <View style={styles.nombre}>
-<Text >{dat.nombre}</Text>
+<Text >{dat.nombre.toUpperCase()}</Text>
 </View>
 <View style={styles.foto}>
 <Image  src={{ uri:`${dat.foto}` , method: 'GET'}}/>
@@ -96,7 +96,7 @@ return(
 <Text>${dat.precio} MXN</Text>
 </View>
 <View style={styles.detalles}>
-<Text>{dat.descripcion}</Text>
+<Text>{dat.descripcion.toUpperCase()}</Text>
 </View>
 </View>
 </Page>
