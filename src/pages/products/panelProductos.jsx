@@ -18,6 +18,7 @@ export default function panelProductos() {
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
       function openModal(){
+        window.scrollTo(0,0)
         setModalEdit(true)
       }
       function closeModal(){
@@ -268,7 +269,7 @@ return (
         )}
         {/* Ajuste de texto para nombres largos */}
         <p className="text-sm lg:text-base break-words break-all lg:w-full w-[52%]">
-          {dat.nombre}
+          {dat.nombre.toUpperCase()}
         </p>
       </div>
 

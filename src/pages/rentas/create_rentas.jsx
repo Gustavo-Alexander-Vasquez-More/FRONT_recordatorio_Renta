@@ -280,7 +280,7 @@ async function generar_rentas() {
     }
   });
 
-  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta || !hora_vencimiento) {
+  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta ) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
   const response = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/`);
@@ -312,6 +312,7 @@ async function generar_rentas() {
       nombre: product.nombre, // Nombre del producto
       cantidad: product.cantidad,
       codigo: product.codigo,
+      descripcion:product.descripcion,
       precio_unitario: product.precio.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Precio por unidad
       _id: product._id
     })),
@@ -323,7 +324,7 @@ async function generar_rentas() {
     nombre_encargado:localStorage.getItem('nombre'),
     fecha_renta: fecha_renta_formateada,
     hora_renta: hora_renta,
-    hora_vencimiento: hora_vencimiento,
+    hora_vencimiento: hora_renta,
     observacion_inicial: detalle,
     cliente:cliente_Selected,
     folio: nuevoFolio,
@@ -468,10 +469,7 @@ return (
             <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento:</label>
             <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
           </div>
-          <div class="mb-3">
-            <label  for="exampleInputPassword1" class="form-label font-bold">Hora de vencimiento</label>
-            <input ref={input_hora_vencimiento} onChange={captureHora_vencimiento} placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
-         </div>
+          
         <div class="mb-3">
           <label  for="exampleInputPassword1" class="form-label font-bold">Dirección de uso: (Donde ser usarán los equipos) *obligatorio</label>
           <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
@@ -557,10 +555,6 @@ return (
             <div class="mb-3 flex flex-col">
               <label  for="exampleInputPassword1" class="form-label font-bold">Fecha de vencimiento:</label>
               <DatePicker showMonthDropdown  yearDropdownItemNumber={15} scrollableYearDropdown showYearDropdown locale={es} selected={fecha_vencimiento} dateFormat='dd/MM/yyyy' onChange={(date) => setFecha_Vencimiento(date)}   className=' w-full border-solid border-[1px] border-[gray] rounded-[5px] py-[0.2rem] px-[0.5rem]' showIcon/>
-            </div>
-            <div class="mb-3">
-              <label  for="exampleInputPassword1" class="form-label font-bold">Hora de vencimiento</label>
-              <input ref={input_hora_vencimiento} onChange={captureHora_vencimiento} placeholder='HORA:MINUTOS' type="text" class="form-control" id="exampleInputPassword1"/>
             </div>
             <div class="mb-3">
               <label  for="exampleInputPassword1" class="form-label font-bold">Dirección de uso: (Donde ser usarán los equipos) *obligatorio</label>
@@ -659,7 +653,7 @@ return (
             ) : (
             <button className="px-[1rem] bg-primary py-[0.3rem] text-white rounded-[5px]" onClick={() => handleAddProduct(dat)} >Agregar</button>
             )) : (
-            <button className="px-[1rem] py-[0.3rem] text-danger font-semibold rounded-[5px] bg-[#d2d1d15e] cursor-not-allowed" disabled>Agotado</button>
+            <button className="px-[1rem] py-[0.3rem] text-danger font-semibold rounded-[5px] bg-[#d2d1d15e] cursor-not-allowed" disabled>Rentado</button>
             )}
             </div>
             ))}

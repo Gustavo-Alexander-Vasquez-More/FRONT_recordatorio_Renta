@@ -10,6 +10,7 @@ const [observacion, setObservacion]=useState()
 const [files, setFiles]=useState([])
 console.log(files);
 const [datas, setDatas]=useState()
+const [datitos, setDatitos]=useState()
 const [loading, setLoading]=useState()
 console.log(datas);
 const notyf = new Notyf({
@@ -23,6 +24,7 @@ async function get() {
   try {
     const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/read_especific?_id=${_id}`);
     setDatas(data.response);
+    setDatitos(data?.response[0]);
     ; // Al principio mostramos todos los datos
     setLoading(false); // Datos cargados, actualizamos el estado de carga
   } catch (error) {
@@ -153,60 +155,96 @@ const handleFileChange = (event) => {
   
   return (
  <>
- <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
-    <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] h-auto flex flex-col gap-4 py-[1rem] px-[1rem]">
-        <div className="flex justify-end">
-            <button onClick={closeModal_recibido}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>
-            </button>
-        </div>
-        <p className='text-center underline text-[1.2rem] font-semibold'>Formulario para marcar la devolución de una renta</p>
-        <div className='flex flex-col w-full py-[2rem]'>
-        <div className="mb-3">
-    <label
-      htmlFor="photoInput"
-      className="block text-sm font-medium text-gray-700 mb-2"
+ {datitos?.estado_renta === 'Entregado' && (
+   <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
+    <div className='flex flex-col gap-3'
+    style={{
+      backgroundColor: '#f8d7da', // Rojo claro para error
+      color: '#721c24', // Texto rojo oscuro
+      padding: '10px 20px',
+      borderRadius: '5px',
+      border: '1px solid #f5c6cb',
+      margin: '10px 0',
+      fontSize: '16px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    }}
+  >
+    <span>⚠️ La renta ya ha sido entregada.</span>
+    <button
+      onClick={() => closeModal_recibido()}
+      style={{
+        backgroundColor: '#721c24', // Botón del mismo color del texto
+        color: '#fff', // Texto blanco
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '3px',
+        cursor: 'pointer',
+        fontSize: '14px',
+      }}
     >
-      Fotos de cómo devolvió el cliente los equipos
-    </label>
-    <input
-      type="file"
-      id="photoInput"
-      accept="image/*"
-      multiple
-      onChange={handleFileChange}
-      className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-    />
-    <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
-      {files.map((image, index) => (
-        <div key={image.id}  className="relative">
-          <img
-            src={image.src}
-            alt={image.name}
-            className="h-24 w-24 object-cover rounded shadow"
-          />
-          <button
-            onClick={() => handleRemoveImage(image.id, index)}
-            className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0"
-          >
-            X
-          </button>
-        </div>
-      ))}
-    </div>
+      Cerrar
+    </button>
   </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label text-[0.8rem] font-semibold">Observaciones de la devolución (detalle como entregó el cliente los equipos)</label>
-                <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-            </div>
-            <div className='w-full flex items-center justify-center'>
-                <button onClick={marcarEntrega} className='bg-primary text-white px-[1rem] py-[0.3rem] rounded-[5px]'>Enviar</button>
-            </div>
-        </div>
-    </div>
+ </div>
+ )}
+ {datitos?.estado_renta === 'Vencido' && (
+  <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
+  <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] h-auto flex flex-col gap-4 py-[1rem] px-[1rem]">
+      <div className="flex justify-end">
+          <button onClick={closeModal_recibido}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+              </svg>
+          </button>
+      </div>
+      <p className='text-center underline text-[1.2rem] font-semibold'>Formulario para marcar la devolución de una renta</p>
+      <div className='flex flex-col w-full py-[2rem]'>
+      <div className="mb-3">
+  <label
+    htmlFor="photoInput"
+    className="block text-sm font-medium text-gray-700 mb-2"
+  >
+    Fotos de cómo devolvió el cliente los equipos
+  </label>
+  <input
+    type="file"
+    id="photoInput"
+    accept="image/*"
+    multiple
+    onChange={handleFileChange}
+    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  />
+  <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
+    {files.map((image, index) => (
+      <div key={image.id}  className="relative">
+        <img
+          src={image.src}
+          alt={image.name}
+          className="h-24 w-24 object-cover rounded shadow"
+        />
+        <button
+          onClick={() => handleRemoveImage(image.id, index)}
+          className="absolute top-0 right-0 bg-red-500 text-white text-xs py-1 px-2 rounded-full transform -translate-y-1 -translate-x-0"
+        >
+          X
+        </button>
+      </div>
+    ))}
+  </div>
 </div>
+          <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label text-[0.8rem] font-semibold">Observaciones de la devolución (detalle como entregó el cliente los equipos)</label>
+              <textarea ref={input_detalle} onChange={captureDetalle} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+          </div>
+          <div className='w-full flex items-center justify-center'>
+              <button onClick={marcarEntrega} className='bg-primary text-white px-[1rem] py-[0.3rem] rounded-[5px]'>Enviar</button>
+          </div>
+      </div>
+  </div>
+</div>
+ )}
  </>
   );
 }

@@ -19,6 +19,7 @@ export default function panelUsuarios() {
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
       function openModal(){
+        window.scrollTo(0,0)
         setModalEdit(true)
       }
       function closeModal(){

@@ -3,7 +3,7 @@ import logo from '../images/logo.png';
 import axios from 'axios';
 import Lightbox from './ligthbox';
 import Download_pdf from './download_pdf';
-import Download_pdf_nota from './download_pdf_nota';
+
 
 export default function ModalDetalle({ closeModal, _id }) {
   const [datas, setDatas] = useState([]);

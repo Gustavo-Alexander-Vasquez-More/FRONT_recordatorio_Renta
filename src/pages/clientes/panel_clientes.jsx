@@ -21,6 +21,7 @@ export default function panelClientes() {
       const [modal_create, setModal_create]=useState(false)
       const [modal_detalles, setModal_detalles]=useState(false)
       function openModal(){
+        window.scrollTo(0,0)
         setModalEdit(true)
       }
       function closeModal(){

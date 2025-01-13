@@ -94,13 +94,22 @@ direccion:{
 
 box:{
     position:'absolute',
-    top:259.5,
-    fontSize:14,
+    top:240,
     left:63,
-    textDecoration:'underline',
     width:'80%',
     fontFamily:'Helvetica',
     lineHeight:2
+},
+name:{
+  fontFamily:'Helvetica-Bold',
+  lineHeight:2,
+  fontSize:11,
+  textDecoration:'underline',
+ 
+},
+desc:{
+  lineHeight:2,
+  fontSize:11
 },
 arrendador2:{
     position:'absolute',
@@ -376,9 +385,13 @@ return (
             <View style={styles.page}>
                 <Image style={styles.plantilla} src={{ uri:`${page3}` , method: 'GET'}}/>
                 <View style={styles.box}>
-                    {dat.detalles_maquinaria.map(dat3=>(
-                      <Text style={styles.detalles}>{dat3}</Text>
-                    ))}
+                    {dat.productos?.map(dat3=>(
+                       <>
+                       <Text style={styles.name}>{dat3.nombre.toUpperCase()}:</Text>
+                       <Text style={styles.desc}>{dat3.descripcion.toUpperCase()}</Text>
+                       </>
+                      ))}
+                      
                 </View>
             </View>
         </Page>

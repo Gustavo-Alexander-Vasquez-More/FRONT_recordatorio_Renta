@@ -13,6 +13,7 @@ export default function lista_productos() {
     const [modal, setModal]=useState(false)
     const [id, setId]=useState(null)
 function openModal(){
+  window.scrollTo(0,0)
     setModal(true)
 }
 function closeModal(){
@@ -175,12 +176,12 @@ function closeModal(){
         <p className='lg:text-[1rem] text-[0.7rem] text-center font-semibold text-danger'>{dat.nombre.toUpperCase()}</p>
         <p className='text-center text-secondary font-semibold'>${dat.precio} MXN</p>
         {dat.stock === 0 && (
-          <p className='text-center text-danger font-semibold bg-[#dbdbdb97] rounded-[5px] py-1 lg:text-[1rem] text-[0.7rem]'>Agotado</p>
+          <p className='text-center text-danger font-semibold bg-[#dbdbdb97] rounded-[5px] py-1 lg:text-[1rem] text-[0.7rem]'>Rentado</p>
         )}
         {dat.stock > 0 && (
           <p className='text-center text-primary font-semibold bg-[#dbdbdb97] rounded-[5px] py-1 lg:text-[1rem] text-[0.7rem]'>Queda {dat.stock} disponible</p>
         )}
-        <button onClick={()=>{openModal(), setId(dat._id)}} className='bg-primary text-white py-1 rounded-[5px] lg:text-[1rem] text-[0.7rem]'>Mas detalles ...</button>
+        <button onClick={()=>{openModal(), setId(dat._id)}} className='bg-primary text-white py-1 rounded-[5px] lg:text-[1rem] text-[0.7rem]'>Ficha técnica</button>
       </div>
     ))}
   </div>

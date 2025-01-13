@@ -17,7 +17,7 @@ import Update_rentas from "../src/pages/rentas/update_rentas";
 import Historial_rentas from "../src/pages/rentas/historial_rentas";
 import Lista_productos from "../src/pages/products/lista_productos";
 import ProtectRutas from "../src/protect/protect_rutas";
-import Nota_remision from "../src/pages/PDF/nota_remision";
+import Nota_remision from "../src/pages/PDF/ficha_tecnica";
 import Create_clientes from '../src/pages/clientes/create_clientes'
 import Lista_clientes from '../src/pages/clientes/lista_clientes'
 import PanelUsuarios from "../src/pages/users/panelUsuarios";

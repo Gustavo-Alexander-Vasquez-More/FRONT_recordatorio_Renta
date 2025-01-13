@@ -90,7 +90,7 @@ export default function modal_create_products({closeModal2}) {
         }
     
     const datos={
-    nombre: nombre,
+    nombre: nombre.toUpperCase(),
     foto: fotoURL || null,
     codigo:codigo,
     precio:precio,
