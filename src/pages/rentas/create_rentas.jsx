@@ -25,6 +25,7 @@ const notyf = new Notyf({
 const [datas, setDatas] = useState([]); //productos traidos por axios
 const [filteredDatas, setFilteredDatas] = useState([]); // productos filtrados
 const [selectedProducts, setSelectedProducts] = useState([]); //se almacenan los productos seleccionados
+console.log(selectedProducts);
 const [searchTerm, setSearchTerm] = useState(''); //Se almacenan los terminos de busqueda
 const [loading, setLoading] = useState(true); //estado para spinner de carga
 const [files, setFiles]=useState([])
@@ -273,6 +274,9 @@ async function folioactual() {
 
 //FUNCION PARA CREAR UNA RENTA
 async function generar_rentas() {
+  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta ) {
+    return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
+  }
   Swal.fire({
     title: 'Cargando, por favor espere...',
     didOpen: () => {
@@ -280,9 +284,7 @@ async function generar_rentas() {
     }
   });
 
-  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta ) {
-    return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
-  }
+
   const response = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/`);
     const permisosData = response.data.response
     const ultimoPermiso = permisosData[permisosData.length - 1];
@@ -317,8 +319,14 @@ async function generar_rentas() {
       _id: product._id
     })),
     importe_total: selectedProducts
-    .reduce((total, product) => total + (product.precio * product.cantidad * dias_contados), 0) // Agrega 0 como valor inicial
-    .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Importe total de todos los productos seleccionados
+    .reduce((total, product) => {
+      // Limpia las comas del precio y convierte a número
+      const precioNumerico = parseFloat(product.precio.replace(/,/g, ''));
+      // Realiza la multiplicación y suma
+      return total + (precioNumerico * product.cantidad * dias_contados);
+    }, 0) // Agrega 0 como valor inicial
+    .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Formatea el total
+  
     fotos_estado_inicial: fotosEstadoInicial, // Las URLs de las fotos subidas
     usuario_retandor: localStorage.getItem('usuario'), // Usuario que está realizando la renta
     nombre_encargado:localStorage.getItem('nombre'),
@@ -395,8 +403,10 @@ return (
                         {product.nombre}
                       </td>
                       <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                        ${(product.precio * product.cantidad).toFixed(2)}
-                      </td>
+  {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(
+    parseFloat(product.precio.replace(/,/g, '')) * product.cantidad
+  )}
+</td>
                       <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                         <span className="mx-2">{product.cantidad}</span>
                       </td>
@@ -410,10 +420,13 @@ return (
             Importe total por {dias_contados} días: 
           </td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-          ${selectedProducts
-  .reduce((total, product) => total + (product.precio * product.cantidad * dias_contados), 0) // Agrega 0 como valor inicial
-  .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </td>
+  ${selectedProducts
+    .reduce((total, product) => {
+      const precioNumerico = parseFloat(product.precio.replace(/,/g, '')); // Limpia las comas y convierte a número
+      return total + (precioNumerico * product.cantidad * dias_contados);
+    }, 0) // Valor inicial
+    .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+</td>
         </tr>
                 )}
               </tbody>

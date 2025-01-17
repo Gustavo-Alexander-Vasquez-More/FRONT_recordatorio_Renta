@@ -73,7 +73,7 @@ export default function modal_create_products({closeModal2}) {
           Swal.showLoading();  // Mostrar el spinner de carga
         }
       });
-      if(!nombre || !codigo || !codigo || !precio || !descripcion){
+      if(!nombre || !codigo || !codigo || !precio || !descripcion || !stock){
         notyf.error('Por favor complete los campos')
       }
       
@@ -93,6 +93,7 @@ export default function modal_create_products({closeModal2}) {
     nombre: nombre.toUpperCase(),
     foto: fotoURL || null,
     codigo:codigo,
+    stock:stock,
     precio:precio,
     descripcion:descripcion.toUpperCase()
     }
@@ -133,6 +134,10 @@ export default function modal_create_products({closeModal2}) {
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Código del producto</label>
             <input ref={input_codigo} onChange={captureCodigo} type="text" class="form-control" id="exampleInputPassword1"/>
+          </div>
+          <div class="mb-3 w-full">
+            <label for="exampleInputPassword1" class="form-label">Stock del producto</label>
+            <input ref={input_sotck} placeholder='Escribelo en números' onChange={captureStock} type="number" class="form-control" id="exampleInputPassword1"/>
           </div>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Descripción del producto</label>

@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 export default function panelProductos() {
       const [datas, setDatas] = useState([]);
       const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('products_current_page')))
-      const [itemsPerPage] = useState(4);
+      const [itemsPerPage] = useState(10);
       const [select, setSelect]=useState()
       const [searchTerm, setSearchTerm] = useState('');
       const [filteredDatas, setFilteredDatas] = useState([]);
@@ -228,73 +228,25 @@ return (
         <button onClick={() => window.location.reload()} className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4">Refrescar</button>
     </div>
     ) : (
-    <div className="flex flex-col bg-[white] py-[1.5rem] px-[0.5rem] lg:px-[1.5rem] lg:gap-2 w-full overflow-x-hidden overflow-y-auto">
-    <div className=' justify-start border-b-[1px] border-solid lg:flex hidden'>
-        <p className='font-semibold text-[1.1rem] pb-3'>Foto / Nombre del producto</p>
-    </div>
+    <div className="flex flex-col items-center py-[1.5rem] lg:gap-2 w-full">
+    
     {/* ESTO ES PARA MODO WEB */}
-    <div className="w-full lg:flex flex-col hidden gap-[1rem] overflow-x-hidden  ">
-  {currentItems.map((dat) => (
-    <div
-      key={dat.id}
-      className="flex flex-wrap w-full gap-2 justify-between border-b-[1px] border-gray-300 py-[1rem] px-[1rem] bg-white rounded-lg shadow-md"
-    >
-      {/* Contenedor de foto y nombre */}
-      <div className="flex gap-2 items-center min-w-[200px] max-w-[400px] flex-shrink-0">
-        {dat.foto ? (
-          <img
-            className="w-[3rem] h-[3rem] border-solid border-[1px] border-gray-300 rounded-full"
-            src={dat.foto}
-            alt="Foto"
-          />
-        ) : (
-          <div
-            className="w-[3rem] h-[3rem] rounded-full bg-gray-100 border-solid border-[1px] border-gray-300 text-gray-600 flex justify-center items-center"
-            data-bs-toggle="tooltip"
-            data-bs-title="Ver perfil"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              className="bi bi-person-circle w-[1.5rem] h-[1.5rem]"
-              viewBox="0 0 16 16"
-            >
-              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-              <path
-                fillRule="evenodd"
-                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-              />
-            </svg>
-          </div>
-        )}
-        {/* Ajuste de texto para nombres largos */}
-        <p className="text-sm lg:text-base break-words break-all lg:w-full w-[52%]">
-          {dat.nombre.toUpperCase()}
-        </p>
-      </div>
-
-      {/* Contenedor de botones */}
-      <div className="flex gap-3 flex-shrink-0">
-        <button
-          className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
-          onClick={() => {
+    <div className="lg:grid grid-cols-2 hidden sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+    {currentItems.map((dat, index) => (
+      <div key={index} className="bg-white w-full px-2 py-2 rounded-lg flex flex-col gap-2">
+           <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
+           <p className='lg:text-[1rem] text-[0.7rem] text-center font-semibold text-danger lg:h-auto h-[40px] line-clamp-2 lg:line-clamp-1'>{dat.nombre.toUpperCase()}</p>
+           <p className="text-center text-secondary lg:text-[1rem] text-[0.8rem] font-semibold">${dat.precio} MXN</p>
+           <button  onClick={() => {
             openModal();
             setSelect(dat._id);
-          }}
-        >
-          Editar
-        </button>
-        <button
-          className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
-          onClick={() => deleteProduct(dat._id)}
-        >
-          Eliminar
-        </button>
+          }} className='bg-primary py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Editar</button>
+           <button onClick={() => deleteProduct(dat._id)} className='bg-red-500 py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Eliminar</button>
       </div>
-      
-    </div>
-  ))}
- <div className="flex justify-center gap-2 mt-4">
+    ))}
+ 
+</div>
+<div className="lg:flex hidden w-full justify-center gap-2 mt-4">
   {generatePaginationButtons().map((button, index) =>
     button === "..." ? (
       <span key={index} className="px-3 py-1 text-gray-500">
@@ -313,39 +265,22 @@ return (
     )
   )}
 </div>
-</div>
-
  {/* ESTO ES PARA MODO CELULAR */}
- <div className="w-full flex flex-col lg:hidden ">
-  <div className="flex flex-wrap ">
-    {currentItems.map((dat, index) => (
-      <div key={index} className=" w-1/2">
-        {/* Aquí va el contenido de cada card */}
-        <div className="bg-white px-1 py-3  rounded-lg flex flex-col gap-2">
-          <img src={dat.foto} alt="" />
-          <p className='text-[0.7rem] text-center font-semibold'>{dat.nombre.toUpperCase()}</p>
-        <div className='flex flex-col gap-2'>
-        <button
-          className="bg-primary text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center  text-[0.8rem] justify-center text-center shadow-md"
-          onClick={() => {
+ <div className="grid grid-cols-2 lg:hidden  gap-4 w-full">
+ {currentItems.map((dat, index) => (
+      <div key={index} className="bg-white w-full px-2 py-2 rounded-lg flex flex-col gap-2">
+           <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
+           <p className='lg:text-[1rem] text-[0.7rem] text-center font-semibold text-danger lg:h-auto h-[40px] line-clamp-2 lg:line-clamp-1'>{dat.nombre.toUpperCase()}</p>
+           <p className="text-center text-secondary lg:text-[1rem] text-[0.8rem] font-semibold">${dat.precio} MXN</p>
+           <button  onClick={() => {
             openModal();
             setSelect(dat._id);
-          }}
-        >
-          Editar
-        </button>
-        <button
-          className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md text-[0.8rem] justify-center text-center"
-          onClick={() => deleteProduct(dat._id)}
-        >
-          Eliminar
-        </button>
-        </div>
-        </div>
+          }} className='bg-primary py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Editar</button>
+           <button onClick={() => deleteProduct(dat._id)} className='bg-red-500 py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Eliminar</button>
       </div>
     ))}
   </div>
-  <div className="flex justify-center gap-2 mt-4">
+  <div className="flex lg:hidden w-full  justify-center gap-2 mt-4">
     {generatePaginationButtons().map((button, index) =>
       button === "..." ? (
         <span key={index} className="px-3 py-1 text-gray-500">
@@ -364,7 +299,7 @@ return (
       )
     )}
   </div>
-</div>
+
 
 
 

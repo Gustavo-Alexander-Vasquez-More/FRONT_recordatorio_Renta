@@ -87,7 +87,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
           showConfirmButton: false,
           timer: 1500
         });
-       
+        closeModal_change_foto()
   
       } catch (error) {
         console.error(error);
@@ -168,7 +168,30 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
   useEffect(() => {
     get();
   }, []);
-  
+  function handleEnterPress(event, valor, dato) {
+    if (event.key === 'Enter') {
+      editarProducto(valor, dato)
+      switch (valor) {
+        case 'nombre':
+          setEdit_nombre(false);
+          break;
+        case 'precio':
+          setEdit_precio(false);
+          break;
+        case 'codigo':
+          setEdit_codigo(false);
+          break;
+        case 'stock':
+          setEdit_stock(false);
+          break;
+          case 'descripcion':
+          setEdit_descripcion(false);
+          break;
+        default:
+          console.log('No se reconoce el caso:', valor);
+      }
+    }
+  }
   return (
     <>
     {modal_change_foto === true && (
@@ -219,6 +242,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
         <input
           placeholder="Escribe el nuevo nombre"
           value={nombre}
+          onKeyPress={(event)=>{handleEnterPress(event,'nombre',nombre)}}
           onChange={(e) => setNombre(e.target.value)}
           type="text"
           className={`form-control ${!edit_nombre ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -229,7 +253,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
         {/* Botón para habilitar la edición */}
         <button
           className="flex gap-1 items-center underline"
-          onClick={() => setEdit_nombre(true)}
+          onClick={() => {setEdit_nombre(true)}}
         >
           <svg
             className="w-6 h-6 text-[#808080]"
@@ -254,16 +278,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       {edit_nombre && (
         <div className="flex gap-2 text-[0.8rem]">
           <button
-            onClick={() => {
-              // Aquí guardarías los cambios
-              setEdit_nombre(false); ; editarProducto('nombre', nombre)// Deshabilitar de nuevo
-            }}
-            className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-          >
-            Guardar
-          </button>
-          <button
-            onClick={() => {setEdit_nombre(false), setNombre(datas[0]?.nombre)}} // Cancelar y deshabilitar
+            onClick={() => {setEdit_nombre(false)}} // Cancelar y deshabilitar
             className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
           >
             Cancelar
@@ -282,6 +297,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
           {/* Input deshabilitado dinámicamente */}
           <input
             placeholder="Escribe el nuevo precio"
+            onKeyPress={(event)=>{handleEnterPress(event,'precio',precio)}}
             value={precio}
             onChange={handleChange}
             type="text"
@@ -321,17 +337,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
           <div className="flex gap-2 text-[0.8rem]">
             <button
               onClick={() => {
-                setEdit_precio(false);
-                editarProducto('precio', precio); // Guardar cambios
-              }}
-              className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-            >
-              Guardar
-            </button>
-            <button
-              onClick={() => {
-                setEdit_precio(false);
-                setPrecio(datas[0]?.precio); // Restaurar precio original
+                setEdit_precio(false) // Restaurar precio original
               }}
               className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
             >
@@ -352,6 +358,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
         <input
           placeholder="Escribe el nuevo código"
           value={codigo}
+          onKeyPress={(event)=>{handleEnterPress(event,'codigo',codigo)}}
           onChange={(e) => setCodigo(e.target.value)}
           type="text"
           className={`form-control ${!edit_codigo ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -387,16 +394,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       {edit_codigo && (
         <div className="flex gap-2 text-[0.8rem]">
           <button
-            onClick={() => {
-              // Aquí guardarías los cambios
-              setEdit_codigo(false); ; editarProducto('codigo', codigo)// Deshabilitar de nuevo
-            }}
-            className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-          >
-            Guardar
-          </button>
-          <button
-            onClick={() => {setEdit_codigo(false), setCodigo(datas[0]?.codigo)}} // Cancelar y deshabilitar
+            onClick={() => {setEdit_codigo(false)}} // Cancelar y deshabilitar
             className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
           >
             Cancelar
@@ -416,6 +414,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
         <input
           placeholder="Escribe el nuevo rol"
           value={stock}
+          onKeyPress={(event)=>{handleEnterPress(event,'stock',stock)}}
           onChange={(e) => setStock(e.target.value)}
           type="number"
           className={`w-full border rounded p-2 ${!edit_stock ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -451,16 +450,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       {edit_stock && (
         <div className="flex gap-2 text-[0.8rem]">
           <button
-            onClick={() => {
-              // Aquí guardarías los cambios
-              setEdit_stock(false); editarProducto('stock', stock) // Deshabilitar la edición
-            }}
-            className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-          >
-            Guardar
-          </button>
-          <button
-            onClick={() => {setEdit_stock(false), setStock(datas[0].stock)}} // Cancelar y deshabilitar
+            onClick={() => {setEdit_stock(false)}} // Cancelar y deshabilitar
             className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
           >
             Cancelar
@@ -480,6 +470,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
         <textarea
           placeholder="Escribe el nuevo nombre"
           value={descripcion}
+          onKeyPress={(event)=>{handleEnterPress(event,'descripcion',descripcion)}}
           onChange={(e) => setDescripcion(e.target.value)}
           type="text"
           className={`form-control ${!edit_descripcion ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -515,16 +506,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       {edit_descripcion && (
         <div className="flex gap-2 text-[0.8rem]">
           <button
-            onClick={() => {
-              // Aquí guardarías los cambios
-              setEdit_descripcion(false); ; editarProducto('descripcion', descripcion)// Deshabilitar de nuevo
-            }}
-            className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-          >
-            Guardar
-          </button>
-          <button
-            onClick={() => {setEdit_descripcion(false), setDescripcion(datas[0]?.descripcion)}} // Cancelar y deshabilitar
+            onClick={() => {setEdit_descripcion(false)}} // Cancelar y deshabilitar
             className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
           >
             Cancelar

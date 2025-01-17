@@ -103,7 +103,7 @@ console.log(foto_url);
         showConfirmButton: false,
         timer: 1500
       });
-     
+      closeModal_change_foto_delantero()
 
     } catch (error) {
       console.error(error);
@@ -149,7 +149,7 @@ console.log(foto_url);
         showConfirmButton: false,
         timer: 1500
       });
-     
+      closeModal_change_foto_trasero()
 
     } catch (error) {
       console.error(error);
@@ -203,7 +203,21 @@ console.log(foto_url);
       });
     }
   }
-
+  function handleEnterPress(event, valor, dato) {
+    if (event.key === 'Enter') {
+      editarCliente(valor, dato)
+      switch (valor) {
+        case 'nombre':
+          setEdit_nombre(false);
+          break;
+        case 'telefono':
+          setEdit_telefono(false);
+          break;
+        default:
+          console.log('No se reconoce el caso:', valor);
+      }
+    }
+  }
   return (
 <>
 {modal_change_foto_delantero === true && (
@@ -256,6 +270,7 @@ console.log(foto_url);
         <input
           placeholder="Escribe el nuevo nombre"
           value={nombre}
+          onKeyPress={(event)=>{handleEnterPress(event,'nombre',nombre)}}
           onChange={(e) => setNombre(e.target.value)}
           type="text"
           className={`form-control ${!edit_nombre ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -291,16 +306,7 @@ console.log(foto_url);
       {edit_nombre && (
         <div className="flex gap-2 text-[0.8rem]">
           <button
-            onClick={() => {
-              // Aquí guardarías los cambios
-              setEdit_nombre(false); ; editarCliente('nombre', nombre)// Deshabilitar de nuevo
-            }}
-            className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-          >
-            Guardar
-          </button>
-          <button
-            onClick={() => {setEdit_nombre(false), setNombre(datas[0]?.nombre)}} // Cancelar y deshabilitar
+            onClick={() => {setEdit_nombre(false)}} // Cancelar y deshabilitar
             className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
           >
             Cancelar
@@ -320,6 +326,7 @@ console.log(foto_url);
           <input
             placeholder="Escribe el nuevo precio"
             value={telefono}
+            onKeyPress={(event)=>{handleEnterPress(event,'telefono',telefono)}}
             onChange={(e) => setTelefono(e.target.value)}
             type="text"
             className={`form-control ${
@@ -359,16 +366,7 @@ console.log(foto_url);
             <button
               onClick={() => {
                 setEdit_telefono(false);
-                editarCliente('telefono', telefono); // Guardar cambios
-              }}
-              className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-            >
-              Guardar
-            </button>
-            <button
-              onClick={() => {
-                setEdit_telefono(false);
-                setTelefono(datas[0]?.telefono); // Restaurar precio original
+                // Restaurar precio original
               }}
               className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
             >

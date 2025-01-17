@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import Swal from 'sweetalert2';
 import {uploadFoto} from "../firebase/images.js"
+import editar_clientes from './modal_clientes/editar_clientes.jsx';
 export default function modalEdit({ usuario, closeModal, gett }) {
   const user=usuario
   const [datas, setDatas] = useState([]);
@@ -135,7 +136,7 @@ console.log(foto_url);
         showConfirmButton: false,
         timer: 1500
       });
-     
+      closeModal_change_foto()
 
     } catch (error) {
       console.error(error);
@@ -193,7 +194,27 @@ console.log(foto_url);
 useEffect(() => {
   get();
 }, []);
-
+function handleEnterPress(event, valor, dato) {
+  if (event.key === 'Enter') {
+  editarUsuario(valor, dato)
+    switch (valor) {
+      case 'usuario':
+        setEdit_usuario(false);
+        break;
+      case 'nombre':
+        setEdit_nombre_completo(false);
+        break;
+        case 'contraseña':
+        setEdit_contraseña(false);
+        break;
+        case 'rol':
+        setEdit_rol(false);
+        break;
+      default:
+        console.log('No se reconoce el caso:', valor);
+    }
+  }
+}
   return (
     <>
     {modal_change_foto === true && (
@@ -243,6 +264,7 @@ useEffect(() => {
           <input
             placeholder="Escribe el nuevo nombre de usuario"
             value={nombre_usuario}
+            onKeyPress={(event)=>{handleEnterPress(event,'usuario',nombre_usuario)}}
             onChange={(e) => setNombre_usuario(e.target.value)}
             className={`w-full border rounded p-2 ${!edit_usuario ? 'bg-gray-200 cursor-not-allowed' : ''}`}
             type="text"
@@ -275,13 +297,7 @@ useEffect(() => {
         {edit_usuario && (
           <div className="flex gap-2 text-[0.8rem]">
             <button
-             onClick={() => { setEdit_usuario(false); editarUsuario('usuario', nombre_usuario)}}
-              className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-            >
-              Guardar
-            </button>
-            <button
-              onClick={() => {setEdit_usuario(false), setNombre_usuario(datas[0]?.usuario)}}
+              onClick={() => {setEdit_usuario(false)}}
               className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
             >
               Cancelar
@@ -301,6 +317,7 @@ useEffect(() => {
         placeholder="Escribe el nuevo nombre"
         value={nombre_completo}
         onChange={(e) => setNombre_completo(e.target.value)}
+        onKeyPress={(event)=>{handleEnterPress(event,'nombre',nombre_completo)}}
         type="text"
         className={`form-control ${!edit_nombre_completo ? 'bg-gray-200 cursor-not-allowed' : ''}`}
         id="exampleInputEmail1"
@@ -335,16 +352,7 @@ useEffect(() => {
     {edit_nombre_completo && (
       <div className="flex gap-2 text-[0.8rem]">
         <button
-          onClick={() => {
-            // Aquí guardarías los cambios
-            setEdit_nombre_completo(false); ; editarUsuario('nombre', nombre_completo)// Deshabilitar de nuevo
-          }}
-          className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-        >
-          Guardar
-        </button>
-        <button
-          onClick={() => {setEdit_nombre_completo(false), setNombre_completo(datas[0]?.nombre)}} // Cancelar y deshabilitar
+          onClick={() => {setEdit_nombre_completo(false)}} // Cancelar y deshabilitar
           className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
         >
           Cancelar
@@ -364,6 +372,7 @@ useEffect(() => {
       <input
         placeholder="Escribe la nueva contraseña"
         value={contraseña}
+        onKeyPress={(event)=>{handleEnterPress(event,'contraseña',contraseña)}}
         onChange={(e) => setContraseña(e.target.value)}
         type="password"
         className={`w-full border rounded p-2 ${!edit_contraseña ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -399,15 +408,6 @@ useEffect(() => {
     {edit_contraseña && (
       <div className="flex gap-2 text-[0.8rem]">
         <button
-          onClick={() => {
-            // Aquí guardarías los cambios
-            setEdit_contraseña(false); editarContraseña(contraseña)// Deshabilitar la edición
-          }}
-          className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-        >
-          Guardar
-        </button>
-        <button
           onClick={() => {setEdit_contraseña(false), setContraseña('***************')}} // Cancelar y deshabilitar
           className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
         >
@@ -430,6 +430,7 @@ useEffect(() => {
         value={rol}
         onChange={(e) => setRol(e.target.value)}
         type="number"
+        onKeyPress={(event)=>{handleEnterPress(event,'rol',rol)}}
         className={`w-full border rounded p-2 ${!edit_rol ? 'bg-gray-200 cursor-not-allowed' : ''}`}
         id="exampleInputRol"
         aria-describedby="emailHelp"
@@ -463,16 +464,7 @@ useEffect(() => {
     {edit_rol && (
       <div className="flex gap-2 text-[0.8rem]">
         <button
-          onClick={() => {
-            // Aquí guardarías los cambios
-            setEdit_rol(false); editarUsuario('rol', rol) // Deshabilitar la edición
-          }}
-          className="bg-[red] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-        >
-          Guardar
-        </button>
-        <button
-          onClick={() => {setEdit_rol(false), setRol(datas[0].rol)}} // Cancelar y deshabilitar
+          onClick={() => {setEdit_rol(false)}} // Cancelar y deshabilitar
           className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
         >
           Cancelar
