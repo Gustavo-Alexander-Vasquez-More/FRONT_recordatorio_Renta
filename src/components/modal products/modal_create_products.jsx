@@ -18,13 +18,32 @@ export default function modal_create_products({closeModal2}) {
     const [precio, setPrecio]=useState()
     const [stock, setStock]=useState()
     const [descripcion, setDescripcion]=useState()
+    const [precio_venta, setPrecio_venta]=useState('0')
+    const [visibilidad_precio, setVisibilidad_precio]=useState()
+    const [visibilidad_precio_venta, setVisibilidad_precio_venta]=useState('NO VISIBLE')
+    const [tipo_uso, setTipo_uso]=useState('renta')
+    console.log(tipo_uso);
+    console.log(visibilidad_precio);
+    console.log(visibilidad_precio_venta);
     const input_nombre=useRef()
     const input_codigo=useRef()
     const input_precio=useRef()
+    const input_precio_venta=useRef()
     const input_sotck=useRef()
     const input_foto=useRef()
     const input_descripcion=useRef()
-    
+    const captureVisibilidad_precio_renta = (e) => {
+      console.log(e.target.value); // Imprime "si" o "no" según la selección
+      setVisibilidad_precio(e.target.value); // Si estás usando un estado para almacenar el valor
+    };
+    const captureTipo_uso = (e) => {
+      console.log(e.target.value); // Imprime "si" o "no" según la selección
+      setTipo_uso(e.target.value); // Si estás usando un estado para almacenar el valor
+    };
+    const captureVisibilidad_precio_venta = (e) => {
+      console.log(e.target.value); // Imprime "si" o "no" según la selección
+      setVisibilidad_precio_venta(e.target.value); // Si estás usando un estado para almacenar el valor
+    };
     function captureNombre(){
     setNombre(input_nombre.current.value)
     }
@@ -55,10 +74,35 @@ export default function modal_create_products({closeModal2}) {
         setPrecio(value);
       }
     }
+    function capturePrecio_venta(event) {
+      let value = event.target.value;
+    
+      // Eliminar caracteres no numéricos (excepto el punto decimal)
+      value = value.replace(/[^0-9.]/g, '');
+    
+      // Si contiene un punto, lo separamos en parte entera y decimal
+      if (value.includes('.')) {
+        let [entero, decimales] = value.split('.');
+    
+        // Formateamos la parte entera con comas para los miles
+        entero = entero.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    
+        // Actualizamos el estado con la parte entera y los decimales
+        setPrecio_venta(`${entero}.${decimales}`);
+      } else {
+        // Si no contiene punto, solo formateamos la parte entera con comas
+        value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        setPrecio_venta(value);
+      }
+    }
     
     const handleChange = (e) => {
       const value = e.target.value;
       capturePrecio(e); // Aplicar el formateo en vivo
+    };
+    const handleChange2 = (e) => {
+      const value = e.target.value;
+      capturePrecio_venta(e); // Aplicar el formateo en vivo
     };
     function captureStock(){
     setStock(input_sotck.current.value)
@@ -73,7 +117,7 @@ export default function modal_create_products({closeModal2}) {
           Swal.showLoading();  // Mostrar el spinner de carga
         }
       });
-      if(!nombre || !codigo || !codigo || !precio || !descripcion || !stock){
+      if(!nombre || !codigo || !codigo || !precio || !descripcion || !stock || !visibilidad_precio){
         notyf.error('Por favor complete los campos')
       }
       
@@ -95,6 +139,10 @@ export default function modal_create_products({closeModal2}) {
     codigo:codigo,
     stock:stock,
     precio:precio,
+    tipo_uso:tipo_uso,
+    precio_venta:precio_venta,
+    visibilidad_precio:visibilidad_precio,
+    visibilidad_precio_venta:visibilidad_precio_venta,
     descripcion:descripcion.toUpperCase()
     }
     console.log(datos.foto);
@@ -110,8 +158,8 @@ export default function modal_create_products({closeModal2}) {
     }
     }
   return (
-    <div className="w-full lg:h-screen absolute z-40 bg-[#d9d9d97b] flex lg:py-0 py-[2rem] justify-center items-center">
-        <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] h-auto flex flex-col">
+    <div className="w-full lg:h-screen absolute z-40 bg-[#d9d9d97b] flex py-[2rem]  justify-center items-center">
+        <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] h-[90vh] flex flex-col overflow-y-auto ">
           <div className='bg-[gray] flex justify-between px-[1rem] items-center py-[0.5rem] border-b-[1px] border-b-[black] border-solid'>
             <p className='text-white font-semibold'>Crear productos</p>
             <button onClick={closeModal2}>
@@ -144,7 +192,7 @@ export default function modal_create_products({closeModal2}) {
             <textarea ref={input_descripcion} onChange={captureDescripcion} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
           </div>
           <div class="mb-3 w-full">
-  <label for="exampleInputPassword1" class="form-label">Precio de renta</label>
+  <label for="exampleInputPassword1" class="form-label font-semibold">Precio de renta del  equipo</label>
   <input 
     ref={input_precio} 
     onInput={handleChange} 
@@ -155,6 +203,109 @@ export default function modal_create_products({closeModal2}) {
     id="exampleInputPassword1"
   />
 </div>
+
+<div className="mb-1 w-full">
+  <label className="form-label font-semibold" htmlFor="precio_renta_visible">
+    ¿Quieres mostrar el precio de renta del equipo?
+  </label>
+  <div>
+    <div>
+      <input 
+        type="radio" 
+        id="precio_renta_visible" 
+        name="precio_renta" 
+        value="VISIBLE" 
+        onChange={captureVisibilidad_precio_renta} 
+      />
+      <label htmlFor="precio_renta_visible">Sí</label>
+    </div>
+    <div>
+      <input 
+        type="radio" 
+        id="precio_renta_no_visible" 
+        name="precio_renta" 
+        value="NO VISIBLE" 
+        onChange={captureVisibilidad_precio_renta} 
+      />
+      <label htmlFor="precio_renta_no_visible">No</label>
+    </div>
+  </div>
+</div>
+
+<div className="mb-1 w-full">
+  <label className="form-label font-semibold" htmlFor="precio_renta_visible">
+    ¿Este equipo aplica para venta?
+  </label>
+  <div>
+    <div>
+      <input 
+        type="radio" 
+        id="tipo_uso" 
+        name="tipo_uso" 
+        value="venta" 
+        onChange={captureTipo_uso} 
+      />
+      <label htmlFor="tipo_uso">Sí</label>
+    </div>
+    <div>
+      <input 
+        type="radio" 
+        id="tipo_uso" 
+        name="tipo_uso" 
+        value="renta" 
+        onChange={captureTipo_uso} 
+      />
+      <label htmlFor="tipo_uso">No</label>
+    </div>
+  </div>
+</div>
+
+{tipo_uso === 'venta' && (
+  <>
+  <div class="mb-3 w-full">
+  <label for="exampleInputPassword1" class="form-label font-semibold">Coloca el precio de venta para este equipo</label>
+  <input 
+    ref={input_precio_venta} 
+    onInput={handleChange2} 
+    value={precio_venta} 
+    placeholder='Colocar punto para separar los decimales de los centavos. Ejm: 1,203.50' 
+    type="text" 
+    class="form-control" 
+    id="exampleInputPassword1"
+  />
+</div>
+
+<div className="mb-1 w-full">
+  <label className="form-label font-semibold" htmlFor="precio_venta_visible">
+    ¿Quieres mostrar el precio de venta del equipo?
+  </label>
+  <div>
+    <div>
+      <input 
+        type="radio" 
+        id="precio_venta_visible" 
+        name="precio_venta" 
+        value="VISIBLE" 
+        onChange={captureVisibilidad_precio_venta} 
+      />
+      <label htmlFor="precio_venta_visible">Sí</label>
+    </div>
+    <div>
+      <input 
+        type="radio" 
+        id="precio_venta_no_visible" 
+        name="precio_venta" 
+        value="NO VISIBLE" 
+        onChange={captureVisibilidad_precio_venta} 
+      />
+      <label htmlFor="precio_venta_no_visible">No</label>
+    </div>
+  </div>
+</div>
+  </>
+)}
+
+
           <div className='w-full flex justify-center'>
                   <button onClick={crear_products} className='px-[2rem] text-white rounded-[5px] py-[0.5rem] font-semibold bg-primary'>Crear producto</button>
                 </div>

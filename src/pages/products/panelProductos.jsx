@@ -8,18 +8,29 @@ import Modal_create_users from '../../components/modal products/modal_create_pro
 import Swal from 'sweetalert2';
 
 export default function panelProductos() {
-      const [datas, setDatas] = useState([]);
-      const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('products_current_page')))
-      const [itemsPerPage] = useState(10);
-      const [select, setSelect]=useState()
-      const [searchTerm, setSearchTerm] = useState('');
-      const [filteredDatas, setFilteredDatas] = useState([]);
+  const [productos_paginados, setProductos_paginados] = useState([]);
+  const [all_products, setAll_products] = useState([]);
+  const [show_paginados, setShow_paginados]=useState(true)
+  const [visibleCount, setVisibleCount] = useState(8);
+  const [show_filter_products,setShow_filter_products]=useState(false)
+  const [filteredDatas, setFilteredDatas] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+  const [paginacion, setPaginacion]=useState()
+  const [total_pages, setTotal_pages]=useState()
+  const [isOpen, setIsOpen] = useState(false);
+const [select, setSelect]=useState()
+  const [current_page, setCurrent_page] = useState(() => {
+  const savedPage = localStorage.getItem('products_current_page');
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  });
+  const [searchTerm, setSearchTerm] = useState();
       const [loading, setLoading] = useState(true);
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
       function openModal(){
         window.scrollTo(0,0)
         setModalEdit(true)
+        document.body.style.overflow = 'hidden';
       }
       function closeModal(){
         setModalEdit(false)
@@ -28,56 +39,111 @@ export default function panelProductos() {
       }
       function openModal2(){
         setModal_create(true)
+        document.body.style.overflow = 'hidden';
       }
       function closeModal2(){
         setModal_create(false)
         window.location.reload()
       }
-      async function get() {
+      const handleImageLoad = () => {
+        setLoadingImages(false);  // Una vez que la imagen se haya cargado
+      };
+      async function get_all_products() {
         try {
           const { data } = await axios.get('https://backrecordatoriorenta-production.up.railway.app/api/products/');
-          setDatas(data.response);
-          setFilteredDatas(data.response); // Al principio mostramos todos los datos
+          setAll_products(data.response)
           setLoading(false); // Datos cargados, actualizamos el estado de carga
         } catch (error) {
           console.error('Error fetching image data:', error);
           setLoading(false); // Si hay un error, dejamos de mostrar el estado de carga
         }
       }
+      async function get_products_paginates(page = current_page) {
+        try {
+          const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/products/read_pag?page=${page}`);
+          setPaginacion(data)
+          setTotal_pages(data?.totalPages)
+          setProductos_paginados(data.response);// Al principio mostramos todos los datos
+          setLoading(false); // Datos cargados, actualizamos el estado de carga
+        } catch (error) {
+          if(error.response.data.message === 'No hay productos disponibles para \'venta\'.'){
+            setLoadingImages(false)
+          }
+          if(error.response.data.message === 'Página fuera de rango. Por favor, selecciona una página válida.'){
+            localStorage.setItem('products_venta_current_page', 1)
+            window.location.reload()
+          }
+          setLoading(false); // Si hay un error, dejamos de mostrar el estado de carga
+        }
+      }
     
       useEffect(() => {
-        get();
+        get_all_products();
+        get_products_paginates()
       }, []);
-    
-      function handleSearch() {
-        // Filtra_ids según el término de búsqueda
-        const filtered = datas.filter((dat) =>
-          dat.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          dat.codigo.toLowerCase().includes(searchTerm.toLowerCase())
+      function buscar(){
+        const filtered = all_products.filter((dat) =>
+          dat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         );
+        setFilteredDatas(filtered)
+      }
+      const handleShowMore = () => {
+        setVisibleCount((prev) => prev + 6); // Incrementa la cantidad visible en 6
+      };
+      function nextPage(){
+        if(current_page < total_pages){
+          window.scrollTo(0,0)
+          setLoadingImages(true)
+          setCurrent_page(current_page + 1)
+          get_products_paginates(current_page + 1);
+          localStorage.setItem('products_current_page', current_page + 1)
+        }
+      }
+      function prevPage(){
+        if(current_page > 1){
+          window.scrollTo(0,0)
+          setLoadingImages(true)
+          setCurrent_page(current_page - 1)
+          get_products_paginates(current_page - 1);
+          localStorage.setItem('products_current_page', current_page - 1)
+        }
+      }
+      function buscar_boton(){
+      if(searchTerm){
+        setShow_paginados(false)
+        setShow_filter_products(true)
       
-        // Establece la página actual a la primera si la búsqueda produce resultados diferentes
-        setFilteredDatas(filtered);
-        setCurrent_page(1); // Restablece la página actual a la 1
+      const filtered = all_products.filter((dat) =>
+      dat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredDatas(filtered)
+      }
+      else{
+        
+        setShow_paginados(true)
+            setShow_filter_products(false)
+      }
       }
       
-      useEffect(() => {
-        if (searchTerm === '') {
-          handleSearch();
-        }
-      }, [searchTerm]);
-      
-      // Limpiar el término de búsqueda
+      //FUNCION CUANDO LIMPIAS EL BUSCADOR CON LA X
       function clear() {
         setSearchTerm('');
+        setShow_paginados(true)
+        setShow_filter_products(false)
       }
-    
-
-      const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-          handleSearch(); // Ejecutar la búsqueda al presionar Enter
-        }
-      };
+      //FUNCION CUANDO DAS ENTER EN EL BUSCADOR
+        const handleKeyDown = (e) => {
+          if (e.key === 'Enter' && searchTerm) {
+            setShow_paginados(false)
+            setShow_filter_products(true)
+            buscar()
+          }
+          if (e.key === 'Enter' && !searchTerm) {
+            setShow_paginados(true)
+            setShow_filter_products(false)
+          }
+        };
+       
       async function deleteProduct(_id) {
         console.log(_id);
         try {
@@ -131,62 +197,15 @@ export default function panelProductos() {
         }
       }
 
-      const indexOfLastItem = current_page * itemsPerPage;
-      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-      const currentItems = filteredDatas?.slice(indexOfFirstItem, indexOfLastItem);
-      
-      const totalPages = Math.ceil(filteredDatas.length / itemsPerPage);
-      
-      // Cambiar página
-      const changePage = (page) => {
-        if (page >= 1 && page <= totalPages) {
-          setCurrent_page(page);
-        }
-      };
-  const generatePaginationButtons = () => {
-    let buttons = [];
-  
-    if (totalPages <= 4) {
-      // Mostrar todas las páginas si son pocas
-      for (let i = 1; i <= totalPages; i++) {
-        buttons.push(i);
-      }
-    } else {
-      const startPage = Math.max(2, current_page - 1); // Páginas antes de la actual
-      const endPage = Math.min(totalPages - 1, current_page + 1); // Páginas después de la actual
-  
-      buttons.push(1); // Primera página
-  
-      if (startPage > 2) {
-        buttons.push("..."); // Puntos suspensivos antes
-      }
-  
-      for (let i = startPage; i <= endPage; i++) {
-        buttons.push(i);
-      }
-  
-      if (endPage < totalPages - 1) {
-        buttons.push("..."); // Puntos suspensivos después
-      }
-  
-      buttons.push(totalPages); // Última página
-    }
-  
-    return buttons;
-  };
-  useEffect(() => {
-    if (current_page) {
-      localStorage.setItem('products_current_page', current_page); // Guardar en localStorage
-    }
-  }, [current_page]);
 return (
 <>
  {modaEdit === true && (
-        <ModalEdit closeModal={closeModal} _id={select} gett={get}/>
+        <ModalEdit closeModal={closeModal} _id={select} gett={get_products_paginates}/>
     )}
     {modal_create === true && (
-        <Modal_create_users closeModal2={closeModal2}  gett={get}/>
+        <Modal_create_users closeModal2={closeModal2}  gett={get_products_paginates}/>
     )}
+
 <Navbar/>
 <div className='flex flex-col bg-[#ececec] w-full'>
     <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
@@ -209,102 +228,105 @@ return (
                 </button>
             )}
         </div>
-        <button className="px-[2rem] bg-primary text-white font-semibold rounded-r-[10px]" onClick={handleSearch}>
+        <button className="px-[2rem] bg-primary text-white font-semibold rounded-r-[10px]" onClick={buscar_boton}>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-search" viewBox="0 0 16 16">
                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
             </svg>
         </button>
     </div>
-    {loading && (
-    <div className="flex flex-col gap-2 text-center items-center">
-        <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    )}
-    {!loading && filteredDatas.length === 0 ? (
-    <div className="text-center text-lg">
-        <p>No se encontraron usuarios relacionados a tu búsqueda</p>
-        <button onClick={() => window.location.reload()} className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4">Refrescar</button>
-    </div>
-    ) : (
-    <div className="flex flex-col items-center py-[1.5rem] lg:gap-2 w-full">
+    <div className="flex flex-col w-full lg:w-[100%]">
+        {loadingImages && productos_paginados.length > 0 && (
+     <div className=" w-full text-center  h-[50vh] gap-3 flex-col flex items-center justify-center"> {/* Aquí iría el loader, por ejemplo un spinner */}
+       <div class="spinner-border text-primary w-[3rem] h-[3rem]" role="status">
+   <span class="visually-hidden">Loading...</span>
+ </div>
+ <p className='text-primary font-semibold'>Cargando productos</p>
+     </div>)}
+     { show_filter_products === false && show_paginados === true && loadingImages === false && productos_paginados.length === 0 && (
+      <div className=" w-full text-center h-[50vh] gap-3 flex-col flex items-center justify-center">
+        <svg class="w-10 h-10 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+
+        <p>En este momento no estan disponibles equipos para la renta</p>
+      </div>
+     )}
+     { show_filter_products === true && searchTerm && filteredDatas.length === 0 && (
+      <div className=" w-full text-center h-[50vh] gap-3 flex-col flex items-center justify-center">
+        <svg class="w-10 h-10 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+
+        <p>No se han encontrado resultados relacionados con su busqueda,por favor intentelo nuevamente</p>
+      </div>
+     )}
+      {!loadingImages && productos_paginados.length > 0 && (
+  <p className='py-[1rem] text-secondary font-semibold text-[1rem] lg:text-[1.3rem]'>Mostrando página {current_page} de {total_pages}</p>
+      )}
+  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full justify-items-center ">
+    {show_filter_products === true && filteredDatas.slice(0, visibleCount).map((dat, index) => (
+       <div key={index} className="bg-white w-full text-center px-2 py-2 rounded-lg items-center flex flex-col gap-2">
+       <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
+       <p className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
+       <div className='flex flex-col '> 
+         <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
+         <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+       </div>
+       <div className='flex flex-col '> 
+         <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
+         <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
+       </div>
+       <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
+       <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
+     </div>
+    ))}
     
-    {/* ESTO ES PARA MODO WEB */}
-    <div className="lg:grid grid-cols-2 hidden sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
-    {currentItems.map((dat, index) => (
-      <div key={index} className="bg-white w-full px-2 py-2 rounded-lg flex flex-col gap-2">
-           <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
-           <p className='lg:text-[1rem] text-[0.7rem] text-center font-semibold text-danger lg:h-auto h-[40px] line-clamp-2 lg:line-clamp-1'>{dat.nombre.toUpperCase()}</p>
-           <p className="text-center text-secondary lg:text-[1rem] text-[0.8rem] font-semibold">${dat.precio} MXN</p>
-           <button  onClick={() => {
-            openModal();
-            setSelect(dat._id);
-          }} className='bg-primary py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Editar</button>
-           <button onClick={() => deleteProduct(dat._id)} className='bg-red-500 py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Eliminar</button>
-      </div>
+    {productos_paginados.map((dat, index) => (
+       <img className='w-full h-[35vh] object-contain hidden' src={dat.foto} alt="" onLoad={()=>{setLoadingImages(false)}}/>
     ))}
- 
-</div>
-<div className="lg:flex hidden w-full justify-center gap-2 mt-4">
-  {generatePaginationButtons().map((button, index) =>
-    button === "..." ? (
-      <span key={index} className="px-3 py-1 text-gray-500">
-        ...
-      </span>
-    ) : (
-      <button
-        key={index}
-        className={`px-3 py-1 rounded ${
-          current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
-        }`}
-        onClick={() => changePage(button)}
-      >
-        {button}
-      </button>
-    )
-  )}
-</div>
- {/* ESTO ES PARA MODO CELULAR */}
- <div className="grid grid-cols-2 lg:hidden  gap-4 w-full">
- {currentItems.map((dat, index) => (
-      <div key={index} className="bg-white w-full px-2 py-2 rounded-lg flex flex-col gap-2">
-           <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
-           <p className='lg:text-[1rem] text-[0.7rem] text-center font-semibold text-danger lg:h-auto h-[40px] line-clamp-2 lg:line-clamp-1'>{dat.nombre.toUpperCase()}</p>
-           <p className="text-center text-secondary lg:text-[1rem] text-[0.8rem] font-semibold">${dat.precio} MXN</p>
-           <button  onClick={() => {
-            openModal();
-            setSelect(dat._id);
-          }} className='bg-primary py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Editar</button>
-           <button onClick={() => deleteProduct(dat._id)} className='bg-red-500 py-1 rounded-[5px] lg:text-[1rem] text-white text-[0.7rem]'>Eliminar</button>
+    
+    {show_paginados === true && loadingImages === false  && productos_paginados.map((dat, index) => (
+      <>
+      <div key={index} className="bg-white w-full text-center px-2 py-2 rounded-lg items-center flex flex-col gap-2">
+        <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
+        <p className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
+        <div className='flex flex-col '> 
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
+          <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+        </div>
+        <div className='flex flex-col '> 
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
+          <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
+        </div>
+        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
+        <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
       </div>
+      </>
     ))}
   </div>
-  <div className="flex lg:hidden w-full  justify-center gap-2 mt-4">
-    {generatePaginationButtons().map((button, index) =>
-      button === "..." ? (
-        <span key={index} className="px-3 py-1 text-gray-500">
-          ...
-        </span>
-      ) : (
-        <button
-          key={index}
-          className={`px-3 py-1 rounded ${
-            current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'
-          }`}
-          onClick={() => changePage(button)}
-        >
-          {button}
-        </button>
-      )
-    )}
-  </div>
-
-
-
-
+  {show_paginados === true && loadingImages === false && (
+  <div className="w-full py-[2rem] flex items-center justify-center gap-2">
+    <div className='flex gap-3 items-center'>
+      <button onClick={prevPage} disabled={current_page === 1}  className='bg-[#0D6EFD] disabled:bg-[gray] text-white px-[1rem] py-[0.3rem] lg:text-[1rem] text-[0.8rem] rounded-[5px]'>Anterior</button>
+      <p className='lg:text-[1rem] text-[0.8rem]'>Página {current_page} de {total_pages}</p>
+      <button onClick={nextPage} disabled={current_page >= total_pages} className='bg-[#0D6EFD] disabled:bg-[gray] text-white px-[1rem] py-[0.3rem] lg:text-[1rem] text-[0.8rem] rounded-[5px]'>Siguiente</button>
     </div>
-    )}
+  </div>
+  )}
+{visibleCount < filteredDatas.length && (
+  <div className="text-center mt-6">
+    <p className="text-gray-600 text-sm mb-3">
+      Mostrando {visibleCount} de {filteredDatas.length} resultados
+    </p>
+    <button
+      onClick={handleShowMore}
+      className="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium text-base shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-300"
+    >
+      Mostrar más resultados
+    </button>
+  </div>
+)}
+</div>
     </div>
     
 </div>

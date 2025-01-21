@@ -71,40 +71,34 @@ useEffect(() => {
         </a>
       </div>
       {/* Otro botón debajo */}
-      <div className='border-solid border-b-white border-b-[1px] px-[1rem] h-[10vh] flex'>
-        <button 
-          onClick={toggleListVisibility2} 
-          className='w-full h-full flex justify-between items-center'>
-          <div className='flex items-center gap-3 text-white'>
-            <img className='w-[2rem]' src={box} alt="" />
-            <p>Productos</p>
-          </div>
-          <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14"/>
-          </svg>
-        </button>
-      </div>
+      
 
       {/* Lista desplegable productos */}
       {dat.rol === 1 && (
-        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_productos ? 'h-auto' : 'h-0'}`}>
-        <div className='px-[1rem] py-2'>
-          <ul className='flex flex-col gap-2'>
-            <a href="/products_panel"><li className='text-white'>Crear / editar productos</li></a>
-            <a href="/product_list"><li className='text-white'>Lista de productos</li></a>
-          </ul>
-        </div>
+        <div className='border-solid border-b-white border-b-[1px] px-[1rem] h-[10vh] flex'>
+        <a href="/products_panel"
+          className='w-full h-full flex justify-between items-center'>
+          <div className='flex items-center gap-3 text-white'>
+          <img className='w-[2rem]' src={box} alt="" />
+            <p>Crear / editar productos</p>
+          </div>
+
+        </a>
       </div>
+        
       )}
      
 {dat.rol === 2 && (
-        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_productos ? 'h-auto' : 'h-0'}`}>
-        <div className='px-[1rem] py-2'>
-          <ul className='flex flex-col gap-2'>
-            <a href="/product_list"><li className='text-white'>Lista de productos</li></a>
-          </ul>
-        </div>
+    <div className='border-solid border-b-white border-b-[1px] px-[1rem] h-[10vh] flex'>
+    <a href="/product_list"
+      className='w-full h-full flex justify-between items-center'>
+      <div className='flex items-center gap-3 text-white'>
+      <img className='w-[2rem]' src={box} alt="" />
+        <p>Lista de productos</p>
       </div>
+
+    </a>
+  </div>
       )}
 
 
