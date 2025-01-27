@@ -18,13 +18,11 @@ export default function modal_create_products({closeModal2}) {
     const [precio, setPrecio]=useState()
     const [stock, setStock]=useState()
     const [descripcion, setDescripcion]=useState()
-    const [precio_venta, setPrecio_venta]=useState('0')
+    const [precio_venta, setPrecio_venta]=useState()
     const [visibilidad_precio, setVisibilidad_precio]=useState()
-    const [visibilidad_precio_venta, setVisibilidad_precio_venta]=useState('NO VISIBLE')
-    const [tipo_uso, setTipo_uso]=useState('renta')
-    console.log(tipo_uso);
-    console.log(visibilidad_precio);
+    const [visibilidad_precio_venta, setVisibilidad_precio_venta]=useState()
     console.log(visibilidad_precio_venta);
+    const [tipo_uso, setTipo_uso]=useState()
     const input_nombre=useRef()
     const input_codigo=useRef()
     const input_precio=useRef()
@@ -117,10 +115,36 @@ export default function modal_create_products({closeModal2}) {
           Swal.showLoading();  // Mostrar el spinner de carga
         }
       });
-      if(!nombre || !codigo || !codigo || !precio || !descripcion || !stock || !visibilidad_precio){
-        notyf.error('Por favor complete los campos')
+      if (tipo_uso === 'venta') {
+        if (
+          !nombre ||
+          !codigo ||
+          !precio ||
+          !descripcion ||
+          !stock ||
+          !visibilidad_precio ||
+          !precio_venta ||
+          !visibilidad_precio_venta
+        ) {
+          Swal.close();
+          notyf.error('Por favor complete los campos');
+          return; // Detener la ejecución
+        }
+      } else {
+        if (
+          !nombre ||
+          !codigo ||
+          !precio ||
+          !descripcion ||
+          !stock ||
+          !visibilidad_precio
+        ) {
+          Swal.close();
+          notyf.error('Por favor complete los campos');
+          return; // Detener la ejecución
+        }
       }
-      
+  
       let fotoURL = '';
       const selectedFile = input_foto.current.files[0];
         if (selectedFile) {
@@ -136,7 +160,7 @@ export default function modal_create_products({closeModal2}) {
     const datos={
     nombre: nombre.toUpperCase(),
     foto: fotoURL || null,
-    codigo:codigo,
+    codigo:codigo.toUpperCase(),
     stock:stock,
     precio:precio,
     tipo_uso:tipo_uso,
@@ -171,28 +195,31 @@ export default function modal_create_products({closeModal2}) {
           
     <div className='w-full flex justify-center items-center bg-[#EBEBEB] relative '>
           <div className='bg-[white] w-full items-center flex flex-col  px-[1.5rem] py-[2rem]'>
+          <div className='text-[0.8rem] flex justify-center items-center text-center font-semibold pt-1 pb-4'>
+<label htmlFor="">Todo los campos que contengan (*) son obligatorios</label>
+</div>
           <div class="mb-3 w-full">
-            <label for="exampleInputPassword1" class="form-label">Nombre del producto</label>
+            <label for="exampleInputPassword1" class="form-label">Nombre del producto (*)</label>
             <input ref={input_nombre} onChange={captureNombre} type="text" class="form-control" id="exampleInputPassword1"/>
           </div>
           <div class="mb-3 w-full">
-            <label for="exampleInputPassword1" class="form-label">Foto del producto</label>
+            <label for="exampleInputPassword1" class="form-label">Foto del producto (*)</label>
             <input ref={input_foto}  type="file" class="form-control" id="exampleInputPassword1"/>
           </div>
           <div class="mb-3 w-full">
-            <label for="exampleInputPassword1" class="form-label">Código del producto</label>
+            <label for="exampleInputPassword1" class="form-label">Código del producto (*)</label>
             <input ref={input_codigo} onChange={captureCodigo} type="text" class="form-control" id="exampleInputPassword1"/>
           </div>
           <div class="mb-3 w-full">
-            <label for="exampleInputPassword1" class="form-label">Stock del producto</label>
+            <label for="exampleInputPassword1" class="form-label">Stock del producto (*)</label>
             <input ref={input_sotck} placeholder='Escribelo en números' onChange={captureStock} type="number" class="form-control" id="exampleInputPassword1"/>
           </div>
           <div class="mb-3 w-full">
-            <label for="exampleInputPassword1" class="form-label">Descripción del producto</label>
+            <label for="exampleInputPassword1" class="form-label">Descripción del producto (*)</label>
             <textarea ref={input_descripcion} onChange={captureDescripcion} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
           </div>
           <div class="mb-3 w-full">
-  <label for="exampleInputPassword1" class="form-label font-semibold">Precio de renta del  equipo</label>
+  <label for="exampleInputPassword1" class="form-label font-semibold">Precio de renta del  equipo (*)</label>
   <input 
     ref={input_precio} 
     onInput={handleChange} 
@@ -206,7 +233,7 @@ export default function modal_create_products({closeModal2}) {
 
 <div className="mb-1 w-full">
   <label className="form-label font-semibold" htmlFor="precio_renta_visible">
-    ¿Quieres mostrar el precio de renta del equipo?
+    ¿Quieres mostrar el precio de renta del equipo? (*)
   </label>
   <div>
     <div>
@@ -234,7 +261,7 @@ export default function modal_create_products({closeModal2}) {
 
 <div className="mb-1 w-full">
   <label className="form-label font-semibold" htmlFor="precio_renta_visible">
-    ¿Este equipo aplica para venta?
+    ¿Deseas vender este equipo? (Marcar solo si vas a vender)
   </label>
   <div>
     <div>
@@ -247,23 +274,13 @@ export default function modal_create_products({closeModal2}) {
       />
       <label htmlFor="tipo_uso">Sí</label>
     </div>
-    <div>
-      <input 
-        type="radio" 
-        id="tipo_uso" 
-        name="tipo_uso" 
-        value="renta" 
-        onChange={captureTipo_uso} 
-      />
-      <label htmlFor="tipo_uso">No</label>
-    </div>
   </div>
 </div>
 
 {tipo_uso === 'venta' && (
   <>
   <div class="mb-3 w-full">
-  <label for="exampleInputPassword1" class="form-label font-semibold">Coloca el precio de venta para este equipo</label>
+  <label for="exampleInputPassword1" class="form-label font-semibold">Coloca el precio de venta para este equipo (*)</label>
   <input 
     ref={input_precio_venta} 
     onInput={handleChange2} 
@@ -277,7 +294,7 @@ export default function modal_create_products({closeModal2}) {
 
 <div className="mb-1 w-full">
   <label className="form-label font-semibold" htmlFor="precio_venta_visible">
-    ¿Quieres mostrar el precio de venta del equipo?
+    ¿Quieres mostrar el precio de venta del equipo? (*)
   </label>
   <div>
     <div>
@@ -304,8 +321,9 @@ export default function modal_create_products({closeModal2}) {
 </div>
   </>
 )}
-
-
+<div className='text-[0.8rem] flex justify-center items-center text-center font-semibold pt-1 pb-4'>
+<label htmlFor="">Todo los campos que contengan (*) son obligatorios</label>
+</div>
           <div className='w-full flex justify-center'>
                   <button onClick={crear_products} className='px-[2rem] text-white rounded-[5px] py-[0.5rem] font-semibold bg-primary'>Crear producto</button>
                 </div>

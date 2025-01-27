@@ -196,7 +196,38 @@ const [select, setSelect]=useState()
           });
         }
       }
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip_name"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
+      function generatePageNumbers(currentPage, totalPages, maxPagesToShow = 7) {
+        const pages = [];
+        const halfRange = Math.floor(maxPagesToShow / 2);
+      
+        // Determinar inicio y fin del rango
+        let start = Math.max(currentPage - halfRange, 1);
+        let end = Math.min(start + maxPagesToShow - 1, totalPages);
+      
+        // Ajustar el rango si está al final
+        if (end - start + 1 < maxPagesToShow) {
+          start = Math.max(end - maxPagesToShow + 1, 1);
+        }
+      
+        for (let i = start; i <= end; i++) {
+          pages.push(i);
+        }
+      
+        return pages;
+      }
+      function goToPage(page) {
+        if (page >= 1 && page <= total_pages) {
+          window.scrollTo(0, 0);
+          setLoadingImages(true);
+          setCurrent_page(page);
+          get_products_paginates(page);
+          localStorage.setItem('products_current_page', page);
+        }
+      }
+      
 return (
 <>
  {modaEdit === true && (
@@ -264,18 +295,28 @@ return (
   <p className='py-[1rem] text-secondary font-semibold text-[1rem] lg:text-[1.3rem]'>Mostrando página {current_page} de {total_pages}</p>
       )}
   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full justify-items-center ">
-    {show_filter_products === true && filteredDatas.slice(0, visibleCount).map((dat, index) => (
+    {show_filter_products === true && filteredDatas.map((dat, index) => (
        <div key={index} className="bg-white w-full text-center px-2 py-2 rounded-lg items-center flex flex-col gap-2">
        <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
-       <p className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
+       <p  data-bs-toggle="tooltip_name" data-bs-title={dat.nombre} className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
        <div className='flex flex-col '> 
-         <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
-         <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
-       </div>
-       <div className='flex flex-col '> 
-         <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
-         <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
-       </div>
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
+          {dat.visibilidad_precio === 'VISIBLE' && (
+            <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+          )}
+          {dat.visibilidad_precio === 'NO VISIBLE' && (
+            <p className='text-secondary font-semibold'>No disponible</p>
+          )}
+        </div>
+        <div className='flex flex-col '> 
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
+          {dat.visibilidad_precio_venta === 'VISIBLE' && (
+            <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
+          )}
+          {dat.visibilidad_precio_venta === 'NO VISIBLE' && (
+            <p className='text-secondary font-semibold'>No disponible</p>
+          )}
+        </div>
        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
        <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
      </div>
@@ -289,14 +330,24 @@ return (
       <>
       <div key={index} className="bg-white w-full text-center px-2 py-2 rounded-lg items-center flex flex-col gap-2">
         <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
-        <p className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
+        <a data-bs-toggle="tooltip_name" data-bs-title={dat.nombre} className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</a>
         <div className='flex flex-col '> 
           <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
-          <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+          {dat.visibilidad_precio === 'VISIBLE' && (
+            <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+          )}
+          {dat.visibilidad_precio === 'NO VISIBLE' && (
+            <p className='text-secondary font-semibold'>No disponible</p>
+          )}
         </div>
         <div className='flex flex-col '> 
           <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
-          <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
+          {dat.visibilidad_precio_venta === 'VISIBLE' && (
+            <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
+          )}
+          {dat.visibilidad_precio_venta === 'NO VISIBLE' && (
+            <p className='text-secondary font-semibold'>No disponible</p>
+          )}
         </div>
         <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
         <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
@@ -306,26 +357,47 @@ return (
   </div>
   {show_paginados === true && loadingImages === false && (
   <div className="w-full py-[2rem] flex items-center justify-center gap-2">
-    <div className='flex gap-3 items-center'>
-      <button onClick={prevPage} disabled={current_page === 1}  className='bg-[#0D6EFD] disabled:bg-[gray] text-white px-[1rem] py-[0.3rem] lg:text-[1rem] text-[0.8rem] rounded-[5px]'>Anterior</button>
-      <p className='lg:text-[1rem] text-[0.8rem]'>Página {current_page} de {total_pages}</p>
-      <button onClick={nextPage} disabled={current_page >= total_pages} className='bg-[#0D6EFD] disabled:bg-[gray] text-white px-[1rem] py-[0.3rem] lg:text-[1rem] text-[0.8rem] rounded-[5px]'>Siguiente</button>
+    <div className="flex gap-3 items-center">
+      {/* Botón "Anterior" */}
+      <button
+        onClick={prevPage}
+        disabled={current_page === 1}
+        className="bg-[#0D6EFD] disabled:bg-[gray] text-white px-[1rem] py-[0.3rem] lg:text-[1rem] text-[0.8rem] rounded-[5px]"
+      >
+        Anterior
+      </button>
+
+      {/* Números de página dinámicos */}
+      <div className="flex gap-2">
+        {generatePageNumbers(current_page, total_pages).map((page) => (
+          <button
+            key={page}
+            disabled={current_page === page} 
+            onClick={() => goToPage(page)}
+            className={`lg:px-3 lg:text-[1rem] text-[0.8rem]  py-1 rounded-lg ${
+              current_page === page
+                ? "lg:bg-[#0D6EFD] text-[blue] lg:text-[white]"
+                : "lg:bg-white text-black lg:border lg:border-gray-300"
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      {/* Botón "Siguiente" */}
+      <button
+        onClick={nextPage}
+        disabled={current_page >= total_pages}
+        className="bg-[#0D6EFD] disabled:bg-[gray] text-white px-[1rem] py-[0.3rem] lg:text-[1rem] text-[0.8rem] rounded-[5px]"
+      >
+        Siguiente
+      </button>
     </div>
   </div>
-  )}
-{visibleCount < filteredDatas.length && (
-  <div className="text-center mt-6">
-    <p className="text-gray-600 text-sm mb-3">
-      Mostrando {visibleCount} de {filteredDatas.length} resultados
-    </p>
-    <button
-      onClick={handleShowMore}
-      className="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium text-base shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-300"
-    >
-      Mostrar más resultados
-    </button>
-  </div>
 )}
+
+
 </div>
     </div>
     
