@@ -99,7 +99,7 @@ Descargar Ficha técnica</button>
                 <div className="flex flex-col gap-3  text-[0.9rem] items-center pt-[1rem] " >
                   <div className='relative w-full'>
                     <img className='w-full' src={ficha_tecnica} alt="" />
-                    <div className='w-[85%] absolute top-[13.8%] left-[7%] h-[5.8%] flex justify-center items-center text-[0.7rem]'>
+                    <div className='w-[85%] absolute top-[13.8%] left-[7%] h-[5.8%] flex justify-center items-center text-[0.35rem] lg:text-[0.7rem]'>
                       <p className='font-semibold'>{dat.nombre.toUpperCase()}</p>
                     </div>
                     <div className='w-[43%] absolute top-[22.7%] left-[49%] h-[21%]'>
@@ -111,7 +111,7 @@ Descargar Ficha técnica</button>
                     <p className='font-bold'>PRECIO DEL PRODUCTO:</p>
                     <p className=''>${dat.precio} MXN</p>
                     </div>
-                    <div className='w-[85%] absolute px-1 py-1 top-[54.5%] left-[6.8%] text-[0.5rem] lg:text-[0.8rem] font-semibold h-[39.5%]'>
+                    <div className='w-[85%] absolute px-1 py-1 top-[54.5%] overflow-y-auto left-[6.8%] text-[0.5rem] lg:text-[0.8rem] font-semibold h-[39.5%]'>
                       <p>{dat.descripcion.toUpperCase()}</p>
                     </div>
                   </div>

@@ -623,7 +623,7 @@ return (
         </div>
         )}
         </div>
-          <div className="lg:w-[50%] w-full flex flex-col gap-3 h-full bg-[#3B5A75] px-[1rem] py-[1rem]">
+          <div className="lg:w-[50%] w-full flex flex-col gap-3 h-full bg-[#323B75] px-[1rem] py-[1rem]">
             <p className="text-white text-[1.2rem] font-semibold">Selecciona los productos a rentar</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">

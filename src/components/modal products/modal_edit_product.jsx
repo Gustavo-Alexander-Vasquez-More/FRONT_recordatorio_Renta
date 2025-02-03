@@ -13,6 +13,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
     const [stock, setStock]=useState()
     const [descripcion, setDescripcion]=useState()
     const [precio, setPrecio]=useState()
+    const [tipo_uso, setTipo_uso]=useState()
     const [precio_venta, setPrecio_venta]=useState()
     const [visibilidad_precio_venta, setVisibilidad_precio_venta]=useState()
     const [visibilidad_precio_renta, setVisibilidad_precio_renta]=useState()
@@ -21,6 +22,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
     const [edit_nombre, setEdit_nombre ]=useState(false)
     const [edit_stock, setEdit_stock ]=useState(false)
     const [edit_precio, setEdit_precio ]=useState(false)
+    const [edit_tipo_uso, setEdit_tipo_uso]=useState()
     const [edit_precio_venta, setEdit_precio_venta ]=useState(false)
     const [edit_visibilidad_precio_venta, setEdit_visibilidad_precio_venta ]=useState(false)
     const [edit_visibilidad_precio_renta, setEdit_visibilidad_precio_renta ]=useState(false)
@@ -50,6 +52,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
         setStock(data.response[0].stock)
         setPrecio(data.response[0].precio)
         setPrecio_venta(data.response[0].precio_venta)
+        setTipo_uso(data.response[0].tipo_uso)
         setVisibilidad_precio_renta(data.response[0].visibilidad_precio)
         setVisibilidad_precio_venta(data.response[0].visibilidad_precio_venta)
         setCodigo(data.response[0].codigo)
@@ -192,7 +195,18 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       const formattedValue = formatPrice2(value);
       setPrecio_venta(formattedValue);
     };
-
+    const handleChange3 = (e) => {
+      const value = e.target.value;
+      setVisibilidad_precio_renta(value);
+    };
+    const handleChange4 = (e) => {
+      const value = e.target.value;
+      setVisibilidad_precio_venta(value);
+    };
+    const handleChange5 = (e) => {
+      const value = e.target.value;
+      setTipo_uso(value);
+    };
   useEffect(() => {
     get();
   }, []);
@@ -324,7 +338,68 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       )}
     </div>
   </div>
-  
+  <div className="mb-2">
+  <label htmlFor="tipo_uso" className="form-label">
+    Disponiblilidad del producto
+  </label>
+  <div className="w-full flex flex-col gap-2">
+    <div className="w-full flex gap-1">
+      {/* Select deshabilitado dinámicamente */}
+      <select
+        id="tipo_uso"
+        value={tipo_uso}
+        onChange={handleChange5}
+        onKeyPress={(event)=>{handleEnterPress(event,'tipo_uso',tipo_uso)}}
+        className={`form-control ${
+          !edit_tipo_uso ? 'bg-gray-200 cursor-not-allowed' : ''
+        }`}
+        disabled={!edit_tipo_uso} // Deshabilitado si no se está editando
+      >
+        <option value="renta">SOLO RENTA</option>
+        <option value="venta">VENTA Y RENTA</option>
+      </select>
+
+      {/* Botón para habilitar la edición */}
+      <button
+        className="flex gap-1 items-center underline"
+        onClick={() => setEdit_tipo_uso(true)}
+      >
+        <svg
+          className="w-6 h-6 text-[#808080]"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    {/* Botones de guardar/cancelar */}
+    {edit_tipo_uso && (
+      <div className="flex gap-2 text-[0.8rem]">
+        <button
+          onClick={() => {
+            setEdit_tipo_uso(false) // Cancelar edición
+          }}
+          className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+        >
+          Cancelar
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
   <div className="mb-2">
       <label htmlFor="exampleInputEmail1" className="form-label">
         Precio de renta del producto
@@ -386,64 +461,67 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
     </div>
 
     <div className="mb-2">
-      <label htmlFor="exampleInputEmail1" className="form-label">
-        Visibilidad actual del precio de renta
-      </label>
-      <div className="w-full flex flex-col gap-2">
-        <div className="w-full flex gap-1">
-          {/* Input deshabilitado dinámicamente */}
-          <input
-            placeholder="Escribe VISIBLE O NO  VISIBLE, según corresponda."
-            onKeyPress={(event)=>{handleEnterPress(event,'visibilidad_precio',visibilidad_precio_renta)}}
-            value={visibilidad_precio_renta}
-            onChange={handleChange}
-            type="text"
-            className={`form-control ${
-              !edit_visibilidad_precio_renta ? 'bg-gray-200 cursor-not-allowed' : ''
-            }`}
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            disabled={!edit_visibilidad_precio_renta} // Deshabilitado si no se está editando
+  <label htmlFor="visibilidad_precio" className="form-label">
+    Visibilidad actual del precio de renta
+  </label>
+  <div className="w-full flex flex-col gap-2">
+    <div className="w-full flex gap-1">
+      {/* Select deshabilitado dinámicamente */}
+      <select
+        id="visibilidad_precio"
+        value={visibilidad_precio_renta}
+        onKeyPress={(event)=>{handleEnterPress(event,'visibilidad_precio',visibilidad_precio_renta)}}
+        onChange={handleChange3}
+        className={`form-control ${
+          !edit_visibilidad_precio_renta ? 'bg-gray-200 cursor-not-allowed' : ''
+        }`}
+        disabled={!edit_visibilidad_precio_renta} // Deshabilitado si no se está editando
+      >
+        <option value="VISIBLE">VISIBLE</option>
+        <option value="NO VISIBLE">NO VISIBLE</option>
+      </select>
+
+      {/* Botón para habilitar la edición */}
+      <button
+        className="flex gap-1 items-center underline"
+        onClick={() => setEdit_visibilidad_precio_renta(true)}
+      >
+        <svg
+          className="w-6 h-6 text-[#808080]"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
           />
-          {/* Botón para habilitar la edición */}
-          <button
-            className="flex gap-1 items-center underline"
-            onClick={() => setEdit_visibilidad_precio_renta(true)}
-          >
-            <svg
-              className="w-6 h-6 text-[#808080]"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-              />
-            </svg>
-          </button>
-        </div>
-        {/* Botones de guardar/cancelar */}
-        {edit_visibilidad_precio_renta && (
-          <div className="flex gap-2 text-[0.8rem]">
-            <button
-              onClick={() => {
-                setEdit_visibilidad_precio_renta(false) // Restaurar precio original
-              }}
-              className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-            >
-              Cancelar
-            </button>
-          </div>
-        )}
-      </div>
+        </svg>
+      </button>
     </div>
+
+    {/* Botones de guardar/cancelar */}
+    {edit_visibilidad_precio_renta && (
+      <div className="flex gap-2 text-[0.8rem]">
+        <button
+          onClick={() => {
+            setEdit_visibilidad_precio_renta(false) // Cancelar edición
+          }}
+          className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+        >
+          Cancelar
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
 
     <div className="mb-2">
       <label htmlFor="exampleInputEmail1" className="form-label">
@@ -506,64 +584,67 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
     </div>
 
     <div className="mb-2">
-      <label htmlFor="exampleInputEmail1" className="form-label">
-        Visibilidad actual del precio de venta
-      </label>
-      <div className="w-full flex flex-col gap-2">
-        <div className="w-full flex gap-1">
-          {/* Input deshabilitado dinámicamente */}
-          <input
-            placeholder="Escribe VISIBLE O NO  VISIBLE, según corresponda."
-            onKeyPress={(event)=>{handleEnterPress(event,'visibilidad_precio_venta',visibilidad_precio_venta)}}
-            value={visibilidad_precio_venta}
-            onChange={handleChange}
-            type="text"
-            className={`form-control ${
-              !edit_visibilidad_precio_venta ? 'bg-gray-200 cursor-not-allowed' : ''
-            }`}
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            disabled={!edit_visibilidad_precio_venta} // Deshabilitado si no se está editando
+  <label htmlFor="visibilidad_precio_venta" className="form-label">
+    Visibilidad actual del precio de venta
+  </label>
+  <div className="w-full flex flex-col gap-2">
+    <div className="w-full flex gap-1">
+      {/* Select deshabilitado dinámicamente */}
+      <select
+        id="visibilidad_precio_venta"
+        value={visibilidad_precio_venta}
+        onChange={handleChange4}
+        onKeyPress={(event)=>{handleEnterPress(event,'visibilidad_precio_venta',visibilidad_precio_venta)}}
+        className={`form-control ${
+          !edit_visibilidad_precio_venta ? 'bg-gray-200 cursor-not-allowed' : ''
+        }`}
+        disabled={!edit_visibilidad_precio_venta} // Deshabilitado si no se está editando
+      >
+        <option value="VISIBLE">VISIBLE</option>
+        <option value="NO VISIBLE">NO VISIBLE</option>
+      </select>
+
+      {/* Botón para habilitar la edición */}
+      <button
+        className="flex gap-1 items-center underline"
+        onClick={() => setEdit_visibilidad_precio_venta(true)}
+      >
+        <svg
+          className="w-6 h-6 text-[#808080]"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
           />
-          {/* Botón para habilitar la edición */}
-          <button
-            className="flex gap-1 items-center underline"
-            onClick={() => setEdit_visibilidad_precio_venta(true)}
-          >
-            <svg
-              className="w-6 h-6 text-[#808080]"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-              />
-            </svg>
-          </button>
-        </div>
-        {/* Botones de guardar/cancelar */}
-        {edit_visibilidad_precio_venta && (
-          <div className="flex gap-2 text-[0.8rem]">
-            <button
-              onClick={() => {
-                setEdit_visibilidad_precio_venta(false) // Restaurar precio original
-              }}
-              className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-            >
-              Cancelar
-            </button>
-          </div>
-        )}
-      </div>
+        </svg>
+      </button>
     </div>
+
+    {/* Botones de guardar/cancelar */}
+    {edit_visibilidad_precio_venta && (
+      <div className="flex gap-2 text-[0.8rem]">
+        <button
+          onClick={() => {
+            setEdit_visibilidad_precio_venta(false) // Cancelar edición
+          }}
+          className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+        >
+          Cancelar
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
 
   <div className="mb-2">
     <label htmlFor="exampleInputEmail1" className="form-label">

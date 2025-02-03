@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Page, Document, Image, StyleSheet, View, Text, Font , PDFViewer } from '@react-pdf/renderer';
 import page1 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0001.jpg'
 import page2 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0002.jpg'
-import page3 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0003.jpg'
+import logo2 from '../../images/logo2.png'
 import page4 from '../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0004.jpg'
 import page0 from '../../images/imagenes_pdf_contrato/rm remision_page-0001.jpg'
 import firma from '../../images/imagenes_pdf_contrato/firma.png';
@@ -381,19 +381,19 @@ return (
                 <Text style={styles.direccion}>{dat.direccion}</Text>
             </View>
         </Page>
-        <Page size='A4'>
-            <View style={styles.page}>
-                <Image style={styles.plantilla} src={{ uri:`${page3}` , method: 'GET'}}/>
-                <View style={styles.box}>
-                    {dat.productos?.map(dat3=>(
-                       <>
-                       <Text style={styles.name}>{dat3.nombre.toUpperCase()}:</Text>
-                       <Text style={styles.desc}>{dat3.descripcion.toUpperCase()}</Text>
-                       </>
-                      ))}
-                      
-                </View>
-            </View>
+        <Page size='A4' style={{paddingTop:20, position:'relative'}}>
+        <View style={{width:'100%', flexDirection:'row', justifyContent:'center', paddingTop:20}}>
+          <Image style={{width:'60%'}} source={logo2}/>
+        </View>
+          <View style={{marginTop:30, width: '85.2%', paddingHorizontal: 6, left:40, padding:10, flexDirection:'column'}}>
+            
+            {dat.productos?.map((dat3, index)=>(
+              <>
+                <Text style={styles.name}>{index + 1}) {dat3.nombre.toUpperCase()}:</Text>
+                <Text style={styles.desc}>{dat3.descripcion.toUpperCase()}</Text>
+              </>
+            ))}
+          </View>
         </Page>
         <Page size='A4'>
             <View style={styles.page}>

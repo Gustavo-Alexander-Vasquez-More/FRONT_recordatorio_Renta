@@ -6,7 +6,7 @@ import pen from '../../images/pen.png';
 import ModalEdit from '../../components/modal products/modal_edit_product';
 import Modal_create_users from '../../components/modal products/modal_create_products';
 import Swal from 'sweetalert2';
-
+import Modal_ficha from '../../components/detalle_productos'
 export default function panelProductos() {
   const [productos_paginados, setProductos_paginados] = useState([]);
   const [all_products, setAll_products] = useState([]);
@@ -17,6 +17,7 @@ export default function panelProductos() {
   const [loadingImages, setLoadingImages] = useState(true);
   const [paginacion, setPaginacion]=useState()
   const [total_pages, setTotal_pages]=useState()
+  const [modal_ficha, setModal_ficha]=useState()
   const [isOpen, setIsOpen] = useState(false);
 const [select, setSelect]=useState()
   const [current_page, setCurrent_page] = useState(() => {
@@ -44,6 +45,16 @@ const [select, setSelect]=useState()
       function closeModal2(){
         setModal_create(false)
         window.location.reload()
+      }
+      function openModal_ficha(){
+        window.scrollTo(0,0)
+        setModal_ficha(true)
+
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal_ficha(){
+        document.body.style.overflow = 'auto';
+        setModal_ficha(false)
       }
       const handleImageLoad = () => {
         setLoadingImages(false);  // Una vez que la imagen se haya cargado
@@ -236,7 +247,9 @@ return (
     {modal_create === true && (
         <Modal_create_users closeModal2={closeModal2}  gett={get_products_paginates}/>
     )}
-
+{modal_ficha === true && (
+        <Modal_ficha closeModal={closeModal_ficha}  id={select}/>
+    )}
 <Navbar/>
 <div className='flex flex-col bg-[#ececec] w-full'>
     <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
@@ -317,6 +330,7 @@ return (
             <p className='text-secondary font-semibold'>No disponible</p>
           )}
         </div>
+        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' >Ficha técnica</button>
        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
        <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
      </div>
@@ -349,6 +363,7 @@ return (
             <p className='text-secondary font-semibold'>No disponible</p>
           )}
         </div>
+        <button className='bg-warning w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal_ficha(), setSelect(dat._id)}}>Ficha técnica</button>
         <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
         <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
       </div>
