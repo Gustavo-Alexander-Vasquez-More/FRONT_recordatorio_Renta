@@ -22,6 +22,8 @@ const notyf = new Notyf({
     dismissible:true
 });
 //ESTADOS
+const [filteredClients, setFilteredClients] = useState([]);
+
 const [datas, setDatas] = useState([]); //productos traidos por axios
 const [filteredDatas, setFilteredDatas] = useState([]); // productos filtrados
 const [selectedProducts, setSelectedProducts] = useState([]); //se almacenan los productos seleccionados
@@ -31,6 +33,7 @@ const [loading, setLoading] = useState(true); //estado para spinner de carga
 const [files, setFiles]=useState([])
 const [folio, setFolio]=useState()
 const [selectedIVA, setSelectedIVA]=useState()
+console.log(selectedIVA);
 const [hora_renta, setHora_renta]=useState()
 const [hora_vencimiento, setHora_vencimiento]=useState()
 const [fecha_renta, setFecha_renta]=useState(new Date())
@@ -38,12 +41,14 @@ const [fecha_vencimiento, setFecha_Vencimiento]=useState(new Date())
 const [dias_contados, setDias_contados]=useState()
 const [detalle, setDetalle]=useState('')
 const [nombre_cliente, setNombre_cliente]=useState()
+console.log(nombre_cliente);
 const [celular, setCelular]=useState()
 const [direccion, setDireccion]=useState()
 const [selectedOption, setSelectedOption] = useState();
 const [info_registro, setInfo_registro]=useState()
 const [clients, setClients]=useState()
 const [cliente_Selected, setCliente_selected]=useState()
+console.log(cliente_Selected);
 const [foto_ine_delantero, setFoto_ine_delantero]=useState()
 const [foto_ine_trasero, setIne_trasero]=useState()
 useEffect(() => {
@@ -167,6 +172,28 @@ useEffect(() => { // Guardar los productos seleccionados en el localStorage cada
     }
   }, [selectedProducts]);
 
+  const handleSearchClient = (e) => {
+    const value = e.target.value;
+    setNombre_cliente(value); // Actualiza el estado del nombre del cliente
+  
+    if (value.length > 0) {
+      const filtered = clients.filter(client =>
+        client.nombre.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredClients(filtered);
+    } else {
+      setFilteredClients([]); // Si no hay texto, limpiar sugerencias
+    }
+  };
+  const selectClient = (client) => {
+    console.log(client);
+    setNombre_cliente(client.nombre);
+    setCliente_selected(client._id) 
+     // Llena el campo con el nombre seleccionado
+    setCelular(client.telefono);       // Puedes llenar otros campos como el teléfono
+    setFilteredClients([]);            // Limpia las sugerencias
+  };
+
 const handleSearch = () => { //PARA REALIZARLA BUSQUEDA POR TERMINOS ESPECIFICOS 
   const filtered = datas.filter(
     (dat) => dat.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || dat.codigo.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -274,7 +301,7 @@ async function folioactual() {
 
 //FUNCION PARA CREAR UNA RENTA
 async function generar_rentas() {
-  if (!cliente_Selected || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta ) {
+  if (!nombre_cliente || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta ) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
   Swal.fire({
@@ -286,6 +313,7 @@ async function generar_rentas() {
 
 
   const response = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/`);
+  console.log(response);
     const permisosData = response.data.response
     const ultimoPermiso = permisosData[permisosData.length - 1];
     const ultimoFolio = ultimoPermiso.folio;
@@ -342,12 +370,11 @@ async function generar_rentas() {
     dias_contados:dias_contados,
     IVA:selectedIVA
   };
-
+console.log(datos);
   try {
     // Enviar la solicitud POST con los datos, incluyendo las URLs de las fotos
     await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/create`, datos);
     
-    // Actualizar inventario de productos
     selectedProducts.forEach(async (product) => {
       const data_update = {
         stock: product.stock - product.cantidad,
@@ -460,13 +487,48 @@ return (
     {selectedOption === 'registrado' && (
       <>
       <div class="mb-3">
-          <label  for="exampleInputPassword1" class="form-label font-bold">Seleccionar cliente registrado:</label>
-            <select ref={input_cliente_Selected} onChange={captureCliente} class="form-select" aria-label="Default select example">
-              <option selected>Selecciona un cliente</option>
-              {clients.map(dat=>(
-                <option value={dat._id}>{dat.nombre}</option>
-              ))}
-            </select>
+        <label htmlFor="" className='font-bold lg:text-[1.1rem] pb-3'>Buscar cliente registrado</label>
+      <div className="relative w-full">
+  <div className="flex items-center space-x-2">
+    <input
+      type="text"
+      ref={input_nombre_cliente}
+      value={nombre_cliente}
+      onChange={handleSearchClient}  // Busca mientras escribes
+      placeholder="Nombre del cliente"
+      className="w-full p-2 border rounded-md"
+    />
+    {cliente_Selected && (
+      <button
+      onClick={() => {
+        setNombre_cliente("");           // Limpia el estado del input
+        setCliente_selected(null);       // Limpia la selección del cliente
+        input_nombre_cliente.current.focus(); // Vuelve a enfocar el input después de limpiar
+      }}
+      className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+    >
+      Limpiar
+    </button>
+    )}
+  </div>
+
+  {filteredClients.length > 0 && (
+    <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto shadow-md mt-1">
+      {filteredClients.slice(0, 5).map((client, index) => (
+        <li
+          key={index}
+          className="p-2 hover:bg-gray-200 cursor-pointer"
+          onClick={() => {
+            selectClient(client);        // Selecciona el cliente
+            setNombre_cliente(client.nombre); // Muestra el nombre en el input
+          }}
+        >
+          {client.nombre}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
         </div>
         {cliente_Selected && (
           <>
