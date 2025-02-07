@@ -13,7 +13,7 @@ import page1 from "../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIM
 import page2 from "../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0002.jpg";
 import logo2 from "../../images/logo2.png";
 import page4 from "../../images/imagenes_pdf_contrato/CONTRATO-RENTA-PARA-IMPRIMIR_page-0004.jpg";
-import page0 from "../../images/imagenes_pdf_contrato/rm remision_page-0001.jpg";
+import page0 from "../../images/imagenes_pdf_contrato/rm-remision_page-0001.jpg";
 import firma from "../../images/imagenes_pdf_contrato/firma.png";
 import axios from "axios";
 
