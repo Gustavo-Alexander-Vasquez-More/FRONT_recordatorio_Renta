@@ -120,8 +120,8 @@ export default function AgregarMetatags({ closeModal3, _id }) {
   };
 
   return (
-    <div className="w-full lg:h-screen absolute z-40 bg-[#d9d9d97b] flex py-[2rem] justify-center items-center">
-      <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] h-auto flex flex-col overflow-y-auto">
+    <div className="w-full h-full absolute z-40 bg-[#d9d9d97b] flex py-[2rem] justify-center items-center">
+      <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] max-h-[90vh] flex flex-col overflow-y-auto">
         <div className="bg-[gray] flex justify-between px-[1rem] items-center py-[0.5rem] border-b-[1px] border-b-[black] border-solid">
           <p className="text-white font-semibold">Administrar tags del producto</p>
           <button onClick={closeModal3}>
