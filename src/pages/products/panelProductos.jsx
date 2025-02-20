@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/navbar';
-import Menu from '../../components/menu';
 import axios from 'axios';
-import pen from '../../images/pen.png';
 import ModalEdit from '../../components/modal products/modal_edit_product';
 import Modal_create_users from '../../components/modal products/modal_create_products';
+import AgregarMetatags from '../../components/modal products/agregar_metatags';
 import Swal from 'sweetalert2';
 import Modal_ficha from '../../components/detalle_productos'
 export default function panelProductos() {
@@ -28,6 +27,7 @@ const [select, setSelect]=useState()
       const [loading, setLoading] = useState(true);
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
+      const [modal_tags, setModal_tags]=useState(false)
       function openModal(){
         window.scrollTo(0,0)
         setModalEdit(true)
@@ -44,6 +44,16 @@ const [select, setSelect]=useState()
       }
       function closeModal2(){
         setModal_create(false)
+        window.location.reload()
+      }
+
+      function openModal3(){
+        window.scrollTo(0,0)
+        setModal_tags(true)
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal3(){
+        setModal_tags(false)
         window.location.reload()
       }
       function openModal_ficha(){
@@ -247,6 +257,9 @@ return (
     {modal_create === true && (
         <Modal_create_users closeModal2={closeModal2}  gett={get_products_paginates}/>
     )}
+    {modal_tags === true && (
+        <AgregarMetatags closeModal3={closeModal3} _id={select} />
+    )}
 {modal_ficha === true && (
         <Modal_ficha closeModal={closeModal_ficha}  id={select}/>
     )}
@@ -332,6 +345,7 @@ return (
         </div>
         <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' >Ficha técnica</button>
        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
+       <button className='bg-success w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal3(), setSelect(dat._id)}}>Actualizar Tags</button>
        <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
      </div>
     ))}
@@ -365,6 +379,7 @@ return (
         </div>
         <button className='bg-warning w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal_ficha(), setSelect(dat._id)}}>Ficha técnica</button>
         <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
+        <button className='bg-success w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal3(), setSelect(dat._id)}}>Actualizar Tags</button>
         <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
       </div>
       </>

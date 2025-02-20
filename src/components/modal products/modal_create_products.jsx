@@ -21,15 +21,23 @@ export default function modal_create_products({closeModal2}) {
     const [precio_venta, setPrecio_venta]=useState()
     const [visibilidad_precio, setVisibilidad_precio]=useState()
     const [visibilidad_precio_venta, setVisibilidad_precio_venta]=useState()
-    console.log(visibilidad_precio_venta);
+    const [tags, setTags]=useState([])
+    console.log(tags);
+
     const [tipo_uso, setTipo_uso]=useState()
     const input_nombre=useRef()
+    const input_tag=useRef()
     const input_codigo=useRef()
     const input_precio=useRef()
     const input_precio_venta=useRef()
     const input_sotck=useRef()
     const input_foto=useRef()
     const input_descripcion=useRef()
+    function captureTags(event) {
+      // Captura el valor del textarea y lo convierte en array de tags
+      setTags(event.target.value.split("\n").filter(tag => tag.trim() !== ""));
+    }
+  
     const captureVisibilidad_precio_renta = (e) => {
       console.log(e.target.value); // Imprime "si" o "no" según la selección
       setVisibilidad_precio(e.target.value); // Si estás usando un estado para almacenar el valor
@@ -167,9 +175,9 @@ export default function modal_create_products({closeModal2}) {
     precio_venta:precio_venta,
     visibilidad_precio:visibilidad_precio,
     visibilidad_precio_venta:visibilidad_precio_venta,
+    tags:tags,
     descripcion:descripcion.toUpperCase()
     }
-    console.log(datos.foto);
     try {
     await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/products/create`, datos)
     notyf.success('El producto se creó con éxito, se recargará esta página en 1 segundos')
@@ -178,7 +186,7 @@ export default function modal_create_products({closeModal2}) {
     }, 1000);
     
     } catch (error) {
-      
+      console.log(error);
     }
     }
   return (
@@ -210,6 +218,23 @@ export default function modal_create_products({closeModal2}) {
             <label for="exampleInputPassword1" class="form-label">Código del producto (*)</label>
             <input ref={input_codigo} onChange={captureCodigo} type="text" class="form-control" id="exampleInputPassword1"/>
           </div>
+          <div className="mb-3 w-full flex flex-col">
+      <label className="form-label">Tags del equipo</label>
+      <label className='text-[0.8rem] mb-2 font-bold'>Cada vez que presiones Enter, se añadirá un tag por separado.</label>
+      <textarea
+        ref={input_tag}
+        onChange={captureTags}
+        className="form-control"
+        placeholder="Escribe un tag y presiona Enter"
+      />
+      <div className="mt-2">
+        {tags.map((tag, index) => (
+          <span key={index} className="bg-blue-500 text-white px-2 py-1 rounded m-1 inline-block">
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
           <div class="mb-3 w-full">
             <label for="exampleInputPassword1" class="form-label">Stock del producto (*)</label>
             <input ref={input_sotck} placeholder='Escribelo en números' onChange={captureStock} type="number" class="form-control" id="exampleInputPassword1"/>
