@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/navbar';
-import Menu from '../../components/menu';
 import axios from 'axios';
-import pen from '../../images/pen.png';
 import ModalEdit from '../../components/modalEdit';
 import Modal_create_users from '../../components/modal_create_users';
 import foto_user from '../../images/foto_user_empty.jpg'
 import Swal from 'sweetalert2';
-
 export default function panelUsuarios() {
       const [datas, setDatas] = useState([]);
       const [user_selected, setUserSelected]=useState()
-       const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('usuarios_current_page')))
-            const [itemsPerPage] = useState(4);
+      const [current_page, setCurrent_page]=useState(parseInt(localStorage.getItem('usuarios_current_page')))
+      const [itemsPerPage] = useState(4);
       const [searchTerm, setSearchTerm] = useState('');
       const [filteredDatas, setFilteredDatas] = useState([]);
       const [loading, setLoading] = useState(true);
@@ -75,50 +72,38 @@ export default function panelUsuarios() {
           handleSearch(); // Ejecutar la búsqueda al presionar Enter
         }
       };
-      async function deleteUser(user) {
+      async function deleteUser(_id) {
+        console.log(_id);
+  
+          const confirmation = await Swal.fire({
+            title: `¿Estás seguro de eliminar este usuario?`,
+            text:'Si lo eliminas, sus rentas permanecerán, pero ya no estarán vinculadas a ningún usuario, incluso si creas uno nuevo con el mismo nombre.',
+            showDenyButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            denyButtonText: 'No, cancelar',
+            confirmButtonColor: '#d33',  // Cambia este color
+            denyButtonColor: '#B0B0B0', 
+          });
         try {
-          const datitos = {
-            usuario: user, // El usuario que quieres eliminar
-          };
-    
-          if (datitos.usuario) {
-            const confirmation = await Swal.fire({
-              title: `¿Estás seguro de eliminar este usuario?`,
-              text:'Si lo eliminas, sus rentas permanecerán, pero ya no estarán vinculadas a ningún usuario, incluso si creas uno nuevo con el mismo nombre.',
-              showDenyButton: true,
-              confirmButtonText: 'Sí, eliminar',
-              denyButtonText: 'No, cancelar',
-              confirmButtonColor: '#d33',  // Cambia este color
-              denyButtonColor: '#B0B0B0', 
-            });
-    
-            if (confirmation.isConfirmed) {
+            if (confirmation.isConfirmed === true) {
               // Aquí es donde se debe enviar correctamente el cuerpo de la solicitud
-              await axios.delete('https://backrecordatoriorenta-production.up.railway.app/api/admins/delete', {
-                data: datitos, // Pasamos los datos de usuario dentro del campo 'data'
-              });
-    
+              const {data}=await axios.delete(`https://backrecordatoriorenta-production.up.railway.app/api/admins/delete/${_id}`);
+              await get()
+              if(currentItems.length === 1){
+                localStorage.setItem('usuarios_current_page', current_page - 1)
+                setCurrent_page(localStorage.getItem('usuarios_current_page'))
+              }
               Swal.fire({
-                position: 'center',
                 icon: 'success',
-                title: 'El usuario se ha eliminado correctamente.',
-                showConfirmButton: false,
+                text: 'El usuario ha sido eliminado con éxito',
                 timer: 1500,
               });
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-            }
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'No se pudo eliminar este usuario',
-              timer: 1500,
-            });
-          }
+              
+              return data.response
+              }
+              
+         
         } catch (error) {
-          console.log('Error al eliminar usuario:', error);
           Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -282,7 +267,7 @@ return (
         </button>
         <button
           className="bg-red-500 text-white rounded-[5px] px-[0.5rem] lg:px-[1rem] py-[0.3rem] flex gap-1 items-center shadow-md"
-          onClick={() => deleteUser(dat._id)}
+          onClick={() => {deleteUser(dat._id)}}
         >
           Eliminar
         </button>

@@ -13,6 +13,8 @@ export default function historial_rentas() {
   const [modal_estado, setModalEstado]=useState(false)
   const [modal_recibido, setModalRecibido]=useState(false)
   const [estado, setEstado]=useState()
+  const [estado_renta, setEstado_renta]=useState()
+  console.log(estado_renta);
   const [filteredDatas, setFilteredDatas] = useState([]);
   const [_id, setId]=useState()
   const [loading, setLoading] = useState(true); // Estado de carga
@@ -144,13 +146,13 @@ function closeModal_recibido(){
   return (
 <>
   {modal_detalle === true && (
-    <Modal_detalle closeModal={closeModal} _id={_id}/>
+    <Modal_detalle closeModal={closeModal} _id={_id} />
   )}
   {modal_estado === true && (
     <Modal_estado_renta closeModal_estado={closeModal_estado} estado={estado}/>
   )}
    {modal_recibido === true && (
-    <Modal_recibido closeModal_recibido={closeModal_recibido} _id={_id}/>
+    <Modal_recibido closeModal_recibido={closeModal_recibido} _id={_id} estado={estado_renta}/>
   )}
   <Navbar/>
   
@@ -200,25 +202,22 @@ function closeModal_recibido(){
           )}
         </td>
         <td className="px-2 py-1 border-[1px]  whitespace-nowrap border-solid border-[black]">
-          <button className='px-2' onClick={() => { openModal_recibido(); setId(dat._id); }} 
-                  data-bs-toggle="tooltip" 
-                  data-bs-title="Marcar como recibido">
+          <button className='px-2' onClick={() => { openModal_recibido(); setId(dat._id), setEstado_renta(dat.estado_renta); }} 
+                  >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-bookmark-plus" viewBox="0 0 16 16">
               <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zM4 1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
               <path d="M8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5V8a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/>
             </svg>
           </button>
           <button className='px-2' onClick={() => { openModal(); setId(dat._id); }} 
-                  data-bs-toggle="tooltip" 
-                  data-bs-title="Mirar detalles de la renta">
+                  >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-envelope-exclamation" viewBox="0 0 16 16">
               <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2zm3.708 6.208L1 11.105V5.383zM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2z"/>
               <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-5v1.5a.5.5 0 0 1-1 0V11a.5.5 0 0 1 1 0m0 3a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
             </svg>
           </button>
           <button className='px-2' onClick={() => deleteRenta(dat._id)} 
-                  data-bs-toggle="tooltip" 
-                  data-bs-title="Eliminar">
+                 >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
               <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>

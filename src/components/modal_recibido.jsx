@@ -4,7 +4,7 @@ import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
 import Swal from 'sweetalert2';
 import {uploadFoto} from "../firebase/images.js"
-export default function modal_recibido({closeModal_recibido, _id}) {
+export default function modal_recibido({closeModal_recibido, _id, estado}) {
 
 const [observacion, setObservacion]=useState()
 const [files, setFiles]=useState([])
@@ -34,7 +34,9 @@ async function get() {
 }
 
 useEffect(() => {
-  get();
+  if (estado === 'Vencido'){
+    get();
+  }
 }, []);
 
 
@@ -155,7 +157,7 @@ const handleFileChange = (event) => {
   
   return (
  <>
- {datitos?.estado_renta === 'Entregado' && (
+ {estado === 'Entregado' && (
    <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
     <div className='flex flex-col gap-3'
     style={{
@@ -189,7 +191,7 @@ const handleFileChange = (event) => {
   </div>
  </div>
  )}
- {datitos?.estado_renta === 'Vencido' && (
+ {(estado === 'Vencido' || estado === 'Activo') && (
   <div className="w-full h-screen absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
   <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] h-auto flex flex-col gap-4 py-[1rem] px-[1rem]">
       <div className="flex justify-end">
