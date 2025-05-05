@@ -301,105 +301,115 @@ async function folioactual() {
 
 //FUNCION PARA CREAR UNA RENTA
 async function generar_rentas() {
-  if (!nombre_cliente || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta ) {
+  if (!nombre_cliente || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
+
   Swal.fire({
     title: 'Cargando, por favor espere...',
     didOpen: () => {
-      Swal.showLoading();  // Mostrar el spinner de carga
-    }
+      Swal.showLoading(); // Mostrar el spinner de carga
+    },
   });
 
-
-  const response = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/`);
-  console.log(response);
-    const permisosData = response.data.response
-    const ultimoPermiso = permisosData[permisosData.length - 1];
-    const ultimoFolio = ultimoPermiso.folio;
-    const numeroUltimoFolio = parseInt(ultimoFolio);
-    const nuevoFolio = (numeroUltimoFolio + 1).toString().padStart(7, '0');
-  // Subida de imágenes
-  let fotosEstadoInicial = [];
-  const selectedFiles = files; // Obtenemos todos los archivos seleccionados
-
-  for (let i = 0; i < selectedFiles.length; i++) {
-    const file = selectedFiles[i].file;
-    
-    try {
-      
-      // Subir cada imagen y obtener la URL de Firebase
-      const fotoURL = await uploadFoto(file);  // Asumiendo que uploadFoto devuelve la URL accesible
-      fotosEstadoInicial.push(fotoURL);  // Guardar la URL en el array
-    } catch (error) {
-      notyf.error('Error al subir una o más fotos. Intente nuevamente.');
-      return;  // Detener la ejecución si hay un error
-    }
-  }
-
-  const datos = {
-    productos: selectedProducts?.map((product) => ({
-      nombre: product.nombre, // Nombre del producto
-      cantidad: product.cantidad,
-      codigo: product.codigo,
-      descripcion:product.descripcion,
-      precio_unitario: product.precio.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Precio por unidad
-      _id: product._id
-    })),
-    importe_total: selectedProducts
-    .reduce((total, product) => {
-      // Limpia las comas del precio y convierte a número
-      const precioNumerico = parseFloat(product.precio.replace(/,/g, ''));
-      // Realiza la multiplicación y suma
-      return total + (precioNumerico * product.cantidad * dias_contados);
-    }, 0) // Agrega 0 como valor inicial
-    .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), // Formatea el total
-  
-    fotos_estado_inicial: fotosEstadoInicial, // Las URLs de las fotos subidas
-    usuario_retandor: localStorage.getItem('usuario'), // Usuario que está realizando la renta
-    nombre_encargado:localStorage.getItem('nombre'),
-    fecha_renta: fecha_renta_formateada,
-    hora_renta: hora_renta,
-    hora_vencimiento: hora_renta,
-    observacion_inicial: detalle,
-    cliente:cliente_Selected,
-    folio: nuevoFolio,
-    fecha_vencimiento: vencimientoFormateado,
-    detalles_maquinaria: selectedProducts?.map((product) => product.descripcion || ''),
-    direccion:direccion,
-    dias_contados:dias_contados,
-    IVA:selectedIVA
-  };
-console.log(datos);
   try {
-    // Enviar la solicitud POST con los datos, incluyendo las URLs de las fotos
+    // Obtener el último folio
+    const response = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/`);
+    const permisosData = response.data.response;
+    const ultimoPermiso = permisosData[permisosData.length - 1];
+    const ultimoFolio = ultimoPermiso ? parseInt(ultimoPermiso.folio) : 0;
+    const nuevoFolio = (ultimoFolio + 1).toString().padStart(7, '0');
+
+    // Subida de imágenes
+    let fotosEstadoInicial = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i].file;
+      try {
+        const fotoURL = await uploadFoto(file); // Subir cada imagen y obtener la URL
+        fotosEstadoInicial.push(fotoURL); // Guardar la URL en el array
+      } catch (error) {
+        notyf.error('Error al subir una o más fotos. Intente nuevamente.');
+        return; // Detener la ejecución si hay un error
+      }
+    }
+
+    // Cálculo del importe total
+    const importe_total = selectedProducts.reduce((total, product) => {
+      const precioNumerico = typeof product.precio_renta === 'string'
+        ? parseFloat(product.precio_renta.replace(/,/g, ''))
+        : product.precio_renta || 0; // Asegúrate de que sea un número válido
+      const cantidad = product.cantidad || 0; // Asegúrate de que cantidad tenga un valor válido
+      const dias = dias_contados || 1; // Usa 1 como valor predeterminado para días
+      return total + (precioNumerico * cantidad * dias);
+    }, 0).toFixed(2); // Redondea a 2 decimales
+
+    // Preparar los datos para enviar al backend
+    const datos = {
+      productos: selectedProducts.map((product) => ({
+        nombre: product.nombre,
+        cantidad: product.cantidad,
+        codigo: product.codigo,
+        descripcion: product.descripcion || '',
+        precio_unitario: parseFloat(product.precio_renta).toFixed(2), // Asegúrate de que esté formateado como número
+        _id: product._id,
+      })),
+      importe_total: parseFloat(importe_total), // Asegúrate de que sea un número
+      fotos_estado_inicial: fotosEstadoInicial,
+      usuario_retandor: localStorage.getItem('usuario'),
+      nombre_encargado: localStorage.getItem('nombre'),
+      fecha_renta: fecha_renta_formateada,
+      hora_renta: hora_renta,
+      hora_vencimiento: hora_renta,
+      observacion_inicial: detalle || '',
+      cliente: cliente_Selected,
+      folio: nuevoFolio,
+      fecha_vencimiento: vencimientoFormateado,
+      detalles_maquinaria: selectedProducts.map((product) => product.descripcion || ''),
+      direccion: direccion || '',
+      dias_contados: dias_contados || 1,
+      IVA: selectedIVA || 'NO',
+    };
+
+    console.log(datos); // Verificar los datos antes de enviarlos
+
+    // Enviar la solicitud POST con los datos
     await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/create`, datos);
-    
-    selectedProducts.forEach(async (product) => {
+
+    // Actualizar el stock de los productos
+    for (const product of selectedProducts) {
       const data_update = {
         stock: product.stock - product.cantidad,
       };
-      console.log(data_update);
       await axios.put(`https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`, data_update);
-    });
+    }
 
     Swal.fire({
       icon: 'success',
       title: 'Renta generada',
-      text: `Para ver la renta generada ve a la seccion de historial de rentas.`,
+      text: 'Para ver la renta generada ve a la sección de historial de rentas.',
       confirmButtonText: 'Aceptar',
       allowOutsideClick: false, // Evita que se cierre al hacer clic fuera
       allowEscapeKey: false, // Evita que se cierre al presionar la tecla Escape
-      confirmButtonColor: '#0D6EFD'
+      confirmButtonColor: '#0D6EFD',
     }).then(() => {
       // Recargar la página después de que se haga clic en "Aceptar"
       localStorage.removeItem('selectedProducts');
       window.location.reload();
     });
   } catch (error) {
-    console.error('Error al generar la renta:', error);
+    console.error('Error al generar la renta:', error.response?.data || error.message);
+    notyf.error('Error al generar la renta. Verifique los datos e intente nuevamente.');
+    Swal.close();
   }
 }
+const importe_total = selectedProducts.reduce((total, product) => {
+  const precioNumerico = typeof product.precio_renta === 'string'
+    ? parseFloat(product.precio_renta.replace(/,/g, ''))
+    : product.precio_renta || 0; // Asegúrate de que sea un número válido
+  const cantidad = product.cantidad || 0; // Asegúrate de que cantidad tenga un valor válido
+  const dias = dias_contados || 1; // Usa 1 como valor predeterminado para días
+  return total + (precioNumerico * cantidad * dias);
+}, 0).toFixed(2); // Redondea a 2 decimales
 return (
   <>
     <Navbar/>
@@ -431,7 +441,9 @@ return (
                       </td>
                       <td style={{ border: '1px solid #ccc', padding: '8px' }}>
   {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(
-    parseFloat(product.precio.replace(/,/g, '')) * product.cantidad
+    (typeof product.precio_renta === 'string'
+      ? parseFloat(product.precio_renta.replace(/,/g, ''))
+      : product.precio_renta || 0) * (product.cantidad || 0)
   )}
 </td>
                       <td style={{ border: '1px solid #ccc', padding: '8px' }}>
@@ -449,7 +461,7 @@ return (
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>
   ${selectedProducts
     .reduce((total, product) => {
-      const precioNumerico = parseFloat(product.precio.replace(/,/g, '')); // Limpia las comas y convierte a número
+      const precioNumerico = parseFloat(product.precio_renta.replace(/,/g, '')); // Limpia las comas y convierte a número
       return total + (precioNumerico * product.cantidad * dias_contados);
     }, 0) // Valor inicial
     .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

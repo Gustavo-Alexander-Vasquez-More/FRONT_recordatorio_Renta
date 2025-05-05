@@ -109,46 +109,12 @@ Descargar Ficha técnica</button>
                     <p className='font-bold'>CODIGO DEL PRODUCTO:</p>
                     <p className=''>{dat.codigo}</p>
                     <p className='font-bold'>PRECIO DEL PRODUCTO:</p>
-                    <p className=''>${dat.precio} MXN</p>
+                    <p className=''>${dat.precio_renta} MXN</p>
                     </div>
                     <div className='w-[85%] absolute px-1 py-1 top-[54.5%] overflow-y-auto left-[6.8%] text-[0.5rem] lg:text-[0.8rem] font-semibold h-[39.5%]'>
                       <p>{dat.descripcion.toUpperCase()}</p>
                     </div>
                   </div>
-                    {/* <div className='w-full flex flex-col gap-2'>
-                    <p className='font-bold underline'>Foto del producto:</p>
-                    <img
-  className="w-[12rem] transition-all duration-200 hover:brightness-50 cursor-pointer"
-  src={dat.foto}
-  alt=""
-  onClick={() => openLightbox(dat.foto)}
-/>
-                    </div>
-                    <div className='flex gap-2'>
-                        <p className='font-bold'>Nombre del producto:</p>
-                        <p>{dat.nombre}</p>
-                    </div>
-                    <div className='flex gap-2'>
-                        <p className='font-bold'>Codigo del producto:</p>
-                        <p>{dat.codigo}</p>
-                    </div>
-                    <div className='flex gap-2'>
-                        <p className='font-bold'>Precio unitario:</p>
-                        <p>$ {dat.precio} MXN</p>
-                    </div>
-                    <div className='flex gap-2'>
-                        <p className='font-bold'>Stock disponible:</p>
-                        <p>{dat.stock} unidades</p>
-                    </div>
-                    <div className='flex gap-2'>
-                        <p className='font-bold'>Descripcion del producto:</p>
-                        {dat.descripcion && (
-                          <p>{dat.descripcion}</p>
-                        )}
-                        {!dat.descripcion && (
-                          <p>No hay descipcion.</p>
-                        )}
-                    </div> */}
                 </div>
               ))}
             </>

@@ -40,7 +40,7 @@ const FichaTecnica = ({_id}) => {
             <Text>CODIGO DEL PRODUCTO</Text>
             <Text>{dat.codigo}</Text>
             <Text>PRECIO DEL PRODUCTO</Text>
-            <Text>${dat.precio} MXN</Text>
+            <Text>${dat.precio_renta} MXN</Text>
           </View>
           {/* La descripción ahora fluye automáticamente a otra página si es necesario */}
           <View style={{marginTop: 370, width: '85.2%', paddingHorizontal: 6, left:40, padding:10, border:1, borderColor:'black'}}>

@@ -313,7 +313,7 @@ const contrato = ({ _id }) => {
                           <Text>
                             $
                             {Number(
-                              dat2.precio_unitario * dat.dias_contados
+                              dat2.precio_unitario * dat2.cantidad
                             ).toLocaleString("en-US", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,

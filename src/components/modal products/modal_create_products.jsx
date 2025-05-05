@@ -22,6 +22,7 @@ export default function modal_create_products({closeModal2}) {
     const [visibilidad_precio, setVisibilidad_precio]=useState()
     const [visibilidad_precio_venta, setVisibilidad_precio_venta]=useState()
     const [tags, setTags]=useState([])
+    const [disponibilidad, setDisponibilidad] = useState([]);
     console.log(tags);
 
     const [tipo_uso, setTipo_uso]=useState()
@@ -110,84 +111,73 @@ export default function modal_create_products({closeModal2}) {
       const value = e.target.value;
       capturePrecio_venta(e); // Aplicar el formateo en vivo
     };
-    function captureStock(){
-    setStock(input_sotck.current.value)
+    function captureStock() {
+      setStock(input_sotck.current.value);
     }
-    
-    
     
     async function crear_products() {
       Swal.fire({
         title: 'Cargando, por favor espere...',
         didOpen: () => {
-          Swal.showLoading();  // Mostrar el spinner de carga
-        }
+          Swal.showLoading(); // Mostrar el spinner de carga
+        },
       });
-      if (tipo_uso === 'venta') {
-        if (
-          !nombre ||
-          !codigo ||
-          !precio ||
-          !descripcion ||
-          !stock ||
-          !visibilidad_precio ||
-          !precio_venta ||
-          !visibilidad_precio_venta
-        ) {
-          Swal.close();
-          notyf.error('Por favor complete los campos');
-          return; // Detener la ejecución
-        }
-      } else {
-        if (
-          !nombre ||
-          !codigo ||
-          !precio ||
-          !descripcion ||
-          !stock ||
-          !visibilidad_precio
-        ) {
-          Swal.close();
-          notyf.error('Por favor complete los campos');
-          return; // Detener la ejecución
-        }
+    
+      // Validación de campos obligatorios
+      if (
+        !nombre ||
+        !codigo ||
+        !precio ||
+        !descripcion ||
+        !stock ||
+        !visibilidad_precio ||
+        (disponibilidad.includes("venta") && (!precio_venta || !visibilidad_precio_venta))
+      ) {
+        Swal.close();
+        notyf.error('Por favor complete los campos obligatorios');
+        return; // Detener la ejecución
       }
-  
+    
       let fotoURL = '';
       const selectedFile = input_foto.current.files[0];
-        if (selectedFile) {
-            try {
-                fotoURL = await uploadFoto(selectedFile); // Sube la foto y obtiene la URL
-                console.log('URL de descarga:', fotoURL);
-            } catch (error) {
-                notyf.error('Error al subir la foto. Intente nuevamente.');
-                return;
-            }
+      if (selectedFile) {
+        try {
+          fotoURL = await uploadFoto(selectedFile); // Sube la foto y obtiene la URL
+          console.log('URL de descarga:', fotoURL);
+        } catch (error) {
+          notyf.error('Error al subir la foto. Intente nuevamente.');
+          return;
         }
+      }
     
-    const datos={
-    nombre: nombre.toUpperCase(),
-    foto: fotoURL || null,
-    codigo:codigo.toUpperCase(),
-    stock:stock,
-    precio:precio,
-    tipo_uso:tipo_uso,
-    precio_venta:precio_venta,
-    visibilidad_precio:visibilidad_precio,
-    visibilidad_precio_venta:visibilidad_precio_venta,
-    tags:tags,
-    descripcion:descripcion.toUpperCase()
-    }
-    try {
-    await axios.post(`https://backrecordatoriorenta-production.up.railway.app/api/products/create`, datos)
-    notyf.success('El producto se creó con éxito, se recargará esta página en 1 segundos')
-    setTimeout(async () => {
-    window.location.reload();
-    }, 1000);
+      const datos = {
+        nombre: nombre.toUpperCase(),
+        foto: fotoURL || null,
+        codigo: codigo.toUpperCase(),
+        stock: stock,
+        precio_renta: precio,
+        disponibilidad: disponibilidad, // Usar el array de disponibilidad
+        precio_venta: disponibilidad.includes("venta") ? precio_venta : null, // Solo incluir si está disponible para venta
+        visibilidad_precio_renta: visibilidad_precio,
+        visibilidad_precio_venta: disponibilidad.includes("venta") ? visibilidad_precio_venta : null, // Solo incluir si está disponible para venta
+        tags: tags,
+        descripcion: descripcion.toUpperCase(),
+      };
     
-    } catch (error) {
-      console.log(error);
-    }
+      try {
+        await axios.post(
+          `https://backrecordatoriorenta-production.up.railway.app/api/products/create`,
+          datos
+        );
+        notyf.success(
+          'El producto se creó con éxito, se recargará esta página en 1 segundo'
+        );
+        setTimeout(async () => {
+          window.location.reload();
+        }, 1000);
+      } catch (error) {
+        console.log(error);
+      }
     }
   return (
     <div className="w-full lg:h-screen absolute z-40 bg-[#d9d9d97b] flex py-[2rem]  justify-center items-center">
@@ -285,65 +275,93 @@ export default function modal_create_products({closeModal2}) {
 </div>
 
 <div className="mb-1 w-full">
-  <label className="form-label font-semibold" htmlFor="precio_renta_visible">
-    ¿Deseas vender este equipo? (Marcar solo si vas a vender)
+  <label className="form-label font-semibold">
+    ¿En qué apartados quieres que esté disponible este producto? (*)
   </label>
-  <div>
-    <div>
-      <input 
-        type="radio" 
-        id="tipo_uso" 
-        name="tipo_uso" 
-        value="venta" 
-        onChange={captureTipo_uso} 
+  <div className="flex gap-4">
+    {/* Checkbox para "renta" */}
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        value="renta"
+        checked={disponibilidad.includes("renta")}
+        onChange={(e) => {
+          const { value, checked } = e.target;
+          if (checked) {
+            setDisponibilidad((prev) => [...prev, value]); // Agregar "renta" al array
+          } else {
+            setDisponibilidad((prev) => prev.filter((item) => item !== value)); // Remover "renta" del array
+          }
+        }}
       />
-      <label htmlFor="tipo_uso">Sí</label>
-    </div>
+      Renta
+    </label>
+
+    {/* Checkbox para "venta" */}
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        value="venta"
+        checked={disponibilidad.includes("venta")}
+        onChange={(e) => {
+          const { value, checked } = e.target;
+          if (checked) {
+            setDisponibilidad((prev) => [...prev, value]); // Agregar "venta" al array
+          } else {
+            setDisponibilidad((prev) => prev.filter((item) => item !== value)); // Remover "venta" del array
+          }
+        }}
+      />
+      Venta
+    </label>
   </div>
 </div>
 
-{tipo_uso === 'venta' && (
+{/* Mostrar campos adicionales si "venta" está seleccionada */}
+{disponibilidad.includes("venta") && (
   <>
-  <div class="mb-3 w-full">
-  <label for="exampleInputPassword1" class="form-label font-semibold">Coloca el precio de venta para este equipo (*)</label>
-  <input 
-    ref={input_precio_venta} 
-    onInput={handleChange2} 
-    value={precio_venta} 
-    placeholder='Colocar punto para separar los decimales de los centavos. Ejm: 1,203.50' 
-    type="text" 
-    class="form-control" 
-    id="exampleInputPassword1"
-  />
-</div>
+    <div className="mb-3 w-full">
+      <label htmlFor="exampleInputPassword1" className="form-label font-semibold">
+        Coloca el precio de venta para este equipo (*)
+      </label>
+      <input
+        ref={input_precio_venta}
+        onInput={handleChange2}
+        value={precio_venta}
+        placeholder="Colocar punto para separar los decimales de los centavos. Ejm: 1,203.50"
+        type="text"
+        className="form-control"
+        id="exampleInputPassword1"
+      />
+    </div>
 
-<div className="mb-1 w-full">
-  <label className="form-label font-semibold" htmlFor="precio_venta_visible">
-    ¿Quieres mostrar el precio de venta del equipo? (*)
-  </label>
-  <div>
-    <div>
-      <input 
-        type="radio" 
-        id="precio_venta_visible" 
-        name="precio_venta" 
-        value="VISIBLE" 
-        onChange={captureVisibilidad_precio_venta} 
-      />
-      <label htmlFor="precio_venta_visible">Sí</label>
+    <div className="mb-1 w-full">
+      <label className="form-label font-semibold" htmlFor="precio_venta_visible">
+        ¿Quieres mostrar el precio de venta del equipo? (*)
+      </label>
+      <div>
+        <div>
+          <input
+            type="radio"
+            id="precio_venta_visible"
+            name="precio_venta"
+            value="VISIBLE"
+            onChange={captureVisibilidad_precio_venta}
+          />
+          <label htmlFor="precio_venta_visible">Sí</label>
+        </div>
+        <div>
+          <input
+            type="radio"
+            id="precio_venta_no_visible"
+            name="precio_venta"
+            value="NO VISIBLE"
+            onChange={captureVisibilidad_precio_venta}
+          />
+          <label htmlFor="precio_venta_no_visible">No</label>
+        </div>
+      </div>
     </div>
-    <div>
-      <input 
-        type="radio" 
-        id="precio_venta_no_visible" 
-        name="precio_venta" 
-        value="NO VISIBLE" 
-        onChange={captureVisibilidad_precio_venta} 
-      />
-      <label htmlFor="precio_venta_no_visible">No</label>
-    </div>
-  </div>
-</div>
   </>
 )}
 <div className='text-[0.8rem] flex justify-center items-center text-center font-semibold pt-1 pb-4'>

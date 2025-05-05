@@ -142,8 +142,11 @@ export default function ModalDetalle({ closeModal, _id }) {
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.codigo}</td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>{producto.cantidad}</td>
           <td style={{ border: '1px solid #ccc', padding: '8px' }}>${producto.precio_unitario}</td>
-          <td style={{ border: '1px solid #ccc', padding: '8px' }}>${(producto.precio_unitario * dat.dias_contados).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </td>
+          <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+  {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(
+    producto.precio_unitario * producto.cantidad
+  )}
+</td>
         </tr>
       ))}
       <tr>

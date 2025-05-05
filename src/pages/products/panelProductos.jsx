@@ -327,10 +327,10 @@ return (
        <p  data-bs-toggle="tooltip_name" data-bs-title={dat.nombre} className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
        <div className='flex flex-col '> 
           <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
-          {dat.visibilidad_precio === 'VISIBLE' && (
-            <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+          {dat.visibilidad_precio_renta === 'VISIBLE' && (
+            <p className='text-secondary font-semibold'>${dat.precio_renta} MXN</p>
           )}
-          {dat.visibilidad_precio === 'NO VISIBLE' && (
+          {dat.visibilidad_precio_renta === 'NO VISIBLE' && (
             <p className='text-secondary font-semibold'>No disponible</p>
           )}
         </div>
@@ -361,10 +361,10 @@ return (
         <a data-bs-toggle="tooltip_name" data-bs-title={dat.nombre} className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</a>
         <div className='flex flex-col '> 
           <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
-          {dat.visibilidad_precio === 'VISIBLE' && (
-            <p className='text-secondary font-semibold'>${dat.precio} MXN</p>
+          {dat.visibilidad_precio_renta === 'VISIBLE' && (
+            <p className='text-secondary font-semibold'>${dat.precio_renta} MXN</p>
           )}
-          {dat.visibilidad_precio === 'NO VISIBLE' && (
+          {dat.visibilidad_precio_renta === 'NO VISIBLE' && (
             <p className='text-secondary font-semibold'>No disponible</p>
           )}
         </div>
