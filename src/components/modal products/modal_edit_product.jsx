@@ -10,6 +10,8 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
   const [loading, setLoading] = useState(true);
   const [nombre, setNombre] = useState();
   const [stock, setStock] = useState();
+ const [categoriasDisponibles, setCategoriasDisponibles] = useState([]);
+const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(""); // "" si no tiene
   const [descripcion, setDescripcion] = useState();
   const [precio_renta, setPrecio_renta] = useState();
   const [precio_venta, setPrecio_venta] = useState();
@@ -49,6 +51,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
       setDisponibilidad(data.response[0].disponibilidad || []); // Cargar disponibilidad
       setVisibilidad_precio_renta(data.response[0].visibilidad_precio_renta);
       setVisibilidad_precio_venta(data.response[0].visibilidad_precio_venta);
+      setCategoriaSeleccionada(data.response[0].categoria || "");
       setCodigo(data.response[0].codigo);
       setDescripcion(data.response[0].descripcion);
       setFoto(data.response[0].foto);
@@ -59,6 +62,14 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
     }
   }
 
+async function getCategorias() {
+  try {
+    const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/categorias/`);
+    setCategoriasDisponibles(data.response);
+  } catch (error) {
+    console.log(error);
+  }
+}
   async function editarFoto_perfil(e) {
     Swal.fire({
       title: 'Guardando cambios...',
@@ -197,6 +208,7 @@ console.log(foto_url);
   };
   useEffect(() => {
     get();
+    getCategorias()
   }, []);
   function handleEnterPress(event, valor, dato) {
     if (event.key === 'Enter') {
@@ -644,8 +656,8 @@ console.log(foto_url);
               strokeLinejoin="round"
               strokeWidth="2"
               d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-            />
-          </svg>
+          />
+        </svg>
         </button>
       </div>
       {/* Botones de guardar/cancelar */}
@@ -773,6 +785,66 @@ console.log(foto_url);
       )}
     </div>
   </div>
+
+  <div className="mb-2">
+  <label htmlFor="categoriaSelect" className="form-label">
+    Categoría del producto
+  </label>
+  <div className="w-full flex flex-col gap-2">
+    <div className="w-full flex gap-1">
+      {/* Select deshabilitado dinámicamente */}
+     <select
+  id="categoriaSelect"
+  value={categoriaSeleccionada}
+  onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+  onKeyPress={(event) => handleEnterPress(event, 'categoria', categoriaSeleccionada)}
+  className={`form-control ${editField !== "categoria" ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+  disabled={editField !== "categoria"}
+>
+  <option value="" disabled>Añadir categoría</option>
+  {categoriasDisponibles.map((cat) => (
+    <option key={cat._id || cat.id || cat.nombre} value={cat.nombre}>
+      {cat.nombre}
+    </option>
+  ))}
+</select>
+      {/* Botón para habilitar la edición */}
+      <button
+        className="flex gap-1 items-center underline"
+        onClick={() => setEditField("categoria")}
+      >
+        <svg
+          className="w-6 h-6 text-[#808080]"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+          />
+        </svg>
+      </button>
+    </div>
+    {/* Botones de guardar/cancelar */}
+    {editField === "categoria" && (
+      <div className="flex gap-2 text-[0.8rem]">
+        <button
+          onClick={() => setEditField(null)}
+          className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+        >
+          Cancelar
+        </button>
+      </div>
+    )}
+  </div>
+</div>
 
     <div class="pb-4 pt-[1rem] flex justify-between">
     <button onClick={closeModal} className='bg-[#808080] px-[1rem] py-[0.3rem] text-white font-semibold rounded-[5px]'>Cerrar</button>

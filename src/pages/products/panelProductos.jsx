@@ -326,27 +326,20 @@ return (
        <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
        <p  data-bs-toggle="tooltip_name" data-bs-title={dat.nombre} className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</p>
        <div className='flex flex-col '> 
-          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
-          {dat.visibilidad_precio_renta === 'VISIBLE' && (
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio renta x día</p>
             <p className='text-secondary font-semibold'>${dat.precio_renta} MXN</p>
-          )}
-          {dat.visibilidad_precio_renta === 'NO VISIBLE' && (
-            <p className='text-secondary font-semibold'>No disponible</p>
-          )}
+        </div>
+         <div className='flex flex-col '> 
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio renta x semana</p>
+            <p className='text-secondary font-semibold'>${dat.precio_x_semana || 0} MXN</p>
         </div>
         <div className='flex flex-col '> 
           <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
-          {dat.visibilidad_precio_venta === 'VISIBLE' && (
             <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
-          )}
-          {dat.visibilidad_precio_venta === 'NO VISIBLE' && (
-            <p className='text-secondary font-semibold'>No disponible</p>
-          )}
         </div>
-        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' >Ficha técnica</button>
-       <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
-       <button className='bg-success w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal3(), setSelect(dat._id)}}>Actualizar Tags</button>
-       <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
+       <button className='bg-warning w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
+       <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal3(), setSelect(dat._id)}}>Actualizar Tags</button>
+       <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
      </div>
     ))}
     
@@ -360,27 +353,20 @@ return (
         <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />
         <a data-bs-toggle="tooltip_name" data-bs-title={dat.nombre} className='truncate max-w-[100%] lg:text-[1rem] text-[0.8rem] text-danger font-semibold'>{dat.nombre.toUpperCase()}</a>
         <div className='flex flex-col '> 
-          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de renta</p>
-          {dat.visibilidad_precio_renta === 'VISIBLE' && (
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio renta x día</p>
             <p className='text-secondary font-semibold'>${dat.precio_renta} MXN</p>
-          )}
-          {dat.visibilidad_precio_renta === 'NO VISIBLE' && (
-            <p className='text-secondary font-semibold'>No disponible</p>
-          )}
+        </div>
+         <div className='flex flex-col '> 
+          <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio renta x semana</p>
+            <p className='text-secondary font-semibold'>${dat.precio_x_semana || 0} MXN</p>
         </div>
         <div className='flex flex-col '> 
           <p className='text-danger lg:text-[0.8rem] text-[0.6rem] font-semibold'>Precio de Venta</p>
-          {dat.visibilidad_precio_venta === 'VISIBLE' && (
             <p className='text-secondary font-semibold'>${dat.precio_venta} MXN</p>
-          )}
-          {dat.visibilidad_precio_venta === 'NO VISIBLE' && (
-            <p className='text-secondary font-semibold'>No disponible</p>
-          )}
         </div>
-        <button className='bg-warning w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal_ficha(), setSelect(dat._id)}}>Ficha técnica</button>
-        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
-        <button className='bg-success w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal3(), setSelect(dat._id)}}>Actualizar Tags</button>
-        <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
+        <button className='bg-warning w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal(), setSelect(dat._id)}}>Editar</button>
+        <button className='bg-primary w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{openModal3(), setSelect(dat._id)}}>Actualizar Tags</button>
+        <button className='bg-danger w-full text-white py-[0.3rem] rounded-[5px] lg:text-[1rem] text-[0.8rem]' onClick={()=>{deleteProduct(dat._id)}}>Eliminar</button>
       </div>
       </>
     ))}
@@ -426,8 +412,6 @@ return (
     </div>
   </div>
 )}
-
-
 </div>
     </div>
     
