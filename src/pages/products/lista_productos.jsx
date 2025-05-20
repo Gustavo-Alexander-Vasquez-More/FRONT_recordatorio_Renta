@@ -74,7 +74,11 @@ function closeModal(){
           // Cambiar página
           const changePage = (page) => {
             if (page >= 1 && page <= totalPages) {
-              setCurrent_page(page);
+              setLoading(true); // Activa el loading
+              setTimeout(() => {
+                setCurrent_page(page);
+                setLoading(false); // Desactiva el loading después de un pequeño delay
+              }, 300); // 300ms de delay para simular carga
             }
           };
       const generatePaginationButtons = () => {
@@ -170,20 +174,67 @@ function closeModal(){
             ) : (
               <div className="flex flex-col w-full lg:w-[80%]">
   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full justify-items-center">
-    {currentItems.map((dat, index) => (
-      <div key={index} className="bg-white w-full px-2 py-2 rounded-lg flex flex-col gap-2">
-        <img className='w-full' src={dat.foto} alt="" />
-        <p className='lg:text-[1rem] text-[0.7rem] text-center font-semibold text-danger'>{dat.nombre.toUpperCase()}</p>
-        <p className='text-center text-secondary font-semibold'>${dat.precio_renta} MXN</p> {/* Cambiado de precio a precio_renta */}
-        {dat.stock === 0 && (
-          <p className='text-center text-danger font-semibold bg-[#dbdbdb97] rounded-[5px] py-1 lg:text-[1rem] text-[0.7rem]'>Rentado</p>
-        )}
-        {dat.stock > 0 && (
-          <p className='text-center text-primary font-semibold bg-[#dbdbdb97] rounded-[5px] py-1 lg:text-[1rem] text-[0.7rem]'>Queda {dat.stock} disponible</p>
-        )}
-        <button onClick={() => { openModal(), setId(dat._id) }} className='bg-primary text-white py-1 rounded-[5px] lg:text-[1rem] text-[0.7rem]'>Ficha técnica</button>
+    {loading ? (
+      <div className="col-span-2 lg:col-span-4 flex justify-center items-center min-h-[420px]">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
-    ))}
+    ) : (
+      currentItems.map((dat, index) => (
+        <div
+          key={index}
+          className="bg-white w-full max-w-[250px] mx-auto px-2 py-3 rounded-lg flex flex-col gap-2 shadow-md border border-gray-200 hover:shadow-lg transition-all"
+          style={{ minHeight: 420 }}
+        >
+          <div className="flex justify-center items-center w-full h-[150px] bg-[#f3f3f3] rounded">
+            <img
+              className="object-contain w-[120px] h-[120px]"
+              src={dat.foto}
+              alt={dat.nombre}
+              loading="lazy"
+            />
+          </div>
+          <p className="text-[1rem] text-center font-semibold text-primary mt-2 truncate">{dat.nombre?.toUpperCase()}</p>
+          <div className="flex flex-col gap-1 text-center text-[0.95rem]">
+            <span className="font-semibold text-gray-600">
+              Renta por día:{" "}
+              <span className="text-primary">
+                ${dat.precios_visibles?.includes("renta") && dat.precio_renta ? dat.precio_renta : 0} MXN
+              </span>
+            </span>
+            <span className="font-semibold text-gray-600">
+              Renta por semana:{" "}
+              <span className="text-primary">
+                ${dat.precios_visibles?.includes("semana") && dat.precio_x_semana ? dat.precio_x_semana : 0} MXN
+              </span>
+            </span>
+            <span className="font-semibold text-gray-600">
+              Venta:{" "}
+              <span className="text-primary">
+                ${dat.precios_visibles?.includes("venta") && dat.precio_venta ? dat.precio_venta : 0} MXN
+              </span>
+            </span>
+          </div>
+          {dat.stock === 0 ? (
+            <p className="text-center text-danger font-semibold bg-[#ffeaea] rounded-[5px] py-1 text-[0.95rem]">Rentado</p>
+          ) : (
+            <p className="text-center text-green-600 font-semibold bg-[#eaffea] rounded-[5px] py-1 text-[0.95rem]">
+              Queda {dat.stock} disponible
+            </p>
+          )}
+          <button
+            onClick={() => {
+              openModal();
+              setId(dat._id);
+            }}
+            className="bg-primary text-white py-2 rounded-[5px] text-[0.95rem] font-semibold mt-2 hover:bg-blue-700 transition-all"
+          >
+            Ficha técnica
+          </button>
+        </div>
+      ))
+    )}
   </div>
 
   <div className="flex justify-center gap-2 mt-4">
