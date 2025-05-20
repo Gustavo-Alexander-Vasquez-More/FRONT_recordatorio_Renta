@@ -420,7 +420,7 @@ return (
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.8rem', tableLayout: 'fixed'}}>
               <thead>
                 <tr>
-                  <th style={{ border: '1px solid #ccc', padding: '8px' }}>Producto</th>
+                  <th style={{ border: '1px solid #ccc', padding: '8px' }}>Equipo</th>
                   <th style={{ border: '1px solid #ccc', padding: '8px' }}>Importe</th>
                   <th style={{ border: '1px solid #ccc', padding: '8px' }}>Cantidad</th>
                 </tr>
@@ -429,7 +429,7 @@ return (
                 {selectedProducts.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="text-center py-[0.5rem]">
-                      No se han seleccionado productos
+                      No se han seleccionado equipos
                     </td>
                   </tr>
                 ) : (
@@ -562,7 +562,7 @@ return (
           <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
         </div>
         <div className="mb-3">
-          <label htmlFor="photoInput" className="block font-bold text-gray-700 mb-2">Foto como se entrega el producto:</label>
+          <label htmlFor="photoInput" className="block font-bold text-gray-700 mb-2">Foto como se entrega el equipo:</label>
           <input type="file" id="photoInput" accept="image/*" ref={input_foto} multiple onChange={handleFileChange} className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
           <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
             {files.map((image, index) => (
@@ -648,7 +648,7 @@ return (
               <input ref={input_direccion} onChange={captureDireccion} type="text" class="form-control" id="exampleInputPassword1"/>
             </div>
             <div className="mb-3">
-              <label htmlFor="photoInput" className="block font-bold text-gray-700 mb-2">Fotos como se entrega el producto:</label>
+              <label htmlFor="photoInput" className="block font-bold text-gray-700 mb-2">Fotos como se entrega el equipo:</label>
               <input type="file" id="photoInput" accept="image/*" ref={input_foto} multiple onChange={handleFileChange} className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
               <div className="flex overflow-x-auto  gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50 mt-3">
               {files.map((image, index) => (
@@ -698,10 +698,10 @@ return (
         )}
         </div>
           <div className="lg:w-[50%] w-full flex flex-col gap-3 h-full bg-[#323B75] px-[1rem] py-[1rem]">
-            <p className="text-white text-[1.2rem] font-semibold">Selecciona los productos a rentar</p>
+            <p className="text-white text-[1.2rem] font-semibold">Selecciona los equipos a rentar</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
-                <input type="text" placeholder="Buscar producto por nombre o código de producto..." className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
+                <input type="text" placeholder="Buscar equipo por nombre o código..." className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
                 {searchTerm && (
                   <button onClick={clear} className="absolute right-2 top-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x" viewBox="0 0 16 16">

@@ -80,7 +80,7 @@ useEffect(() => {
           className='w-full h-full flex justify-between items-center'>
           <div className='flex items-center gap-3 text-white'>
           <img className='w-[2rem]' src={box} alt="" />
-            <p>Crear / editar productos</p>
+            <p>Crear / editar equipos</p>
           </div>
 
         </a>
@@ -94,7 +94,7 @@ useEffect(() => {
       className='w-full h-full flex justify-between items-center'>
       <div className='flex items-center gap-3 text-white'>
       <img className='w-[2rem]' src={box} alt="" />
-        <p>Lista de productos</p>
+        <p>Lista de equipos</p>
       </div>
 
     </a>

@@ -129,14 +129,14 @@ return (
               )}
               {dato === 'foto_ine_delantero' && (
                 <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Codigo de producto</label>
+                  <label htmlFor="exampleInputPassword1" className="form-label">Codigo de equipo</label>
                   <input ref={input_valor_dato} onChange={handleFileChange} type="file" placeholder="Escribe el codigo nuevo" className="form-control" id="exampleInputPassword1" />
                 </div>
                 
               )}
               {dato === 'foto_ine_trasero' && (
                 <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Precio del producto</label>
+                  <label htmlFor="exampleInputPassword1" className="form-label">Precio del equipo</label>
                   <input ref={input_valor_dato} onChange={handleFileChange} type="file" placeholder="Ejemplo 400.00" className="form-control" id="exampleInputPassword1" />
                 </div>
                 

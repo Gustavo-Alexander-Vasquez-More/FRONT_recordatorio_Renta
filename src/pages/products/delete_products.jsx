@@ -55,7 +55,7 @@ export default function delete_products() {
       const datitos = { _id: _id };
       if (datitos._id) {
         const confirmation = await Swal.fire({
-          title: `¿Estás seguro de eliminar este producto?`,
+          title: `¿Estás seguro de eliminar este equipo?`,
           showDenyButton: true,
           confirmButtonText: 'Sí',
           denyButtonText: 'No',
@@ -76,7 +76,7 @@ export default function delete_products() {
           Swal.fire({
             position: 'center',
             icon: 'success',
-            title: 'El producto se ha eliminado',
+            title: 'El equipo se ha eliminado',
             showConfirmButton: false,
             timer: 1500,
           });
@@ -86,16 +86,16 @@ export default function delete_products() {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'No se pudo eliminar este producto',
+          text: 'No se pudo eliminar este equipo',
           timer: 1500,
         });
       }
     } catch (error) {
-      console.log('Error al eliminar el producto:', error);
+      console.log('Error al eliminar el equipo:', error);
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Hubo un problema al eliminar el producto. Intenta nuevamente.',
+        text: 'Hubo un problema al eliminar el equipo. Intenta nuevamente.',
         timer: 1500,
       });
     }
@@ -114,12 +114,12 @@ export default function delete_products() {
         
         <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89vh]">
           <div className="bg-[white] w-[90%] rounded-[10px] items-center flex flex-col gap-4 px-[1.5rem] py-[2rem]">
-            <p className="text-[1.5rem] text-center font-semibold font-serif">Eliminar productos</p>
+            <p className="text-[1.5rem] text-center font-semibold font-serif">Eliminar equipos</p>
             <div className="flex w-full">
               <div className="relative w-full items-center">
                 <input
                   type="text"
-                  placeholder="Buscar producto por nombre o código de producto..."
+                  placeholder="Buscar equipo por nombre o código..."
                   className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
@@ -151,7 +151,7 @@ export default function delete_products() {
             )}
             {!loading && filteredDatas.length === 0 ? (
               <div className="text-center text-lg">
-                <p>No se encontraron productos relacionados a tu búsqueda</p>
+                <p>No se encontraron equipos relacionados a tu búsqueda</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4"

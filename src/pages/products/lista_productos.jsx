@@ -127,7 +127,7 @@ function closeModal(){
               <div className="relative w-full flex justify-center items-center">
                 <input
                   type="text"
-                  placeholder="Buscar producto por nombre o código de producto..."
+                  placeholder="Buscar equipos por nombre o código..."
                   className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
@@ -159,7 +159,7 @@ function closeModal(){
             )}
             {!loading && filteredDatas.length === 0 ? (
               <div className="text-center text-lg">
-                <p>No se encontraron productos relacionados a tu búsqueda</p>
+                <p>No se encontraron equipos relacionados a tu búsqueda</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4"

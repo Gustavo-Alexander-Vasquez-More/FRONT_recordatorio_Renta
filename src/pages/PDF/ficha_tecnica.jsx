@@ -37,9 +37,9 @@ const FichaTecnica = ({_id}) => {
           </View>
           <View style={{position:'absolute', top:186.2, border:1, borderColor:'black', left:40, width: '38.7%',flexDirection:'row', justifyContent:'center', alignItems:'center', backgroundColor:'#004AAD', color:'white', paddingVertical:7}}><Text>Datos Básicos</Text></View>
           <View style={{position: 'absolute', top: 230, left: 40, width: '38.7%', fontSize: 13, flexDirection: 'column', justifyContent: 'center', gap: 10, paddingLeft: 6, border:1, borderColor:'black', height:134}}>
-            <Text>CODIGO DEL PRODUCTO</Text>
+            <Text>CODIGO DEL EQUIPO</Text>
             <Text>{dat.codigo}</Text>
-            <Text>PRECIO DEL PRODUCTO</Text>
+            <Text>PRECIO DEL EQUIPO</Text>
             <Text>${dat.precio_renta} MXN</Text>
           </View>
           {/* La descripción ahora fluye automáticamente a otra página si es necesario */}

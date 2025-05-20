@@ -106,9 +106,9 @@ Descargar Ficha técnica</button>
                       <img className='w-full h-[100%]' src={dat.foto}/>
                     </div>
                     <div className='absolute top-[29%] w-[38.5%] h-[15%] pl-1 flex flex-col justify-center lg:gap-1 left-[6.8%] text-[0.4rem] lg:text-[0.6rem] font-bold'> 
-                    <p className='font-bold'>CODIGO DEL PRODUCTO:</p>
+                    <p className='font-bold'>CODIGO DEL EQUIPO:</p>
                     <p className=''>{dat.codigo}</p>
-                    <p className='font-bold'>PRECIO DEL PRODUCTO:</p>
+                    <p className='font-bold'>PRECIO DEL EQUIPO:</p>
                     <p className=''>${dat.precio_renta} MXN</p>
                     </div>
                     <div className='w-[85%] absolute px-1 py-1 top-[54.5%] overflow-y-auto left-[6.8%] text-[0.5rem] lg:text-[0.8rem] font-semibold h-[39.5%]'>

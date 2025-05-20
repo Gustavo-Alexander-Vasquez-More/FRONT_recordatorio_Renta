@@ -67,7 +67,7 @@ function closeModal_recibido(){
       const datitos = { _id: _id };
       if (datitos._id) {
         const confirmation = await Swal.fire({
-          title: `¿Estás seguro de eliminar este producto?`,
+          title: `¿Estás seguro de eliminar este equipo?`,
           showDenyButton: true,
           confirmButtonText: 'Sí',
           denyButtonText: 'No',
@@ -103,7 +103,7 @@ function closeModal_recibido(){
                   );
                 }
               } catch (error) {
-                console.error(`Error al actualizar el stock del producto ${product._id}:`, error);
+                console.error(`Error al actualizar el stock del equipo ${product._id}:`, error);
               }
             }
           }
@@ -131,11 +131,11 @@ function closeModal_recibido(){
         });
       }
     } catch (error) {
-      console.log('Error al eliminar el producto:', error);
+      console.log('Error al eliminar el equipo:', error);
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Hubo un problema al eliminar el producto. Intenta nuevamente.',
+        text: 'Hubo un problema al eliminar el equipo. Intenta nuevamente.',
         timer: 1500,
       });
     }

@@ -115,7 +115,7 @@ export default function ModalDetalle({ closeModal, _id }) {
                   <button className='bg-primary px-[1rem] py-[0.3rem] text-white rounded-[5px]' onClick={openModal2}>Descargar Contrato y Nota de remision</button>
                   
                   </div>
-                  <p className="underline font-bold pt-[1rem]">Productos rentados:</p>
+                  <p className="underline font-bold pt-[1rem]">Equipos rentados:</p>
                   <div className="w-full overflow-x-auto">
   <table
     className="min-w-max"
@@ -128,8 +128,8 @@ export default function ModalDetalle({ closeModal, _id }) {
   >
     <thead>
       <tr>
-        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Producto</th>
-        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Código de producto</th>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Equipo</th>
+        <th style={{ border: '1px solid #ccc', padding: '8px' }}>Código del equipo</th>
         <th style={{ border: '1px solid #ccc', padding: '8px' }}>Cantidad</th>
         <th style={{ border: '1px solid #ccc', padding: '8px' }}>Precio x unidad</th>
         <th style={{ border: '1px solid #ccc', padding: '8px' }}>Precio x cantidad</th>
@@ -158,7 +158,7 @@ export default function ModalDetalle({ closeModal, _id }) {
     </tbody>
   </table>
 </div>
-        <p className="font-bold underline">Fotos como se entregó el producto:</p>
+        <p className="font-bold underline">Fotos como se entregó el equipo:</p>
                   <div className="flex w-full gap-2 py-[1rem]">
                   {dat?.fotos_estado_inicial?.map((foto, index) => (
           <div

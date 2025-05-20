@@ -123,7 +123,7 @@ export default function AgregarMetatags({ closeModal3, _id }) {
     <div className="w-full h-full absolute z-40 bg-[#d9d9d97b] flex py-[2rem] justify-center items-center">
       <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] max-h-[90vh] flex flex-col overflow-y-auto">
         <div className="bg-[gray] flex justify-between px-[1rem] items-center py-[0.5rem] border-b-[1px] border-b-[black] border-solid">
-          <p className="text-white font-semibold">Administrar tags del producto</p>
+          <p className="text-white font-semibold">Administrar tags del equipo</p>
           <button onClick={closeModal3}>
             <svg className="w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18 17.94 6M18 18 6.06 6" />

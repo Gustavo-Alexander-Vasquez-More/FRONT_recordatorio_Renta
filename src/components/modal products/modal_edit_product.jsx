@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import Swal from 'sweetalert2';
 import { uploadFoto } from "../../firebase/images.js";
+import Select from 'react-select';
 
 export default function modal_edit_product({ _id, closeModal, gett }) {
   const [datas, setDatas] = useState([]);
@@ -11,7 +12,7 @@ export default function modal_edit_product({ _id, closeModal, gett }) {
   const [nombre, setNombre] = useState();
   const [stock, setStock] = useState();
  const [categoriasDisponibles, setCategoriasDisponibles] = useState([]);
-const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(""); // "" si no tiene
+const [categoriaSeleccionada, setCategoriaSeleccionada] = useState([]); // "" si no tiene
   const [descripcion, setDescripcion] = useState();
   const [precio_renta, setPrecio_renta] = useState();
   const [precio_venta, setPrecio_venta] = useState();
@@ -22,6 +23,8 @@ const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(""); // "" si
   const [modal_change_foto, setModal_change_foto] = useState(false);
   const [editField, setEditField] = useState(null); // Campo actualmente en edición
   const input_foto = useRef();
+  const [precios_visibles, setPrecios_visibles] = useState([]);
+  const [precio_x_semana, setPrecio_x_semana] = useState();
 
   const handleFotoChange = (e) => {
     const file = e.target.files[0];
@@ -51,10 +54,12 @@ const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(""); // "" si
       setDisponibilidad(data.response[0].disponibilidad || []); // Cargar disponibilidad
       setVisibilidad_precio_renta(data.response[0].visibilidad_precio_renta);
       setVisibilidad_precio_venta(data.response[0].visibilidad_precio_venta);
-      setCategoriaSeleccionada(data.response[0].categoria || "");
+      setCategoriaSeleccionada(Array.isArray(data.response[0].categoria) ? data.response[0].categoria : [data.response[0].categoria]);
       setCodigo(data.response[0].codigo);
       setDescripcion(data.response[0].descripcion);
       setFoto(data.response[0].foto);
+      setPrecios_visibles(Array.isArray(data.response[0].precios_visibles) ? data.response[0].precios_visibles : []);
+      setPrecio_x_semana(data.response[0].precio_x_semana);
       setLoading(false); // Desactivar el loader cuando los datos se han cargado
     } catch (error) {
       console.error("Error fetching product data:", error);
@@ -232,7 +237,7 @@ console.log(foto_url);
   return (
     <>
     {modal_change_foto === true && (
-        <div className="w-full h-full absolute z-50 bg-[#d9d9d97b] flex justify-center items-center">
+        <div className="fixed inset-0 z-50 bg-[#d9d9d97b] flex justify-center items-center">
           <div className='flex flex-col items-center w-[90%] lg:w-[35%] gap-3 bg-white py-[1rem] px-[1rem]'>
             <p className=' font-semibold'>Selecciona una nueva foto</p>
             <input ref={input_foto} onChange={handleFotoChange}  class="form-control" type="file" id="formFile"/>
@@ -243,10 +248,10 @@ console.log(foto_url);
           </div>
         </div>
       )}
-      <div className="w-full lg:h-screen absolute z-40 bg-[#d9d9d97b] flex lg:py-0 py-[2rem] justify-center items-center">
-        <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] h-[90vh] overflow-y-auto flex flex-col">
+      <div className="fixed inset-0 z-40 bg-[#d9d9d97b]  flex lg:py-0 py-[2rem] justify-center items-center">
+        <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] max-h-screen overflow-y-auto flex flex-col">
           <div className='bg-[gray] flex justify-between px-[1rem] items-center py-[0.5rem] border-b-[1px] border-b-[black] border-solid'>
-            <p className='text-white font-semibold'>Editar productos</p>
+            <p className='text-white font-semibold'>Editar Equipo</p>
             <button onClick={closeModal}>
               <svg class="w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
@@ -266,12 +271,12 @@ console.log(foto_url);
               </div>
             </div>
             <div className='w-full lg:w-[70%] px-[1.5rem]'>
-              <p className='font-semibold text-[1.3rem] underline pb-3'>Datos del producto</p>
+              <p className='font-semibold text-[1.3rem] underline pb-3'>Datos del Equipo</p>
               <div className='flex flex-col'>
         
     <div className="mb-2">
     <label htmlFor="exampleInputEmail1" className="form-label">
-      Nombre del producto
+      Nombre
     </label>
     <div className="w-full flex flex-col gap-2">
       <div className="w-full flex gap-1">
@@ -326,7 +331,7 @@ console.log(foto_url);
   </div>
   <div className="mb-2">
   <label htmlFor="disponibilidad" className="form-label">
-    Disponibilidad del producto
+    Disponibilidad del equipo
   </label>
   <div className="w-full flex flex-col gap-2">
     <div className="w-full flex gap-1">
@@ -376,7 +381,7 @@ console.log(foto_url);
 
   <div className="mb-2">
       <label htmlFor="exampleInputEmail1" className="form-label">
-        Precio de renta del producto
+        Precio de renta por día
       </label>
       <div className="w-full flex flex-col gap-2">
         <div className="w-full flex gap-1">
@@ -435,30 +440,26 @@ console.log(foto_url);
     </div>
 
     <div className="mb-2">
-  <label htmlFor="visibilidad_precio_renta" className="form-label">
-    Visibilidad actual del precio de renta
+  <label htmlFor="precioSemana" className="form-label">
+    Precio de renta por semana
   </label>
   <div className="w-full flex flex-col gap-2">
     <div className="w-full flex gap-1">
-      {/* Select deshabilitado dinámicamente */}
-      <select
-        id="visibilidad_precio_renta"
-        value={visibilidad_precio_renta}
-        onKeyPress={(event) => {
-          handleEnterPress(event, 'visibilidad_precio_renta', visibilidad_precio_renta);
-        }}
-        onChange={handleChange3}
-        className={`form-control ${
-          editField !== "visibilidad_precio_renta" ? 'bg-gray-200 cursor-not-allowed' : ''
-        }`}
-        disabled={editField !== "visibilidad_precio_renta"}
-      >
-        <option value="VISIBLE">VISIBLE</option>
-        <option value="NO VISIBLE">NO VISIBLE</option>
-      </select>
+      {/* Input deshabilitado dinámicamente */}
+      <input
+        placeholder="Escribe el nuevo precio por semana"
+        value={precio_x_semana || ""}
+        onKeyPress={(event) => { handleEnterPress(event, 'precio_x_semana', precio_x_semana) }}
+        onChange={e => setPrecio_x_semana(e.target.value)}
+        type="text"
+        className={`form-control ${editField !== "precio_x_semana" ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+        id="precioSemana"
+        disabled={editField !== "precio_x_semana"}
+      />
+      {/* Botón para habilitar la edición */}
       <button
         className="flex gap-1 items-center underline"
-        onClick={() => setEditField("visibilidad_precio_renta")}
+        onClick={() => setEditField("precio_x_semana")}
       >
         <svg
           className="w-6 h-6 text-[#808080]"
@@ -479,25 +480,32 @@ console.log(foto_url);
         </svg>
       </button>
     </div>
-    {editField === "visibilidad_precio_renta" && (
+    {/* Botones de guardar/cancelar */}
+    {editField === "precio_x_semana" && (
       <div className="flex gap-2 text-[0.8rem]">
         <button
-          onClick={() => {
-            setEditField(null);
-          }}
+          onClick={() => setEditField(null)}
           className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
         >
           Cancelar
+        </button>
+        <button
+          onClick={() => {
+            editarProducto("precio_x_semana", precio_x_semana);
+            setEditField(null);
+          }}
+          className="bg-blue-500 px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+        >
+          Guardar
         </button>
       </div>
     )}
   </div>
 </div>
 
-
     <div className="mb-2">
       <label htmlFor="exampleInputEmail1" className="form-label">
-        Precio de venta del producto
+        Precio de venta
       </label>
       <div className="w-full flex flex-col gap-2">
         <div className="w-full flex gap-1">
@@ -556,71 +564,93 @@ console.log(foto_url);
     </div>
 
     <div className="mb-2">
-  <label htmlFor="visibilidad_precio_venta" className="form-label">
-    Visibilidad actual del precio de venta
-  </label>
-  <div className="w-full flex flex-col gap-2">
-    <div className="w-full flex gap-1">
-      {/* Select deshabilitado dinámicamente */}
-      <select
-        id="visibilidad_precio_venta"
-        value={visibilidad_precio_venta}
-        onChange={handleChange4}
-        onKeyPress={(event)=>{handleEnterPress(event,'visibilidad_precio_venta',visibilidad_precio_venta)}}
-        className={`form-control ${
-          editField !== "visibilidad_precio_venta" ? 'bg-gray-200 cursor-not-allowed' : ''
-        }`}
-        disabled={editField !== "visibilidad_precio_venta"} // Deshabilitado si no se está editando
-      >
-        <option value="VISIBLE">VISIBLE</option>
-        <option value="NO VISIBLE">NO VISIBLE</option>
-      </select>
-
-      {/* Botón para habilitar la edición */}
-      <button
-        className="flex gap-1 items-center underline"
-        onClick={() => setEditField("visibilidad_precio_venta")}
-      >
-        <svg
-          className="w-6 h-6 text-[#808080]"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+      <label className="form-label font-semibold">
+        ¿Qué precios estarán visibles en el catálogo de renta?
+      </label>
+      <div className="flex gap-4 flex-wrap">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            value="renta"
+            checked={precios_visibles.includes("renta")}
+            disabled={editField !== "precios_visibles"}
+            onChange={e => {
+              const { value, checked } = e.target;
+              if (checked) {
+                setPrecios_visibles(prev => [...prev, value]);
+              } else {
+                setPrecios_visibles(prev => prev.filter(item => item !== value));
+              }
+            }}
           />
-        </svg>
-      </button>
-    </div>
-
-    {/* Botones de guardar/cancelar */}
-    {editField === "visibilidad_precio_venta" && (
-      <div className="flex gap-2 text-[0.8rem]">
+          Precio renta por día
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            value="semana"
+            checked={precios_visibles.includes("semana")}
+            disabled={editField !== "precios_visibles"}
+            onChange={e => {
+              const { value, checked } = e.target;
+              if (checked) {
+                setPrecios_visibles(prev => [...prev, value]);
+              } else {
+                setPrecios_visibles(prev => prev.filter(item => item !== value));
+              }
+            }}
+          />
+          Precio renta por semana
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            value="venta"
+            checked={precios_visibles.includes("venta")}
+            disabled={editField !== "precios_visibles"}
+            onChange={e => {
+              const { value, checked } = e.target;
+              if (checked) {
+                setPrecios_visibles(prev => [...prev, value]);
+              } else {
+                setPrecios_visibles(prev => prev.filter(item => item !== value));
+              }
+            }}
+          />
+          Precio venta
+        </label>
         <button
-          onClick={() => {
-            setEditField(null) // Cancelar edición
-          }}
-          className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+          className="flex gap-1 items-center underline"
+          onClick={() => setEditField("precios_visibles")}
+          type="button"
         >
-          Cancelar
+          Editar visibilidad de precios
         </button>
       </div>
-    )}
-  </div>
-</div>
-
+      {editField === "precios_visibles" && (
+        <div className="flex gap-2 text-[0.8rem] mt-2">
+          <button
+            onClick={() => setEditField(null)}
+            className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={() => {
+              editarProducto("precios_visibles", precios_visibles);
+              setEditField(null);
+            }}
+            className="bg-blue-500 px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+          >
+            Guardar
+          </button>
+        </div>
+      )}
+    </div>
 
   <div className="mb-2">
     <label htmlFor="exampleInputEmail1" className="form-label">
-      Código del producto
+      Código del equipo
     </label>
     <div className="w-full flex flex-col gap-2">
       <div className="w-full flex gap-1">
@@ -732,7 +762,7 @@ console.log(foto_url);
   
   <div className="mb-2">
     <label htmlFor="exampleInputEmail1" className="form-label">
-      Descripcion del producto
+      Descripcion del equipo
     </label>
     <div className="w-full flex flex-col gap-2">
       <div className="w-full flex gap-1">
@@ -787,63 +817,57 @@ console.log(foto_url);
   </div>
 
   <div className="mb-2">
-  <label htmlFor="categoriaSelect" className="form-label">
-    Categoría del producto
-  </label>
-  <div className="w-full flex flex-col gap-2">
-    <div className="w-full flex gap-1">
-      {/* Select deshabilitado dinámicamente */}
-     <select
-  id="categoriaSelect"
-  value={categoriaSeleccionada}
-  onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-  onKeyPress={(event) => handleEnterPress(event, 'categoria', categoriaSeleccionada)}
-  className={`form-control ${editField !== "categoria" ? 'bg-gray-200 cursor-not-allowed' : ''}`}
-  disabled={editField !== "categoria"}
->
-  <option value="" disabled>Añadir categoría</option>
-  {categoriasDisponibles.map((cat) => (
-    <option key={cat._id || cat.id || cat.nombre} value={cat.nombre}>
-      {cat.nombre}
-    </option>
-  ))}
-</select>
-      {/* Botón para habilitar la edición */}
+  <label className="form-label">Categorías del equipo</label>
+  <div className="flex flex-wrap gap-2">
+    <Select
+      isMulti
+      isDisabled={editField !== "categoria"}
+      value={categoriasDisponibles
+        .filter(cat => categoriaSeleccionada.includes(cat.nombre))
+        .map(cat => ({ value: cat.nombre, label: cat.nombre }))
+      }
+      options={categoriasDisponibles.map(cat => ({
+        value: cat.nombre,
+        label: cat.nombre
+      }))}
+      onChange={selectedOptions => {
+        setCategoriaSeleccionada(selectedOptions ? selectedOptions.map(opt => opt.value) : []);
+      }}
+      placeholder="Selecciona una o varias categorías..."
+      menuPortalTarget={document.body}
+      menuPlacement="top" // <-- Esto fuerza que el menú se abra hacia arriba
+      styles={{
+        menuPortal: base => ({ ...base, zIndex: 9999 })
+      }}
+    />
+  </div>
+  <button
+    className="flex gap-1 items-center underline mt-2"
+    onClick={() => setEditField("categoria")}
+    type="button"
+  >
+    Editar categorías
+  </button>
+  {editField === "categoria" && (
+    <div className="flex gap-2 text-[0.8rem] mt-2">
       <button
-        className="flex gap-1 items-center underline"
-        onClick={() => setEditField("categoria")}
+        onClick={() => setEditField(null)}
+        className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
       >
-        <svg
-          className="w-6 h-6 text-[#808080]"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-          />
-        </svg>
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          // Solo guarda lo que está seleccionado (puede ser array vacío)
+          editarProducto("categoria", categoriaSeleccionada);
+          setEditField(null);
+        }}
+        className="bg-blue-500 px-[1rem] py-[0.3rem] text-white rounded-[5px]"
+      >
+        Guardar
       </button>
     </div>
-    {/* Botones de guardar/cancelar */}
-    {editField === "categoria" && (
-      <div className="flex gap-2 text-[0.8rem]">
-        <button
-          onClick={() => setEditField(null)}
-          className="bg-[#808080] px-[1rem] py-[0.3rem] text-white rounded-[5px]"
-        >
-          Cancelar
-        </button>
-      </div>
-    )}
-  </div>
+  )}
 </div>
 
     <div class="pb-4 pt-[1rem] flex justify-between">

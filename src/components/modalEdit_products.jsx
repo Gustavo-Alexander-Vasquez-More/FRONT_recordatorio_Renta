@@ -139,35 +139,35 @@ export default function modalEdit_product({ _id, nombre, closeModal }) {
                 <label htmlFor="exampleInputPassword1" className="form-label">Tipo de dato a editar</label>
                 <select ref={input_dato} onChange={captureDato} className="form-select" aria-label="Default select example">
                   <option selected>Selecciona el dato</option>
-                  <option value="nombre">Nombre del producto</option>
-                  <option value="stock">Stock del producto</option>
-                  <option value="codigo">Codigo del producto</option>
-                  <option value="precio">Precio del producto</option>
-                  <option value="foto">Foto del producto</option>
+                  <option value="nombre">Nombre del equipo</option>
+                  <option value="stock">Stock del equipo</option>
+                  <option value="codigo">Codigo del equipo</option>
+                  <option value="precio">Precio del equipo</option>
+                  <option value="foto">Foto del equipo</option>
                 </select>
               </div>
               {dato === 'nombre' && (
                 <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Nombre del producto</label>
-                  <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Escribe el nuevo nombre del producto" className="form-control" id="exampleInputPassword1" />
+                  <label htmlFor="exampleInputPassword1" className="form-label">Nombre del equipo</label>
+                  <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Escribe el nuevo nombre del equipo" className="form-control" id="exampleInputPassword1" />
                 </div>
               )}
               {dato === 'stock' && (
                 <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Stock del producto</label>
+                  <label htmlFor="exampleInputPassword1" className="form-label">Stock del equipo</label>
                   <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Escribe la nueva contraseña" className="form-control" id="exampleInputPassword1" />
                 </div>
               )}
               {dato === 'codigo' && (
                 <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Codigo de producto</label>
+                  <label htmlFor="exampleInputPassword1" className="form-label">Codigo de equipo</label>
                   <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Escribe el codigo nuevo" className="form-control" id="exampleInputPassword1" />
                 </div>
                 
               )}
               {dato === 'precio' && (
                 <div className="mb-3 w-full">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Precio del producto</label>
+                  <label htmlFor="exampleInputPassword1" className="form-label">Precio del equipo</label>
                   <input ref={input_valor_dato} onChange={captureValor_dato} type="text" placeholder="Ejemplo 400.00" className="form-control" id="exampleInputPassword1" />
                 </div>
                 

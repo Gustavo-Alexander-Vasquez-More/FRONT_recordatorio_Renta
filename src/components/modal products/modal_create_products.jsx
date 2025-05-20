@@ -4,6 +4,8 @@ import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
 import Swal from 'sweetalert2';
 import { uploadFoto } from '../../firebase/images.js';
+import Select from 'react-select';
+
 export default function modal_create_products({ closeModal2 }) {
   const notyf = new Notyf({
     position: {
@@ -24,6 +26,7 @@ export default function modal_create_products({ closeModal2 }) {
   const [precios_visibles, setPrecios_visibles] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [categoriaSelecionada, setCategoriaSeleccionada] = useState(null);
+  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
   const input_nombre = useRef()
   const input_tag = useRef()
   const input_codigo = useRef()
@@ -179,7 +182,7 @@ useEffect(() => {
       foto: fotoURL || null,
       codigo: codigo.toUpperCase(),
       stock: stock,
-      categoria: categoriaSelecionada,
+      categoria: categoriasSeleccionadas.map(opt => opt.value),
       precio_renta: precio,
       precio_venta: precio_venta,
       precio_x_semana: precio_x_semana,
@@ -196,7 +199,7 @@ useEffect(() => {
         datos
       );
       notyf.success(
-        'El producto se creó con éxito, se recargará esta página en 1 segundo'
+        'El equipo se creó con éxito, se recargará esta página en 1 segundo'
       );
       setTimeout(async () => {
         window.location.reload();
@@ -209,7 +212,7 @@ useEffect(() => {
     <div className="w-full lg:h-screen absolute z-40 bg-[#d9d9d97b] flex py-[2rem]  justify-center items-center">
       <div className="bg-white rounded-[10px] w-[90%] lg:w-[45%] h-[90vh] flex flex-col overflow-y-auto ">
         <div className='bg-[gray] flex justify-between px-[1rem] items-center py-[0.5rem] border-b-[1px] border-b-[black] border-solid'>
-          <p className='text-white font-semibold'>Crear productos</p>
+          <p className='text-white font-semibold'>Crear equipos</p>
           <button onClick={closeModal2}>
             <svg class="w-7 h-7 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
@@ -235,15 +238,22 @@ useEffect(() => {
               <input ref={input_codigo} onChange={captureCodigo} type="text" class="form-control" id="exampleInputPassword1" />
             </div>
             <div class="mb-3 w-full flex flex-col">
-              <label for="exampleInputPassword1" class="form-label">Categoría(opcional  por ahora)</label>
-              <select ref={input_categoria_seleccionada} onChange={captureCategoria} name="" id="" className='w-full h-[2.5rem] rounded-[5px] border-[1px] border-solid border-[#C4C4C4]'>
-                <option value="">Seleccione una categoría</option>
-                {categorias.map((categoria) => (
-                  <option key={categoria.id} value={categoria.id}>
-                    {categoria.nombre}
-                  </option>
-                ))}
-              </select>
+              <label className="form-label">Categorías (puedes seleccionar varias)</label>
+              <Select
+                isMulti
+                value={categoriasSeleccionadas}
+                onChange={setCategoriasSeleccionadas}
+                options={categorias.map(cat => ({
+                  value: cat.nombre,
+                  label: cat.nombre
+                }))}
+                placeholder="Selecciona una o varias categorías..."
+                menuPortalTarget={document.body}
+                menuPlacement="top"
+                styles={{
+                  menuPortal: base => ({ ...base, zIndex: 9999 })
+                }}
+              />
             </div>
             <div class="mb-3 w-full">
               <label for="exampleInputPassword1" class="form-label">Stock(*)</label>
@@ -395,7 +405,7 @@ useEffect(() => {
               </label>
             </div>
             <div class="mb-3 w-full">
-              <label for="exampleInputPassword1" class="form-label">Descripción del producto (*)</label>
+              <label for="exampleInputPassword1" class="form-label">Descripción del equipo (*)</label>
               <textarea ref={input_descripcion} onChange={captureDescripcion} class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
             </div>
             <div className="mb-3 w-full flex flex-col">
@@ -421,7 +431,7 @@ useEffect(() => {
               <label htmlFor="">Todo los campos que contengan (*) son obligatorios</label>
             </div>
             <div className='w-full flex justify-center'>
-              <button onClick={crear_products} className='px-[2rem] text-white rounded-[5px] py-[0.5rem] font-semibold bg-primary'>Crear producto</button>
+              <button onClick={crear_products} className='px-[2rem] text-white rounded-[5px] py-[0.5rem] font-semibold bg-primary'>Crear equipo</button>
             </div>
           </div>
         </div>

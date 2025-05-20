@@ -73,12 +73,12 @@ useEffect(() => {
         
         <div className="w-full flex justify-center items-center bg-[#EBEBEB] relative h-[89vh]">
           <div className="bg-[white] w-[90%] rounded-[10px] items-center flex flex-col gap-4 px-[1.5rem] py-[2rem]">
-            <p className="text-[1.5rem] font-semibold font-serif">Editar productos</p>
+            <p className="text-[1.5rem] font-semibold font-serif">Editar equipos</p>
             <div className="flex w-full">
             <div className="relative w-full items-center">
                 <input
                   type="text"
-                  placeholder="Buscar productos por nombre o codigo del producto..."
+                  placeholder="Buscar equipos por nombre o codigo..."
                   className="w-full py-2 px-[1rem] border border-gray-300 rounded-l-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
@@ -110,7 +110,7 @@ useEffect(() => {
             )}
             {!loading && filteredDatas.length === 0 ? (
               <div className="text-center text-lg">
-                <p>No se encontraron productos relacionados a tu búsqueda</p>
+                <p>No se encontraron equipos relacionados a tu búsqueda</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4"

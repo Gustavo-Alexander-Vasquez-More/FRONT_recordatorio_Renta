@@ -6,6 +6,8 @@ import Modal_create_users from '../../components/modal products/modal_create_pro
 import AgregarMetatags from '../../components/modal products/agregar_metatags';
 import Swal from 'sweetalert2';
 import Modal_ficha from '../../components/detalle_productos'
+import CreateCategoriesModal from '../../components/modal categorias/createCategories';
+import DeleteCategoriesModal from '../../components/modal categorias/deleteCategories';
 export default function panelProductos() {
   const [productos_paginados, setProductos_paginados] = useState([]);
   const [all_products, setAll_products] = useState([]);
@@ -28,6 +30,8 @@ const [select, setSelect]=useState()
       const [modaEdit, setModalEdit]=useState(false)
       const [modal_create, setModal_create]=useState(false)
       const [modal_tags, setModal_tags]=useState(false)
+      const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
+      const [showDeleteCategoryModal, setShowDeleteCategoryModal] = useState(false);
       function openModal(){
         window.scrollTo(0,0)
         setModalEdit(true)
@@ -66,6 +70,22 @@ const [select, setSelect]=useState()
         document.body.style.overflow = 'auto';
         setModal_ficha(false)
       }
+      function openCreateCategoryModal() {
+        setShowCreateCategoryModal(true);
+        document.body.style.overflow = 'hidden';
+      }
+      function closeCreateCategoryModal() {
+        setShowCreateCategoryModal(false);
+        document.body.style.overflow = 'auto';
+      }
+      function openDeleteCategoryModal() {
+        setShowDeleteCategoryModal(true);
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDeleteCategoryModal() {
+        setShowDeleteCategoryModal(false);
+        document.body.style.overflow = 'auto';
+      }
       const handleImageLoad = () => {
         setLoadingImages(false);  // Una vez que la imagen se haya cargado
       };
@@ -87,7 +107,7 @@ const [select, setSelect]=useState()
           setProductos_paginados(data.response);// Al principio mostramos todos los datos
           setLoading(false); // Datos cargados, actualizamos el estado de carga
         } catch (error) {
-          if(error.response.data.message === 'No hay productos disponibles para \'venta\'.'){
+          if(error.response.data.message === 'No hay equipos disponibles para \'venta\'.'){
             setLoadingImages(false)
           }
           if(error.response.data.message === 'Página fuera de rango. Por favor, selecciona una página válida.'){
@@ -172,7 +192,7 @@ const [select, setSelect]=useState()
           const datitos = { _id: _id };
           if (datitos._id) {
             const confirmation = await Swal.fire({
-              title: `¿Estás seguro de eliminar este producto?`,
+              title: `¿Estás seguro de eliminar este equipo?`,
               showDenyButton: true,
               confirmButtonText: 'Sí',
               denyButtonText: 'No',
@@ -193,7 +213,7 @@ const [select, setSelect]=useState()
               Swal.fire({
                 position: 'center',
                 icon: 'success',
-                title: 'El producto se ha eliminado',
+                title: 'El equipo se ha eliminado',
                 showConfirmButton: false,
                 timer: 1500,
               });
@@ -203,16 +223,16 @@ const [select, setSelect]=useState()
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'No se pudo eliminar este producto',
+              text: 'No se pudo eliminar este equipo',
               timer: 1500,
             });
           }
         } catch (error) {
-          console.log('Error al eliminar el producto:', error);
+          console.log('Error al eliminar el equipo:', error);
           Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Hubo un problema al eliminar el producto. Intenta nuevamente.',
+            text: 'Hubo un problema al eliminar el equipo. Intenta nuevamente.',
             timer: 1500,
           });
         }
@@ -251,9 +271,13 @@ const [select, setSelect]=useState()
       
 return (
 <>
- {modaEdit === true && (
-        <ModalEdit closeModal={closeModal} _id={select} gett={get_products_paginates}/>
-    )}
+ {modaEdit && (
+  <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+    <div className="w-[95vw]  max-w-3xl max-h-[95vh] overflow-y-auto rounded-lg shadow-lg bg-white relative">
+      <ModalEdit closeModal={closeModal} _id={select} gett={get_products_paginates}/>
+    </div>
+  </div>
+)}
     {modal_create === true && (
         <Modal_create_users closeModal2={closeModal2}  gett={get_products_paginates}/>
     )}
@@ -265,18 +289,37 @@ return (
     )}
 <Navbar/>
 <div className='flex flex-col bg-[#ececec] w-full'>
-    <div className='bg-[#ffffff] py-[1rem] items-center flex justify-between px-[0.5rem] lg:px-[2rem]'>
-        <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de Productos</p>
-        <button onClick={openModal2} className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'>+ Crear productos</button>
+    <div className='bg-[#ffffff] py-[1rem] items-center flex lg:flex-row flex-col gap-2  justify-between px-[0.5rem] lg:px-[2rem]'>
+    <p className='text-[#2D76B5] font-bold text-[0.9rem] lg:text-[1.2rem]'>Panel de Equipos</p>
+    <div className="flex gap-2">
+        <button
+            onClick={openModal2}
+            className='text-white font-semibold bg-[#46af46] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'
+        >
+            + Crear equipos
+        </button>
+        <button
+            onClick={openCreateCategoryModal}
+            className='text-white font-semibold bg-[#2D76B5] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'
+        >
+            + Crear categoría
+        </button>
+        <button
+            onClick={openDeleteCategoryModal}
+            className='text-white font-semibold bg-[#d9534f] text-[0.8rem] lg:text-[1rem] px-[1rem] py-[0.3rem] rounded-[15px]'
+        >
+            Eliminar categoría
+        </button>
     </div>
+</div>
     <div className='w-full h-auto flex flex-col py-[1rem] gap-2 px-[0.5rem] lg:px-[2rem] min-h-[81vh]'>
         <div className='flex flex-col'>
-            <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Productos</p>
-            <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier producto creado.</div>
+            <p className='font-semibold text-[1.5rem] text-[#4a4a4a]'>Equipos</p>
+            <div id="emailHelp" class="form-text">En este apartado podrás crear, editar o eliminar cualquier equipo creado.</div>
         </div>
     <div className="flex w-full bg-[white] py-[1.5rem] px-[1.5rem] rounded-[10px]">
         <div className="relative w-full items-center">
-            <input type="text" placeholder="Buscar productos..." className="w-full py-2 px-[1rem] border bg-[#f1f1f1] border-gray-300 rounded-l-[5px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
+            <input type="text" placeholder="Buscar equipos..." className="w-full py-2 px-[1rem] border bg-[#f1f1f1] border-gray-300 rounded-l-[5px] focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}/>
             {searchTerm && (
                 <button onClick={clear} className="absolute right-2 top-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-x" viewBox="0 0 16 16">
@@ -297,7 +340,7 @@ return (
        <div class="spinner-border text-primary w-[3rem] h-[3rem]" role="status">
    <span class="visually-hidden">Loading...</span>
  </div>
- <p className='text-primary font-semibold'>Cargando productos</p>
+ <p className='text-primary font-semibold'>Cargando equipos</p>
      </div>)}
      { show_filter_products === false && show_paginados === true && loadingImages === false && productos_paginados.length === 0 && (
       <div className=" w-full text-center h-[50vh] gap-3 flex-col flex items-center justify-center">
@@ -416,5 +459,11 @@ return (
     </div>
     
 </div>
+{showCreateCategoryModal && (
+  <CreateCategoriesModal closeModal={closeCreateCategoryModal} />
+)}
+{showDeleteCategoryModal && (
+  <DeleteCategoriesModal closeModal={closeDeleteCategoryModal} />
+)}
 </>
 );}
