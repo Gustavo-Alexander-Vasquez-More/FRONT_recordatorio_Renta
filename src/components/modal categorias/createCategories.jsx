@@ -13,9 +13,11 @@ export default function CreateCategoriesModal({ closeModal, onCreateSuccess }) {
       return;
     }
     setLoading(true);
+    // Formatea el nombre: primera letra mayúscula, resto minúscula
+    const nombreFormateado = nombre.trim().charAt(0).toUpperCase() + nombre.trim().slice(1).toLowerCase();
     try {
       await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/categorias/create', {
-        nombre: nombre.trim(),
+        nombre: nombreFormateado,
       });
       if (onCreateSuccess) onCreateSuccess();
       Swal.fire('¡Categoría creada!', '', 'success');
