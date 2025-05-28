@@ -127,6 +127,36 @@ useEffect(() => {
           </ul>
         </div>
       </div>
+
+      {/* Apartado para Notas de Remisión (visible para todos los roles) */}
+<div className='border-solid border-b-white border-b-[1px] px-[1rem] h-[10vh] flex'>
+  <button
+    onClick={toggleListVisibility4}
+    className='w-full h-full flex justify-between items-center'
+    type="button"
+  >
+    <div className='flex items-center gap-3 text-white'>
+      {/* Puedes cambiar el SVG por otro ícono si lo deseas */}
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-file-earmark-text" viewBox="0 0 16 16">
+        <path d="M5 7h6v1H5V7zm0 2h6v1H5V9zm0 2h4v1H5v-1z"/>
+        <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3-.5a.5.5 0 0 1-.5-.5V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5h-2.5A1.5 1.5 0 0 1 11 4z"/>
+      </svg>
+      <p>Notas de Remisión</p>
+    </div>
+    <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14"/>
+    </svg>
+  </button>
+</div>
+
+{/* Lista desplegable Notas de Remisión */}
+<div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_clientes ? 'h-auto' : 'h-0'}`}>
+  <div className='px-[1rem] py-2'>
+    <ul className='flex flex-col gap-2'>
+      <a href="/create_remision"><li className='text-white'>Generar nota de remisión</li></a>
+    </ul>
+  </div>
+</div>
     </div>
   </div>
    ))}
