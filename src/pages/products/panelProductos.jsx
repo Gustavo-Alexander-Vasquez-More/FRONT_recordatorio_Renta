@@ -22,9 +22,14 @@ export default function panelProductos() {
   const [isOpen, setIsOpen] = useState(false);
 const [select, setSelect]=useState()
   const [current_page, setCurrent_page] = useState(() => {
-  const savedPage = localStorage.getItem('products_current_page');
-    return savedPage ? parseInt(savedPage, 10) : 1;
-  });
+  const savedPage = parseInt(localStorage.getItem('products_current_page'), 10);
+  // Si no es un número válido o es menor a 1, lo corregimos
+  if (!savedPage || isNaN(savedPage) || savedPage < 1) {
+    localStorage.setItem('products_current_page', 1);
+    return 1;
+  }
+  return savedPage;
+});
   const [searchTerm, setSearchTerm] = useState();
       const [loading, setLoading] = useState(true);
       const [modaEdit, setModalEdit]=useState(false)
@@ -104,17 +109,17 @@ const [select, setSelect]=useState()
           const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/products/read_pag?page=${page}`);
           setPaginacion(data)
           setTotal_pages(data?.totalPages)
-          setProductos_paginados(data.response);// Al principio mostramos todos los datos
-          setLoading(false); // Datos cargados, actualizamos el estado de carga
+          setProductos_paginados(data.response);
+          setLoading(false);
         } catch (error) {
-          if(error.response.data.message === 'No hay equipos disponibles para \'venta\'.'){
-            setLoadingImages(false)
+          if (error.response?.data?.message === 'Página fuera de rango. Por favor, selecciona una página válida.') {
+            localStorage.setItem('products_current_page', 1);
+            setCurrent_page(1); // Corrige el estado
+            // Vuelve a pedir los productos de la página 1
+            get_products_paginates(1);
+            return;
           }
-          if(error.response.data.message === 'Página fuera de rango. Por favor, selecciona una página válida.'){
-            localStorage.setItem('products_venta_current_page', 1)
-            window.location.reload()
-          }
-          setLoading(false); // Si hay un error, dejamos de mostrar el estado de carga
+          setLoading(false);
         }
       }
     
@@ -363,7 +368,7 @@ return (
       {!loadingImages && productos_paginados.length > 0 && (
   <p className='py-[1rem] text-secondary font-semibold text-[1rem] lg:text-[1.3rem]'>Mostrando página {current_page} de {total_pages}</p>
       )}
-  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full justify-items-center ">
+  <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 w-full justify-items-center ">
     {show_filter_products === true && filteredDatas.map((dat, index) => (
        <div key={index} className="bg-white w-full text-center px-2 py-2 rounded-lg items-center flex flex-col gap-2">
        <img className='w-full h-[10vh] lg:h-[35vh]  object-contain' src={dat.foto} alt="" />

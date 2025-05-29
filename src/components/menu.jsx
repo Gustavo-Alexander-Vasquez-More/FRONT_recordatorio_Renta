@@ -153,7 +153,7 @@ useEffect(() => {
 <div className={`overflow-hidden transition-all duration-500 ease-in-out ${modal_clientes ? 'h-auto' : 'h-0'}`}>
   <div className='px-[1rem] py-2'>
     <ul className='flex flex-col gap-2'>
-      <a href="/create_remision"><li className='text-white'>Generar nota de remisión</li></a>
+      <a href="/notas_remision"><li className='text-white'>Generar nota de remisión</li></a>
     </ul>
   </div>
 </div>
