@@ -137,17 +137,17 @@ export default function panelNotasRemision() {
       <div className="flex flex-col bg-[#ececec] w-full min-h-screen">
         <div className="bg-white py-4 flex justify-between items-center px-4 lg:px-8 shadow-sm">
           <p className="text-[#2D76B5] font-bold text-lg lg:text-2xl">Panel de Notas de Remisión</p>
-          <button
-            onClick={openModal2}
+          <a
+            href='/create_notas'
             className="bg-[#46af46] text-white font-semibold px-4 py-2 rounded-[15px] hover:bg-green-700 transition"
           >
             + Generar nota de Remisión
-          </button>
+          </a>
         </div>
         <div className="w-full flex flex-col py-6 gap-2 px-2 lg:px-8">
           <div className="mb-4">
             <p className="font-semibold text-xl text-[#4a4a4a]">Notas de Remisión Manuales</p>
-            <div className="form-text">En este apartado podrás crear, editar, eliminar o descargar tus notas de remisión.</div>
+            <div className="form-text">En este apartado podrás buscar, eliminar o descargar tus PDF de notas de remisión.</div>
           </div>
           {loading ? (
             <div className="flex flex-col gap-2 text-center items-center py-10">

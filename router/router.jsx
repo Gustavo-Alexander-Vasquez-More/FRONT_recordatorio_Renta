@@ -26,6 +26,7 @@ import PanelClientes from "../src/pages/clientes/panel_clientes";
 import PanelNotasRemision from "../src/pages/notas de remision/panelNotasRemision";
 import Nota_remision_manual from "../src/pages/PDF/nota_remision_manual";
 import CollectionGalery from "../src/pages/collectionGalery";
+import CreateNotas from "../src/pages/notas de remision/createNotas";
 const router = createBrowserRouter([
 { path: "/", element: <ProtectLogin/>, children:[{index:true, element:<Index/>}] },
 { path: "/Homepage", element: <ProtectSistem/> , children:[{index:true, element:<Homepage/>}] },
@@ -50,5 +51,6 @@ const router = createBrowserRouter([
 { path: "/notas_remision", element: <PanelNotasRemision/>},
 { path: "/pdf_nota/:_id", element: <Nota_remision_manual/>},
 {path: "/collection/:_id", element: <CollectionGalery/>},
+{path: "/create_notas", element: <CreateNotas/>}
 ])
 export default router
