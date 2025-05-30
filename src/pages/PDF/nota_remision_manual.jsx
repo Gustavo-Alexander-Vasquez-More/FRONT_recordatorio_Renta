@@ -161,7 +161,8 @@ const generateQR = async () => {
                       </Text>
                     </React.Fragment>
                   ))}
-                  <View
+                 {dat.fotos.length > 0 && (
+                   <View
   style={{
     position: 'absolute',
     top: '71%',
@@ -187,6 +188,7 @@ const generateQR = async () => {
     Escanea para ver las fotos de los equipos
   </Text>
 </View>
+                 )}
                 <View
                   style={{
                     position: "absolute",
