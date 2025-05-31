@@ -131,7 +131,10 @@ const generateQR = async () => {
                           paddingLeft: 5,
                         }}
                       >
-                        {prod.nombre} ({prod.dias_renta} {prod.dias_renta === 1 ? 'día' : 'días'})
+                        {prod.nombre}
+                        {prod.dias_renta !== null && prod.dias_renta !== undefined
+    ? ` (${prod.dias_renta} ${prod.dias_renta === 1 ? 'día' : 'días'})`
+    : ''}
                       </Text>
                       <Text
                         style={{

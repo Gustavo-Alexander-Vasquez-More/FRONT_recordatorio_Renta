@@ -10,6 +10,7 @@ export default function createNotas() {
   const [fotos, setFotos] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [lista, setLista] = useState([]);
+  console.log(lista);
   const [aplicaIVA, setAplicaIVA] = useState(false);
   const [nombre, setNombre] = useState('');
   const [domicilio, setDomicilio] = useState('');
@@ -100,7 +101,8 @@ async function handleCrearNota(e) {
           importe_total: prod.total,
         })),
         IVA: aplicaIVA,
-        total_remision: lista.reduce((acc, item) => acc + (Number(item.total) || 0), 0)
+        total_remision: lista.reduce((acc, item) => acc + (Number(item.total) || 0), 0),
+        creador: localStorage.getItem('usuario'),
       };
 
       const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/notas_remision/create', payload);
