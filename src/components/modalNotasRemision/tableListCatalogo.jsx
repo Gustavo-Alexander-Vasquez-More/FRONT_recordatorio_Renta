@@ -52,6 +52,8 @@ export default function tableListCatalogo({ lista, setLista }) {
             descuento = 0.15;
         } else if (diasNum >= 12 && diasNum <= 31) {
             descuento = 0.20;
+        } else if (diasNum > 31) {
+            descuento = 0.30;
         }
         const totalCalc = precioNum * cantidadNum * diasNum * (1 - descuento);
         setTotal(totalCalc);
