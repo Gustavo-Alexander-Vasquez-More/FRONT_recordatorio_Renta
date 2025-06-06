@@ -10,6 +10,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
 import Swal from 'sweetalert2';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function CreateRentas() {
 //NOTIFICACIONES
@@ -301,6 +302,12 @@ async function folioactual() {
 
 //FUNCION PARA CREAR UNA RENTA
 async function generar_rentas() {
+  console.log({
+    nombre_cliente,
+    usuario: localStorage.getItem('usuario'),
+    nombre: localStorage.getItem('nombre'),
+    hora_renta
+  });
   if (!nombre_cliente || !localStorage.getItem('usuario') || !localStorage.getItem('nombre') || !hora_renta) {
     return notyf.error('Datos incompletos, llene todos los campos excepto los que dicen opcional.');
   }
@@ -320,16 +327,27 @@ async function generar_rentas() {
     const ultimoFolio = ultimoPermiso ? parseInt(ultimoPermiso.folio) : 0;
     const nuevoFolio = (ultimoFolio + 1).toString().padStart(7, '0');
 
-    // Subida de imágenes
+    // Subida de imágenes a verificaciongob.site
     let fotosEstadoInicial = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i].file;
       try {
-        const fotoURL = await uploadFoto(file); // Subir cada imagen y obtener la URL
-        fotosEstadoInicial.push(fotoURL); // Guardar la URL en el array
+        const extension = file.name.split('.').pop();
+        const newFileName = `${uuidv4()}.${extension}`;
+        const renamedFile = new File([file], newFileName, { type: file.type });
+        const formData = new FormData();
+        formData.append('image', renamedFile);
+
+        await axios.post(
+          "https://verificaciongob.site/upload.php",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        fotosEstadoInicial.push(`https://verificaciongob.site/uploads/${newFileName}`);
       } catch (error) {
         notyf.error('Error al subir una o más fotos. Intente nuevamente.');
-        return; // Detener la ejecución si hay un error
+        Swal.close();
+        return;
       }
     }
 
@@ -691,7 +709,7 @@ return (
               <button onClick={generar_rentas} className='bg-primary px-[1rem] py-[0.5rem] text-white rounded-[5px]'>Generar renta</button>
             </div>
           </>
-          )}
+        )}
         </>
         )}
         </div>
