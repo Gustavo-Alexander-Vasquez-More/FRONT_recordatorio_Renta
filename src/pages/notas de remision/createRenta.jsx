@@ -245,7 +245,7 @@ export default function createRenta() {
         };
 
         // 3. Generando PDF
-        const { data } = await axios.post('http://localhost:8085/api/rentas/create', payload);
+        const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/rentas/create', payload);
 
         Swal.fire({
           title: 'Generando PDF...',

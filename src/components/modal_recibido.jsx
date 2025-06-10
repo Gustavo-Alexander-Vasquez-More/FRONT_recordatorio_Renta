@@ -17,7 +17,7 @@ export default function modal_recibido({ closeModal_recibido, _id, estado }) {
 
   async function get() {
     try {
-      const { data } = await axios.get(`http://localhost:8085/api/rentas/read_especific?_id=${_id}`);
+      const { data } = await axios.get(`https://backrecordatoriorenta-production.up.railway.app/api/rentas/read_especific?_id=${_id}`);
       setDatas(data.response);
       setDatitos(data?.response[0]);
       setLoading(false);
@@ -118,7 +118,7 @@ export default function modal_recibido({ closeModal_recibido, _id, estado }) {
       };
 
       await axios.put(
-        `http://localhost:8085/api/rentas/update/${_id}`,
+        `https://backrecordatoriorenta-production.up.railway.app/api/rentas/update/${_id}`,
         datos,
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -128,13 +128,13 @@ export default function modal_recibido({ closeModal_recibido, _id, estado }) {
       for (const product of productos) {
         try {
           const productResponse = await axios.get(
-            `http://localhost:8085/api/products/read_especific?_id=${product._id}`
+            `https://backrecordatoriorenta-production.up.railway.app/api/products/read_especific?_id=${product._id}`
           );
           const currentStock = productResponse?.data?.response[0]?.stock;
           if (currentStock !== undefined) {
             const newStock = currentStock + product.cantidad;
             await axios.put(
-              `http://localhost:8085/api/products/update/${product._id}`,
+              `https://backrecordatoriorenta-production.up.railway.app/api/products/update/${product._id}`,
               { stock: newStock }
             );
           }
