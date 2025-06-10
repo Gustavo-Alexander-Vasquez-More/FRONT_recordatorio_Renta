@@ -71,7 +71,34 @@ export default function createNotas() {
   async function handleCrearNota() {
     setLoading(true);
 
-    // 1. Subiendo fotos
+    let clienteId = null;
+
+    // 1. Si es cliente manual, primero crea el cliente
+    if (clienteTipo === 'nuevo') {
+      Swal.fire({
+        title: 'Registrando cliente...',
+        text: 'Por favor espera mientras se registra el cliente.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const clientePayload = {
+          nombre: nombre.toUpperCase().trim(),
+          telefono: telefono.trim(),
+        };
+        const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/clients/create', clientePayload);
+        clienteId = data.response._id;
+      } catch (error) {
+        Swal.close();
+        Swal.fire('Error al registrar el cliente', '', 'error');
+        setLoading(false);
+        return;
+      }
+    }
+
+    // 2. Subiendo fotos
     Swal.fire({
       title: 'Subiendo fotos...',
       text: 'Por favor espera mientras se suben las imágenes.',
@@ -101,7 +128,7 @@ export default function createNotas() {
         );
       }
 
-      // 2. Guardando nota
+      // 3. Guardando nota
       Swal.fire({
         title: 'Guardando nota de remisión...',
         text: 'Por favor espera mientras se guarda la información.',
@@ -134,11 +161,12 @@ export default function createNotas() {
         IVA: aplicaIVA,
         total_remision: lista.reduce((acc, item) => acc + (Number(item.total) || 0), 0),
         creador: localStorage.getItem('usuario'),
+        cliente: clienteId, // solo si es cliente nuevo
       };
 
       const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/notas_remision/create', payload);
 
-      // 3. Generando PDF
+      // 4. Generando PDF
       Swal.fire({
         title: 'Generando PDF...',
         text: 'Por favor espera mientras se genera el documento.',
@@ -150,12 +178,11 @@ export default function createNotas() {
       setLoading(false);
       setIdGenerado(data.response._id);
       setShowDownloadModal(true);
-      Swal.close(); // Cierra cualquier Swal antes de mostrar el modal
+      Swal.close();
       return data.response;
     } catch (error) {
       Swal.close();
       Swal.fire('Error al crear la nota', '', 'error');
-      console.log(error);
       setLoading(false);
     }
   }
@@ -206,7 +233,7 @@ export default function createNotas() {
                 }}
                 className="accent-blue-600"
               />
-              Datos de cliente manual
+              Cliente nuevo
             </label>
             <label className="flex items-center gap-2 text-blue-700 font-medium">
               <input
@@ -412,7 +439,7 @@ export default function createNotas() {
                     onChange={() => setOpcion('catalogo')}
                     className="accent-blue-600"
                   />
-                  Equipos del catálogo Rentame
+                  Equipos del catálogo
                 </label>
                 <label className="flex items-center gap-2 text-blue-700 font-medium">
                   <input
@@ -423,11 +450,11 @@ export default function createNotas() {
                     onChange={() => setOpcion('personalizado')}
                     className="accent-blue-600"
                   />
-                  Artículos personalizados
+                  Productos o servicios
                 </label>
               </div>
               <span className="font-semibold text-[0.95rem] text-blue-500 mt-1">
-                Puedes ir alternando las opciones para ir combinando equipos y artículos en la lista.
+                Puedes ir alternando las opciones para ir combinando equipos y productos o servicios en la lista.
               </span>
             </div>
             {opcion === 'catalogo' ? (

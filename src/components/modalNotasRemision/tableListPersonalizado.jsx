@@ -4,21 +4,14 @@ export default function tableListPersonalizado({ lista, setLista }) {
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
   const [cantidad, setCantidad] = useState('1');
-  const [dias, setDias] = useState('1');
   const [total, setTotal] = useState(0);
-  const [tipo, setTipo] = useState('producto'); // Nuevo estado para tipo
 
-  // Calcular total según tipo
+  // Calcular total (sin días)
   React.useEffect(() => {
     const precioNum = Number(precio) || 0;
     const cantidadNum = Number(cantidad) || 0;
-    const diasNum = Number(dias) || 0;
-    if (tipo === 'servicio') {
-      setTotal(precioNum * cantidadNum);
-    } else {
-      setTotal(precioNum * cantidadNum * diasNum);
-    }
-  }, [precio, cantidad, dias, tipo]);
+    setTotal(precioNum * cantidadNum);
+  }, [precio, cantidad]);
 
   const handleAgregar = () => {
     if (!nombre || !precio) return;
@@ -28,16 +21,12 @@ export default function tableListPersonalizado({ lista, setLista }) {
         nombre,
         precio: Number(precio) || 0,
         cantidad: Number(cantidad) || 0,
-        dias: tipo === 'servicio' ? null : Number(dias) || 0,
-        tipo,
         total: Number(total) || 0
       }
     ]);
     setNombre('');
     setPrecio('');
     setCantidad('1');
-    setDias('1');
-    setTipo('producto');
   };
 
   return (
@@ -53,17 +42,6 @@ export default function tableListPersonalizado({ lista, setLista }) {
         />
       </div>
       <div className="flex flex-wrap gap-4">
-        <div className="flex flex-col flex-1 min-w-[120px]">
-          <label className="text-sm font-semibold mb-1">Tipo</label>
-          <select
-            value={tipo}
-            onChange={e => setTipo(e.target.value)}
-            className="rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="producto">Producto</option>
-            <option value="servicio">Servicio</option>
-          </select>
-        </div>
         <div className="flex flex-col flex-1 min-w-[120px]">
           <label className="text-sm font-semibold mb-1">$/unitario</label>
           <input
@@ -89,27 +67,8 @@ export default function tableListPersonalizado({ lista, setLista }) {
             }}
           />
         </div>
-        {tipo === 'producto' && (
-          <div className="flex flex-col flex-1 min-w-[120px]">
-            <label className="text-sm font-semibold mb-1">Días</label>
-            <input
-              type="number"
-              min={1}
-              value={dias}
-              onChange={e => setDias(e.target.value)}
-              className="rounded-lg border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              style={{
-                MozAppearance: 'textfield',
-                WebkitAppearance: 'none',
-                margin: 0
-              }}
-            />
-          </div>
-        )}
         <div className="flex flex-col flex-1 min-w-[140px]">
-          <label className="text-sm font-semibold mb-1">
-            {tipo === 'producto' ? '$ Total x días' : '$ Total'}
-          </label>
+          <label className="text-sm font-semibold mb-1">$ Total</label>
           <input
             type="text"
             value={total}

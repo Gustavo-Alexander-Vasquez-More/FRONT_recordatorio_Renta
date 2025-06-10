@@ -34,17 +34,6 @@ export default function createRenta() {
       const [ampm, setAmpm] = useState('AM');
       const [showDownloadModal, setShowDownloadModal] = useState(false);
       const [idGenerado, setIdGenerado] = useState(null);
-
-      // Función para mostrar la hora en formato 12 horas con AM/PM
-      function formatHora12(hora24) {
-        if (!hora24) return '';
-        const [h, m] = hora24.split(':');
-        let hour = parseInt(h, 10);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        hour = hour % 12 || 12;
-        return `${hour}:${m} ${ampm}`;
-      }
-
       const inputRef = useRef(null);
       const input_nombre = useRef(null);
       const input_domicilio = useRef(null);
@@ -67,85 +56,6 @@ export default function createRenta() {
           console.log(error);
         }
       }
-    
-      async function createClients(nombre, telefono) {
-        let ine_delantero_url = "";
-        let ine_trasero_url = "";
-    
-        // Mostrar solo un Swal para todo el proceso de cliente nuevo
-        Swal.fire({
-          title: 'Cargando nuevo cliente en la base de datos...',
-          text: 'Por favor espere.',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          didOpen: () => Swal.showLoading()
-        });
-    
-        // Subir foto INE delantero
-        if (fotoIneDelantera) {
-          try {
-            const extension = fotoIneDelantera.name.split(".").pop();
-            const newFileName = `${uuidv4()}.${extension}`;
-            const renamedFile = new File([fotoIneDelantera], newFileName, { type: fotoIneDelantera.type });
-            const formData = new FormData();
-            formData.append("image", renamedFile);
-    
-            await axios.post(
-              "https://verificaciongob.site/upload.php",
-              formData,
-              { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            ine_delantero_url = `https://verificaciongob.site/uploads/${newFileName}`;
-          } catch (error) {
-            Swal.close();
-            Swal.fire('Error', 'Error al subir la foto de INE delantero. Intente nuevamente.', 'error');
-            console.log('Error INE delantero:', error);
-            return null;
-          }
-        }
-    
-        // Subir foto INE trasero
-        if (fotoIneTrasera) {
-          try {
-            const extension = fotoIneTrasera.name.split(".").pop();
-            const newFileName = `${uuidv4()}.${extension}`;
-            const renamedFile = new File([fotoIneTrasera], newFileName, { type: fotoIneTrasera.type });
-            const formData = new FormData();
-            formData.append("image", renamedFile);
-    
-            await axios.post(
-              "https://verificaciongob.site/upload.php",
-              formData,
-              { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            ine_trasero_url = `https://verificaciongob.site/uploads/${newFileName}`;
-          } catch (error) {
-            Swal.close();
-            Swal.fire('Error', 'Error al subir la foto de INE trasero. Intente nuevamente.', 'error');
-            console.log('Error INE trasero:', error);
-            return null;
-          }
-        }
-    
-        // Crear cliente con URLs de las fotos
-        try {
-          const datos = {
-            nombre: nombre.toUpperCase().trim(),
-            telefono: telefono.trim(),
-            foto_ine_delantero: ine_delantero_url || '',
-            foto_ine_trasero: ine_trasero_url || '',
-          };
-          const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/clients/create', datos);
-          Swal.close();
-          return data.response;
-        } catch (error) {
-          Swal.close();
-          Swal.fire('Error', 'No se pudo crear el cliente. Verifica los datos.', 'error');
-          console.log('Error creando cliente:', error);
-          return null;
-        }
-      }
-    
       // Drag & Drop handlers
       const handleDrag = (e) => {
         e.preventDefault();
@@ -180,7 +90,88 @@ export default function createRenta() {
     async function handleCrearNota() {
       setLoading(true);
 
-      // 1. Subiendo fotos (si hay)
+      // 1. Si es cliente registrado y le falta INE, sube las fotos y actualiza el cliente
+      if (
+        clienteTipo === 'registrado' &&
+        clienteSeleccionado &&
+        (fotoIneDelantera || fotoIneTrasera)
+      ) {
+        // Subir INE delantero si corresponde
+        if (fotoIneDelantera) {
+          Swal.fire({
+            title: 'Subiendo foto de INE delantero...',
+            text: 'Por favor espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+          });
+          try {
+            const extension = fotoIneDelantera.name.split('.').pop();
+            const newFileName = `${uuidv4()}.${extension}`;
+            const renamedFile = new File([fotoIneDelantera], newFileName, { type: fotoIneDelantera.type });
+            const formData = new FormData();
+            formData.append('image', renamedFile);
+
+            await axios.post(
+              "https://verificaciongob.site/upload.php",
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            const url = `https://verificaciongob.site/uploads/${newFileName}`;
+            await axios.put(
+              `https://backrecordatoriorenta-production.up.railway.app/api/clients/update/${clienteSeleccionado.value}`,
+              { foto_ine_delantero: url }
+            );
+          } catch (error) {
+            Swal.close();
+            Swal.fire('Error', 'No se pudo subir la foto de INE delantero.', 'error');
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Subir INE trasero si corresponde
+        if (fotoIneTrasera) {
+          Swal.fire({
+            title: 'Subiendo foto de INE trasero...',
+            text: 'Por favor espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+          });
+          try {
+            const extension = fotoIneTrasera.name.split('.').pop();
+            const newFileName = `${uuidv4()}.${extension}`;
+            const renamedFile = new File([fotoIneTrasera], newFileName, { type: fotoIneTrasera.type });
+            const formData = new FormData();
+            formData.append('image', renamedFile);
+
+            await axios.post(
+              "https://verificaciongob.site/upload.php",
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            const url = `https://verificaciongob.site/uploads/${newFileName}`;
+            await axios.put(
+              `https://backrecordatoriorenta-production.up.railway.app/api/clients/update/${clienteSeleccionado.value}`,
+              { foto_ine_trasero: url }
+            );
+          } catch (error) {
+            Swal.close();
+            Swal.fire('Error', 'No se pudo subir la foto de INE trasero.', 'error');
+            setLoading(false);
+            return;
+          }
+        }
+        // Refresca clientes después de actualizar
+        await fetchClientesRegistrados();
+        const clientesActualizados = await fetchClientesRegistrados();
+        const actualizado = clientesActualizados.find(c => c._id === clienteSeleccionado.value);
+        setClienteSeleccionado(actualizado);
+      }
+
+      // 2. Subir fotos de evidencia (si hay)
+      let urlsFotos = [];
       if (fotos.length > 0) {
         Swal.fire({
           title: 'Subiendo fotos de evidencia...',
@@ -189,83 +180,75 @@ export default function createRenta() {
           allowEscapeKey: false,
           didOpen: () => Swal.showLoading()
         });
+        urlsFotos = await Promise.all(
+          fotos.map(async (file) => {
+            const extension = file.name.split('.').pop();
+            const newFileName = `${uuidv4()}.${extension}`;
+            const renamedFile = new File([file], newFileName, { type: file.type });
+            const formData = new FormData();
+            formData.append('image', renamedFile);
+
+            await axios.post(
+              "https://verificaciongob.site/upload.php",
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            return `https://verificaciongob.site/uploads/${newFileName}`;
+          })
+        );
       }
 
-      try {
-        let urlsFotos = [];
-        if (fotos.length > 0) {
-          urlsFotos = await Promise.all(
-            fotos.map(async (file) => {
-              const extension = file.name.split('.').pop();
-              const newFileName = `${uuidv4()}.${extension}`;
-              const renamedFile = new File([file], newFileName, { type: file.type });
-              const formData = new FormData();
-              formData.append('image', renamedFile);
+      // 3. Guardando renta
+      Swal.fire({
+        title: 'Guardando la renta...',
+        text: 'Por favor espera mientras se guarda la información.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
 
-              await axios.post(
-                "https://verificaciongob.site/upload.php",
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-              );
-              return `https://verificaciongob.site/uploads/${newFileName}`;
-            })
-          );
-        }
+      const payload = {
+        nombre: nombre.toUpperCase().trim(),
+        telefono: telefono.trim(),
+        direccion: domicilio.trim(),
+        fecha_renta: fechaRenta ? fechaRenta.toLocaleDateString('es-MX') : '',
+        hora_renta: horaRenta || `${hora12}:${minuto} ${ampm}`,
+        fecha_vencimiento: fechaVencimiento ? fechaVencimiento.toLocaleDateString('es-MX') : '',
+        usuario_rentador: localStorage.getItem('usuario'),
+        productos: lista.map(prod => ({
+          nombre: prod.nombre,
+          codigo: prod.codigo,
+          cantidad: prod.cantidad,
+          dias_renta: prod.dias,
+          descripcion: prod.descripcion,
+          precio_unitario: prod.precio,
+          importe_total: prod.total,
+        })),
+        total_renta: lista.reduce((acc, item) => acc + (Number(item.total) || 0), 0),
+        fotos_estado_inicial: urlsFotos,
+        observacion_inicial: observaciones.trim(),
+        IVA: aplicaIVA,
+      };
 
-        // 2. Guardando renta
-        Swal.fire({
-          title: 'Guardando la renta...',
-          text: 'Por favor espera mientras se guarda la información.',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          didOpen: () => Swal.showLoading()
-        });
+      // 4. Generando PDF
+      const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/rentas/create', payload);
 
-        const payload = {
-          nombre: nombre.toUpperCase().trim(),
-          telefono: telefono.trim(),
-          direccion: domicilio.trim(),
-          fecha_renta: fechaRenta ? fechaRenta.toLocaleDateString('es-MX') : '',
-          hora_renta: horaRenta || `${hora12}:${minuto} ${ampm}`,
-          fecha_vencimiento: fechaVencimiento ? fechaVencimiento.toLocaleDateString('es-MX') : '',
-          usuario_rentador: localStorage.getItem('usuario'),
-          productos: lista.map(prod => ({
-            nombre: prod.nombre,
-            codigo: prod.codigo,
-            cantidad: prod.cantidad,
-            dias_renta: prod.dias,
-            descripcion: prod.descripcion,
-            precio_unitario: prod.precio,
-            importe_total: prod.total,
-          })),
-          total_renta: lista.reduce((acc, item) => acc + (Number(item.total) || 0), 0),
-          fotos_estado_inicial: urlsFotos,
-          observacion_inicial: observaciones.trim(),
-          IVA: aplicaIVA,
-        };
+      Swal.fire({
+        title: 'Generando PDF...',
+        text: 'Por favor espera mientras se genera el documento.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
 
-        // 3. Generando PDF
-        const { data } = await axios.post('https://backrecordatoriorenta-production.up.railway.app/api/rentas/create', payload);
-
-        Swal.fire({
-          title: 'Generando PDF...',
-          text: 'Por favor espera mientras se genera el documento.',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          didOpen: () => Swal.showLoading()
-        });
-
-        setLoading(false);
+      // Espera a que el id esté realmente disponible antes de mostrar el modal
+      if (data && data.response && data.response._id) {
         setIdGenerado(data.response._id);
         setShowDownloadModal(true);
-        Swal.close(); // Cierra cualquier Swal antes de mostrar el modal
-        return data.response;
-      } catch (error) {
-        Swal.close();
-        Swal.fire('Error al generar la renta', '', 'error');
-        console.log(error);
-        setLoading(false);
       }
+      Swal.close();
+      setLoading(false);
+      return data.response;
     }
     
     
@@ -295,6 +278,11 @@ export default function createRenta() {
         setNombre(opcion?.nombre || '');
         setTelefono(opcion?.telefono || '');
       };
+
+      // Cliente completo para validaciones
+      const clienteCompleto = clienteSeleccionado
+        ? clientesRegistrados.find(c => c._id === clienteSeleccionado.value)
+        : null;
   return (
     <>
     <div className="w-full min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-blue-100 to-gray-200">
@@ -340,26 +328,103 @@ export default function createRenta() {
                   isClearable
                 />
               </div>
-              {clienteSeleccionado && (
+              {/* Validación de INE faltante */}
+              {clienteCompleto && (
                 <>
-                  <div className="flex flex-col gap-2">
-                    <label className="font-semibold text-blue-700">Nombre</label>
-                    <input
-                      type="text"
-                      value={nombre}
-                      readOnly
-                      className="py-2 rounded-lg px-3 border border-blue-200 bg-gray-100"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="font-semibold text-blue-700">Teléfono</label>
-                    <input
-                      type="text"
-                      value={telefono}
-                      readOnly
-                      className="py-2 rounded-lg px-3 border border-blue-200 bg-gray-100"
-                    />
-                  </div>
+                  {(!clienteCompleto?.foto_ine_delantero || !clienteCompleto?.foto_ine_trasero) && (
+                    <div className="mb-4">
+                      <div className="text-red-600 font-semibold text-sm mb-2 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z"/>
+                        </svg>
+                        A este cliente le falta subir el INE
+                      </div>
+                      <div className="flex flex-col md:flex-row gap-4">
+                        {/* Drop para INE delantero */}
+                        {!clienteSeleccionado.foto_ine_delantero && (
+                          <div className="flex-1 flex flex-col gap-2">
+                            <label className="font-semibold text-blue-700">Foto de INE delantero</label>
+                            <div
+                              className={`border-2 border-dashed rounded-lg p-6 bg-white transition-all duration-200 cursor-pointer flex flex-col items-center justify-center border-red-400`}
+                              style={{ minHeight: 110 }}
+                              onClick={() => ineDelanteraInputRef.current.click()}
+                              onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                              onDrop={e => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                  setFotoIneDelantera(e.dataTransfer.files[0]);
+                                }
+                              }}
+                            >
+                              <input
+                                ref={ineDelanteraInputRef}
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={e => {
+                                  if (e.target.files && e.target.files.length > 0) {
+                                    setFotoIneDelantera(e.target.files[0]);
+                                  }
+                                }}
+                              />
+                              <div className="text-center w-full">
+                                <span className="block text-blue-700 font-medium">
+                                  {fotoIneDelantera
+                                    ? fotoIneDelantera.name
+                                    : "Arrastra aquí la foto o haz clic para seleccionar"}
+                                </span>
+                                <span className="block text-xs text-gray-400 mt-1">
+                                  (Solo una imagen, formato jpg, png, jpeg)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {/* Drop para INE trasero */}
+                        {!clienteSeleccionado.foto_ine_trasero && (
+                          <div className="flex-1 flex flex-col gap-2">
+                            <label className="font-semibold text-blue-700">Foto de INE trasero</label>
+                            <div
+                              className={`border-2 border-dashed rounded-lg p-6 bg-white transition-all duration-200 cursor-pointer flex flex-col items-center justify-center border-red-400`}
+                              style={{ minHeight: 110 }}
+                              onClick={() => ineTraseraInputRef.current.click()}
+                              onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                              onDrop={e => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                  setFotoIneTrasera(e.dataTransfer.files[0]);
+                                }
+                              }}
+                            >
+                              <input
+                                ref={ineTraseraInputRef}
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={e => {
+                                  if (e.target.files && e.target.files.length > 0) {
+                                    setFotoIneTrasera(e.target.files[0]);
+                                  }
+                                }}
+                              />
+                              <div className="text-center w-full">
+                                <span className="block text-blue-700 font-medium">
+                                  {fotoIneTrasera
+                                    ? fotoIneTrasera.name
+                                    : "Arrastra aquí la foto o haz clic para seleccionar"}
+                                </span>
+                                <span className="block text-xs text-gray-400 mt-1">
+                                  (Solo una imagen, formato jpg, png, jpeg)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </>
@@ -717,7 +782,7 @@ export default function createRenta() {
           </div>
         </div>
       </div>
-      {showDownloadModal && idGenerado && (
+      {showDownloadModal && idGenerado && typeof idGenerado === 'string' && idGenerado.length > 10 && (
         <div className="fixed inset-0 z-50 bg-[#00000090] flex items-center justify-center">
           <Download_pdf
             id={idGenerado}
