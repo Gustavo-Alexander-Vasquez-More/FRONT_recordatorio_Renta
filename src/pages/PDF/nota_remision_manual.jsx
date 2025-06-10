@@ -12,11 +12,10 @@ import {
 import page0 from "../../images/imagenes_pdf_contrato/rm-remision_page-0001.jpg";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-const nota_remision_manual = () => {
+const nota_remision_manual = ({_id}) => {
   const [loading, setLoading] = useState(null);
   const [datas, setDatas] = useState([]);
   const [qr, setQr]=useState()
-  const { _id } = useParams();
   async function get() {
     try {
       const { data } = await axios.get(
@@ -48,7 +47,6 @@ const generateQR = async () => {
   }, []);
 
   return (
-    <PDFViewer style={{ width: "100%", height: "100vh" }}>
       <Document title={`NOTA DE REMISION`}>
         {datas.map((dat) => {
           return (
@@ -228,7 +226,6 @@ const generateQR = async () => {
           );
         })}
       </Document>
-    </PDFViewer>
   );
 };
 

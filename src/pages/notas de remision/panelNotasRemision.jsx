@@ -3,18 +3,20 @@ import Navbar from '../../components/navbar';
 import axios from 'axios';
 import ModalEdit from '../../components/modalEdit';
 import Modal_create_users from '../../components/modalNotasRemision/crearNotasRemision';
-import foto_user from '../../images/foto_user_empty.jpg'
+import Download_pdf from '../../components/download_nota'; // Asegúrate de importar el componente
 import Swal from 'sweetalert2';
-import { FaFilePdf, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaFilePdf, FaTrash, FaSearch } from 'react-icons/fa';
 
-export default function panelNotasRemision() {
+export default function PanelNotasRemision() {
   const [datas, setDatas] = useState([]);
   const [user_selected, setUserSelected] = useState();
-  const [current_page, setCurrent_page] = useState(parseInt(localStorage.getItem('usuarios_current_page')) || 1);
-  const [itemsPerPage] = useState(4);
   const [loading, setLoading] = useState(true);
   const [modaEdit, setModalEdit] = useState(false);
   const [modal_create, setModal_create] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredDatas, setFilteredDatas] = useState([]);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [idNotaDescarga, setIdNotaDescarga] = useState(null);
 
   function openModal() {
     window.scrollTo(0, 0);
@@ -59,8 +61,7 @@ export default function panelNotasRemision() {
     });
     try {
       if (confirmation.isConfirmed === true) {
-        // Enviar _id por el body usando método POST (o DELETE con body si el backend lo permite)
-        const { data } = await axios.delete(
+        await axios.delete(
           'https://backrecordatoriorenta-production.up.railway.app/api/notas_remision/delete',
           { data: { _id } }
         );
@@ -70,8 +71,7 @@ export default function panelNotasRemision() {
           text: 'La nota de remisión ha sido eliminada con éxito',
           timer: 1500,
         });
-        window.location.reload()
-        return data.response
+        window.location.reload();
       }
     } catch (error) {
       Swal.fire({
@@ -83,47 +83,21 @@ export default function panelNotasRemision() {
     }
   }
 
-  const indexOfLastItem = current_page * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = datas?.slice(indexOfFirstItem, indexOfLastItem);
-
-  const totalPages = Math.ceil(datas.length / itemsPerPage);
-
-  const changePage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrent_page(page);
-    }
-  };
-
-  const generatePaginationButtons = () => {
-    let buttons = [];
-    if (totalPages <= 4) {
-      for (let i = 1; i <= totalPages; i++) {
-        buttons.push(i);
-      }
-    } else {
-      const startPage = Math.max(2, current_page - 1);
-      const endPage = Math.min(totalPages - 1, current_page + 1);
-      buttons.push(1);
-      if (startPage > 2) {
-        buttons.push("...");
-      }
-      for (let i = startPage; i <= endPage; i++) {
-        buttons.push(i);
-      }
-      if (endPage < totalPages - 1) {
-        buttons.push("...");
-      }
-      buttons.push(totalPages);
-    }
-    return buttons;
-  };
-
+  // --- BUSQUEDA ---
   useEffect(() => {
-    if (current_page) {
-      localStorage.setItem('usuarios_current_page', current_page);
+    if (!searchTerm.trim()) {
+      setFilteredDatas(datas);
+    } else {
+      const term = searchTerm.toLowerCase();
+      setFilteredDatas(
+  datas.filter(dat =>
+    (dat.nombre && dat.nombre.toLowerCase().includes(term)) ||
+    (dat.creador && dat.creador.toLowerCase().includes(term)) ||
+    (dat.folio_remision && dat.folio_remision.toString().toLowerCase().includes(term))
+  )
+);
     }
-  }, [current_page]);
+  }, [searchTerm, datas]);
 
   return (
     <>
@@ -133,140 +107,123 @@ export default function panelNotasRemision() {
       {modal_create && (
         <Modal_create_users closeModal2={closeModal2} gett={get} />
       )}
-      <Navbar />
-      <div className="flex flex-col bg-[#ececec] w-full min-h-screen">
-        <div className="bg-white py-4 flex justify-between items-center px-4 lg:px-8 shadow-sm">
-          <p className="text-[#2D76B5] font-bold text-lg lg:text-2xl">Panel de Notas de Remisión</p>
-          <a
-            href='/create_notas'
-            className="bg-[#46af46] text-white font-semibold px-4 py-2 rounded-[15px] hover:bg-green-700 transition"
-          >
-            + Generar nota de Remisión
-          </a>
+      {showDownloadModal && idNotaDescarga && (
+        <div className="fixed inset-0 z-50 bg-[#00000090] flex items-center justify-center">
+          <Download_pdf
+            id={idNotaDescarga}
+            close_modal2={() => {
+              setShowDownloadModal(false);
+              setIdNotaDescarga(null);
+            }}
+          />
         </div>
-        <div className="w-full flex flex-col py-6 gap-2 px-2 lg:px-8">
-          <div className="mb-4">
-            <p className="font-semibold text-xl text-[#4a4a4a]">Notas de Remisión Manuales</p>
-            <div className="form-text">En este apartado podrás buscar, eliminar o descargar tus PDF de notas de remisión.</div>
+      )}
+      <Navbar />
+      <div className="flex flex-col w-full min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="max-w-6xl mx-auto w-full py-6 px-2">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h1 className="text-2xl font-bold text-blue-800">Mis Notas de Remisión</h1>
+            <div className="flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-3 py-2 shadow">
+              <FaSearch className="text-blue-400" />
+              <input
+                type="text"
+                placeholder="Buscar por folio, cliente o creador..."
+                className="outline-none bg-transparent text-blue-700 w-56"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
+          <div className="form-text mb-4 text-gray-600">En este apartado podrás buscar, eliminar o descargar tus PDF de notas de remisión.</div>
           {loading ? (
             <div className="flex flex-col gap-2 text-center items-center py-10">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+              <span className="text-blue-700 font-semibold mt-2">Cargando...</span>
             </div>
-          ) : datas.length === 0 ? (
+          ) : filteredDatas.length === 0 ? (
             <div className="text-center text-lg py-10">
               <p>No se encontraron notas de remisión</p>
-              <button onClick={() => window.location.reload()} className="bg-primary text-white font-semibold px-4 py-2 rounded mt-4">Refrescar</button>
+              <button onClick={() => window.location.reload()} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded mt-4">Refrescar</button>
             </div>
           ) : (
             <div className="overflow-x-auto bg-white rounded-lg shadow">
               {/* TABLA DESKTOP MEJORADA */}
               <table className="min-w-full lg:table hidden bg-white rounded-lg overflow-hidden shadow border">
                 <thead>
-                  <tr className="bg-gradient-to-r from-blue-100 to-blue-300 text-[#2D76B5]">
-                    <th className="py-4 px-6 text-left font-bold border-b border-blue-200">Cliente</th>
-                    <th className="py-4 px-6 text-center font-bold border-b border-blue-200">Acciones</th>
+                  <tr className="bg-blue-700 text-white text-center">
+                    <th className="py-3 px-4 whitespace-nowrap">Folio</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Cliente</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Encargado</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((dat, idx) => (
+                  {filteredDatas.map((dat, idx) => (
                     <tr
                       key={dat._id}
-                      className={`transition-colors duration-150 ${idx % 2 === 0 ? 'bg-white' : 'bg-blue-50'} hover:bg-blue-100`}
+                      className={`text-center even:bg-blue-50 hover:bg-blue-100 transition`}
                     >
-                      <td className="py-3 px-6 border-b border-blue-100 text-gray-800 text-base">{dat.nombre || '-'}</td>
-                      <td className="py-3 px-6 border-b border-blue-100 flex gap-4 justify-center items-center">
-                        {/*
+                      <td className="py-2 px-4 border-b border-blue-100">{dat.folio_remision || '-'}</td>
+                      <td className="py-2 px-4 border-b border-blue-100">{dat.nombre || '-'}</td>
+                      <td className="py-2 px-4 border-b border-blue-100">{dat.creador || '-'}</td>
+                      <td className="py-2 px-4 border-b border-blue-100 flex flex-wrap gap-1 justify-center">
                         <button
-                          className="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-100 transition"
-                          title="Editar"
-                          onClick={() => { openModal(); setUserSelected(dat._id); }}
-                        >
-                          <FaEdit size={18} />
-                        </button>
-                        */}
-                        <button
-                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition"
+                          className="bg-red-600 hover:bg-red-700 text-white rounded px-2 py-1 shadow transition"
                           title="Eliminar"
                           onClick={() => deleteNota(dat._id)}
                         >
-                          <FaTrash size={18} />
+                          <FaTrash size={16} />
                         </button>
-                        <a
-                          href={`/pdf_nota/${dat._id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-100 transition"
+                        <button
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded px-2 py-1 shadow transition"
                           title="Descargar PDF"
+                          onClick={() => {
+                            setShowDownloadModal(true);
+                            setIdNotaDescarga(dat._id);
+                          }}
                         >
-                          <FaFilePdf size={18} />
-                        </a>
+                          <FaFilePdf size={16} />
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {/* MOBILE CARDS */}
-              <div className="flex flex-col gap-4 lg:hidden">
-                {currentItems.map((dat, idx) => (
+              <div className="flex flex-col gap-4 lg:hidden mt-4">
+                {filteredDatas.map((dat, idx) => (
                   <div
                     key={dat._id || idx}
                     className="bg-white rounded-xl shadow-md p-4 flex flex-col gap-3 border border-blue-100"
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex-1">
-                        <div className="font-semibold text-base text-[#2D76B5] mb-1">{dat.nombre || '-'}</div>
+                        <div className="font-semibold text-base text-[#2D76B5] mb-1">Folio: {dat.folio_remision || '-'}</div>
+                        <div className="text-gray-700">Cliente: {dat.nombre || '-'}</div>
+                        <div className="text-gray-700">Encargado: {dat.creador || '-'}</div>
                       </div>
                     </div>
                     <div className="flex gap-3 justify-end mt-2">
-                      {/*
                       <button
-                        className="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-100 transition"
-                        title="Editar"
-                        onClick={() => { openModal(); setUserSelected(dat._id); }}
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      */}
-                      <button
-                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition"
+                        className="bg-red-600 hover:bg-red-700 text-white rounded px-2 py-1 shadow transition"
                         title="Eliminar"
                         onClick={() => deleteNota(dat._id)}
                       >
-                        <FaTrash size={18} />
+                        <FaTrash size={16} />
                       </button>
-                      <a
-                        href={dat.pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-100 transition"
+                      <button
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded px-2 py-1 shadow transition"
                         title="Descargar PDF"
+                        onClick={() => {
+                          setShowDownloadModal(true);
+                          setIdNotaDescarga(dat._id);
+                        }}
                       >
-                        <FaFilePdf size={18} />
-                      </a>
+                        <FaFilePdf size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}
-              </div>
-              {/* PAGINACIÓN */}
-              <div className="flex justify-center gap-2 mt-4 pb-4">
-                {generatePaginationButtons().map((button, index) =>
-                  button === "..." ? (
-                    <span key={index} className="px-3 py-1 text-gray-500">
-                      ...
-                    </span>
-                  ) : (
-                    <button
-                      key={index}
-                      className={`px-3 py-1 rounded ${current_page === button ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
-                      onClick={() => changePage(button)}
-                    >
-                      {button}
-                    </button>
-                  )
-                )}
               </div>
             </div>
           )}

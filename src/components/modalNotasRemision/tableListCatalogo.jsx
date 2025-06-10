@@ -68,9 +68,11 @@ export default function tableListCatalogo({ lista, setLista }) {
       ...lista,
       {
         nombre: selectedOption.value.nombre,
+        codigo:selectedOption.value.codigo,
         precio: Number(precio) || 0,
         cantidad: Number(cantidad) || 0,
         dias: Number(dias) || 0,
+        descripcion: selectedOption.value.descripcion, // <-- Agrega este campo
         total: Number(total) || 0
       }
     ]);
@@ -87,7 +89,7 @@ export default function tableListCatalogo({ lista, setLista }) {
                     onChange={setSelectedOption}
                     options={datos.map((item) => ({
                         value: item,
-                        label: item.nombre
+                        label: `${item.codigo}-${item.nombre}`
                     }))}
                     placeholder="Buscar o seleccionar equipo..."
                     isClearable

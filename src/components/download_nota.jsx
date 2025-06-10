@@ -1,8 +1,8 @@
 import React from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import Contrato from '../pages/PDF/contrato';
+import Nota from '../pages/PDF/nota_remision_manual';
 
-export default function download_pdf({ close_modal2, id }) {
+export default function download_nota({ close_modal2, id }) {
   return (
     <div className='lg:w-[35%] w-[95%] rounded-[10px] py-[2rem] flex flex-col gap-4 bg-white'>
       <div className='flex justify-end items-end pr-[1rem]'>
@@ -17,8 +17,8 @@ export default function download_pdf({ close_modal2, id }) {
       </div>
       <PDFDownloadLink
         className='w-full'
-        document={<Contrato _id={id} />}
-        fileName={`NOTA DE REMISION & CONTRATO.pdf`}
+        document={<Nota _id={id} />}
+        fileName={`NOTA DE REMISION.pdf`}
       >
         {({ loading, url, error }) =>
           loading ? (
@@ -33,7 +33,7 @@ export default function download_pdf({ close_modal2, id }) {
             </div>
           ) : error ? (
             <div className='w-full flex flex-col items-center'>
-              <p>cargando ....</p>
+              <p>Cargando ....</p>
               <button
                 className='mt-2 bg-gray-300 px-4 py-1 rounded'
                 onClick={() => window.location.reload()}
@@ -46,7 +46,7 @@ export default function download_pdf({ close_modal2, id }) {
               <div className='w-full flex justify-center items-center'>
                 <a
                   href={url}
-                  download={`NOTA DE REMISION & CONTRATO.pdf`}
+                  download={`NOTA DE REMISION.pdf`}
                   className='bg-primary px-[1rem] py-[0.3rem] text-white font-semibold rounded-[5px] hover:bg-blue-700 transition'
                 >
                   Descargar PDF

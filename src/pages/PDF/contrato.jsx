@@ -20,7 +20,7 @@ import axios from "axios";
 const contrato = ({ _id }) => {
   const [loading, setLoading] = useState(null);
   const [datas, setDatas] = useState([]);
-
+  const [qr, setQr] = useState();
   async function get() {
     try {
       const { data } = await axios.get(
@@ -33,7 +33,20 @@ const contrato = ({ _id }) => {
       setLoading(false); // Si hay un error, dejamos de mostrar el estado de carga
     }
   }
-
+const generateQR = async () => {
+    const link = `https://rentas.rentamecarmen.com.mx/collection/${_id}`;
+    const qrDataURL = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(link)}`;
+  try {
+    const response = await fetch(qrDataURL);
+    const blob = await response.blob();
+    const qrImageFile = new File([blob], 'qr.png', { type: 'image/png'});
+    setQr(URL.createObjectURL(qrImageFile))
+    } catch (error) {
+    }
+  };
+  useEffect(() => {
+   generateQR()
+  }, [_id]);
   useEffect(() => {
     get();
   }, []);
@@ -266,6 +279,11 @@ const contrato = ({ _id }) => {
     },
   });
 
+  const formatMoney = (num) => {
+    if (typeof num !== "number") return num;
+    return num.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   return (
     <>
       <Document title={`NOTA DE REMISION & CONTRATO`}>
@@ -282,103 +300,173 @@ const contrato = ({ _id }) => {
 
           return (
             <>
-              <Page size="A4">
-                <View style={styles.page}>
-                  <Image
-                    onLoad={() => setImageLoaded(true)}
-                    style={styles.plantilla}
-                    src={`${page0}`}
-                  />
-                  <Text style={styles.nombre}>{dat.cliente.nombre}</Text>
-                  <Text style={styles.estado}>Cd. Del carmen Campeche</Text>
-                  <Text style={styles.fecha}>{dat.fecha_renta}</Text>
-                  <Text style={styles.hora}>{dat.hora_renta}</Text>
-                  <Text style={styles.total}>${dat.importe_total}</Text>
-                  <View style={styles.observacion}>
-                    <Text>{dat.observacion_inicial}</Text>
-                  </View>
-                  <View style={styles.box_products}>
-                    {dat.productos.map((dat2) => (
-                      <View style={styles.box_datas}>
-                        <View style={styles.box_1}>
-                          <Text>{dat2.cantidad}</Text>
-                        </View>
-                        <View style={styles.box_2}>
-                          <Text>{dat2.nombre}</Text>
-                        </View>
-                        <View style={styles.box_3}>
-                          <Text>${dat2.precio_unitario}</Text>
-                        </View>
-                        <View style={styles.box_4}>
-                          <Text>
-                            $
-                            {Number(
-                              dat2.precio_unitario * dat2.cantidad
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </Text>
-                        </View>
-                      </View>
-                    ))}
-                    <View style={styles.box_datas}>
-                      <View style={styles.box_1}>
-                        <Text></Text>
-                      </View>
-                      <View style={styles.box_2}>
-                        {dat.dias_contados === "1" && (
-                          <Text>Renta por {dat.dias_contados} día</Text>
-                        )}
-                        {dat.dias_contados != "1" && (
-                          <Text>Renta por {dat.dias_contados} días</Text>
-                        )}
-                      </View>
-                      <View style={styles.box_3}>
-                        <Text></Text>
-                      </View>
-                      <View style={styles.box_4}>
-                        <Text></Text>
-                      </View>
-                    </View>
-                  </View>
-                  <Text style={styles.telefono}>{dat.cliente.telefono}</Text>
-                  <Text style={styles.vencimiento}>
-                    {dat.fecha_vencimiento}
-                  </Text>
-                  <Text style={styles.folio}>{dat.folio}</Text>
-                  //LO QUE VA EN EL CAMPO IVA SI ESQUE APLICA
-                  {dat.IVA === "SI" && (
-                    <Text style={styles.pocentaje_iva}>
-                      $
-                      {new Intl.NumberFormat("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }).format(
-                        parseFloat(dat.importe_total.replace(/,/g, "")) * 0.16
-                      )}
-                    </Text>
-                  )}
-                  //TOTAL DE TODO PERO CON IVA SUMADO
-                  {dat.IVA === "SI" && (
-                    <Text style={styles.total_iva}>
-                      $
-                      {new Intl.NumberFormat("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }).format(
-                        parseFloat(dat.importe_total.replace(/,/g, "")) * 1.16
-                      )}
-                    </Text>
-                  )}
-                  {dat.IVA === "NO" && (
-                    <Text style={styles.total_iva}>${dat.importe_total}</Text>
-                  )}
-                  <Text style={styles.encargado}>
-                    Personal que atendió: {dat.nombre_encargado}
-                  </Text>
-                </View>
-              </Page>
+              <Page size="LETTER">
+                              <View style={{ position: "relative", width: "100%" }}>
+                                <Image
+                                  onLoad={() => setImageLoaded(true)}
+                                  style={{ position: "absolute", width: "100%" }}
+                                  src={`${page0}`}
+                                />
+                              </View>
+                              <Text style={{ position: "absolute", top: "6.3%", fontSize: 5, left: "93.15%" }}>
+                                .mx 
+                              </Text>
+                              <Text style={{ position: "absolute", top: "12%", fontSize: 13, left: "81%", color:"red", fontFamily: "Helvetica-Bold" }}>
+                                {dat.folio} 
+                              </Text>
+                              <Text style={{ position: "absolute", top: "19.4%", fontSize: 9, left: "11.5%" }}>
+                                {dat.nombre} 
+                              </Text>
+                              <Text style={{ position: "absolute", top: "22.4%", fontSize: 9, left: "12%" }}>
+                                {dat.direccion}
+                              </Text>
+                              <View
+                style={{
+                  position: "absolute",
+                  top: "24.6%",
+                  left: "20%",
+                  paddingHorizontal: 4,
+                  paddingVertical: 6,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  minWidth: 300,
+                }}
+              >
+                <Text style={{ fontSize: 9 }}>
+                  {dat.fecha_vencimiento}
+                </Text>
+              </View>
+                              <Text style={{ position: "absolute", top: "19.6%", fontSize: 9, left: "74%" }}>
+                                C.del carmen-CAMPECHE
+                              </Text>
+                              <Text style={{ position: "absolute", top: "22.5%", fontSize: 9, left: "69%" }}>
+                                {dat.fecha_renta}
+                              </Text>
+                              <Text style={{ position: "absolute", top: "25.4%", fontSize: 9, left: "68%" }}>
+                                {dat.hora_renta}
+                              </Text>
+                              {/* aca van los datos de la tabla */}
+                              {dat.productos &&
+                                dat.productos.map((prod, idx) => (
+                                  <React.Fragment key={idx}>
+                                    <Text
+                                      style={{
+                                        position: "absolute",
+                                        top: `${31.7 + idx * 3}%`, // Ajusta el valor para espaciar filas verticalmente
+                                        left: "3.2%",
+                                        fontSize: 10,
+                                        width: "9%",
+                                        textAlign: "center",
+                                        paddingVertical: 5.5,
+                                      }}
+                                    >
+                                      {prod.cantidad}
+                                    </Text>
+                                    <Text
+                                      style={{
+                                        position: "absolute",
+                                        top: `${31.7 + idx * 3}%`,
+                                        left: "12.5%",
+                                        fontSize: 10,
+                                        width: "57%",
+                                        textAlign: "left",
+                                        paddingVertical: 5.5,
+                                        paddingLeft: 5,
+                                      }}
+                                    >
+                                      {prod.nombre}
+                                      {prod.dias_renta !== null && prod.dias_renta !== undefined
+                  ? ` (${prod.dias_renta} ${prod.dias_renta === 1 ? 'día' : 'días'})`
+                  : ''}
+                                    </Text>
+                                    <Text
+                                      style={{
+                                        position: "absolute",
+                                        top: `${31.7 + idx * 3}%`,
+                                        left: "70%",
+                                        fontSize: 10,
+                                        width: "12%",
+                                        textAlign: "center",
+                                        paddingVertical: 5.5,
+                                      }}
+                                    >
+                                      {formatMoney(Number(prod.precio_unitario))}
+                                    </Text>
+                                    <Text
+                                      style={{
+                                        position: "absolute",
+                                        top: `${31.7 + idx * 3}%`,
+                                        left: "82.5%",
+                                        fontSize: 10,
+                                        width: "13.4%",
+                                        textAlign: "center",
+                                        paddingVertical: 5.5,
+                                      }}
+                                    >
+                                      {formatMoney(Number(prod.importe_total))}
+                                    </Text>
+                                  </React.Fragment>
+                                ))}
+                               {dat.fotos_estado_inicial.length > 0 && (
+                                 <View
+                style={{
+                  position: 'absolute',
+                  top: '71%',
+                  left: '52%',
+                  width: '15.5%',
+                  alignItems: 'center',
+                  gap: 4, // Si gap no funciona en PDF, usa marginBottom en el QR o marginTop en el texto
+                }}
+              >
+                <Image
+                  style={{ width: '70%' }}
+                  src={qr}
+                />
+                <Text
+                  style={{
+                    width: '100%',
+                    fontSize: 9,
+                    textAlign: 'center',
+                    color: '#222',
+                    marginTop:0, // Espacio entre QR y texto
+                  }}
+                >
+                  Escanea para ver las fotos de los equipos
+                </Text>
+              </View>
+                               )}
+                              <View
+                                style={{
+                                  position: "absolute",
+                                  top: "87.7%",
+                                  left: "3.3%",
+                                  width: "66.1%",
+                                  fontSize: 10,
+                                  height: 46,
+                                  padding: 3,
+                                }}
+                              >
+                                  
+                                <Text>{dat.observacion_inicial}</Text>
+                              </View>
+                              <Text style={{ position: "absolute", top: "85.5%", fontSize: 10, left: "84%" }}>
+                                ${formatMoney(Number(dat.total_renta))}
+                              </Text>
+                              {dat.IVA === true && (
+                                <Text style={{ position: "absolute", top: "88.3%", fontSize: 10, left: "84%" }}>
+                                  ${formatMoney(Number(dat.total_renta) * 0.16)}
+                                </Text>
+                              )}
+                              {dat.IVA === true ? (
+                                <Text style={{ position: "absolute", top: "91.5%", fontSize: 10, left: "84%" }}>
+                                  ${formatMoney(Number(dat.total_renta) + (Number(dat.total_renta) * 0.16))}
+                                </Text>
+                              ) : (
+                                <Text style={{ position: "absolute", top: "91.5%", fontSize: 10, left: "84%" }}>
+                                  ${formatMoney(Number(dat.total_renta))}
+                                </Text>
+                              )}
+                            </Page>
               <Page size="A4">
                 <View style={styles.page}>
                   <Image
@@ -389,7 +477,7 @@ const contrato = ({ _id }) => {
                     ZAIR EMANUEL GARCIA CHABLE
                   </Text>
                   <Text style={styles.arrendatario}>
-                    {dat.cliente.nombre.toUpperCase()}
+                    {dat.nombre.toUpperCase()}
                   </Text>
                   <Text style={styles.dia_expedicion}>{dia_expedicion}</Text>
                   <Text style={styles.mes_expedicion}>{mes_expedicion}</Text>
@@ -451,7 +539,7 @@ const contrato = ({ _id }) => {
                     <Text>ZAIR EMANUEL GARCIA CHABLE</Text>
                   </View>
                   <View style={styles.arrendatario2}>
-                    <Text>{dat.cliente.nombre.toUpperCase()}</Text>
+                    <Text>{dat.nombre.toUpperCase()}</Text>
                   </View>
                   <Image
                     style={styles.firma}

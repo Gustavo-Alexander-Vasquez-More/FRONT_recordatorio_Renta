@@ -74,38 +74,11 @@ useEffect(() => {
         Lista de equipos
       </a>
     )}
-    {/* Rentas */}
-    <div className="mx-2">
-      <button
-        onClick={toggleListVisibility3}
-        className="w-full flex justify-between items-center px-3 py-3 rounded-lg text-white hover:bg-blue-800 transition font-medium focus:outline-none"
-        type="button"
-      >
-        <span className="flex items-center gap-3">
-          <img className="w-8" src={icon_bolsa} alt="" />
-          Rentas
-        </span>
-        <svg className={`w-6 h-6 transition-transform duration-300 ${modal_rentas ? 'rotate-90' : ''} text-white`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14"/>
-        </svg>
-      </button>
-      {/* Submenú rentas */}
-      <div className={`overflow-hidden transition-all duration-500 ease-in-out bg-blue-900/80 rounded-b-lg shadow-lg ${modal_rentas ? 'max-h-40 py-2' : 'max-h-0 py-0'}`}>
-        <ul className="flex flex-col gap-2 px-6">
-          <a href="/create_renta">
-            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Generar una renta</li>
-          </a>
-          <a href="/hist_renta">
-            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Historial de rentas</li>
-          </a>
-        </ul>
-      </div>
-    </div>
     {/* Notas de Remisión */}
     <div className="mx-2">
       <button
         onClick={toggleListVisibility4}
-        className="w-full flex justify-between items-center px-3 py-3 rounded-lg text-white hover:bg-blue-800 transition font-medium focus:outline-none"
+        className="w-full flex justify-between items-center px-3 py-3 rounded-lg gap-3 text-white hover:bg-blue-800 transition font-medium focus:outline-none"
         type="button"
       >
         <span className="flex items-center gap-3">
@@ -113,7 +86,7 @@ useEffect(() => {
             <path d="M5 7h6v1H5V7zm0 2h6v1H5V9zm0 2h4v1H5v-1z"/>
             <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3-.5a.5.5 0 0 1-.5-.5V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5h-2.5A1.5 1.5 0 0 1 11 4z"/>
           </svg>
-          Notas de Remisión
+          Rentas & Notas de Remisión
         </span>
         <svg className={`w-6 h-6 transition-transform duration-300 ${modal_clientes ? 'rotate-90' : ''} text-white`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14"/>
@@ -122,11 +95,15 @@ useEffect(() => {
       {/* Submenú notas de remisión */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out bg-blue-900/80 rounded-b-lg shadow-lg ${modal_clientes ? 'max-h-40 py-2' : 'max-h-0 py-0'}`}>
         <ul className="flex flex-col gap-2 px-6">
-          <a href="/notas_remision">
-            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Panel notas de remisión</li>
+          
+          <a href="/create_notas_rentas">
+            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Generar Rentas & notas de remisión</li>
           </a>
-          <a href="/create_notas">
-            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Generar notas de remisión</li>
+          <a href="/hist_renta">
+            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Mis rentas</li>
+          </a>
+          <a href="/notas_remision">
+            <li className="text-blue-100 hover:text-white hover:bg-blue-700 rounded px-3 py-2 transition cursor-pointer font-medium">Mis notas de remisión</li>
           </a>
         </ul>
       </div>
