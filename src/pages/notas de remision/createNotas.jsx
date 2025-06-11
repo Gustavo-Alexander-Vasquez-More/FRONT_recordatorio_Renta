@@ -426,42 +426,13 @@ export default function createNotas() {
         <div className="flex flex-col w-full md:w-[60%] min-h-screen bg-transparent">
           <div className="flex flex-col gap-6 px-6 py-8 rounded-xl w-full">
             <div className="flex flex-col gap-2 mt-2">
-              <label className="font-semibold text-blue-700">
-                *¿Qué deseas agregar a la lista? <span className="text-gray-500 font-normal">(Máximo 12 artículos por Nota de remisión)</span>
-              </label>
-              <div className="flex gap-6 mt-1">
-                <label className="flex items-center gap-2 text-blue-700 font-medium">
-                  <input
-                    type="radio"
-                    name="opcion"
-                    value="catalogo"
-                    checked={opcion === 'catalogo'}
-                    onChange={() => setOpcion('catalogo')}
-                    className="accent-blue-600"
-                  />
-                  Equipos del catálogo
-                </label>
-                <label className="flex items-center gap-2 text-blue-700 font-medium">
-                  <input
-                    type="radio"
-                    name="opcion"
-                    value="personalizado"
-                    checked={opcion === 'personalizado'}
-                    onChange={() => setOpcion('personalizado')}
-                    className="accent-blue-600"
-                  />
-                  Productos o servicios
-                </label>
-              </div>
               <span className="font-semibold text-[0.95rem] text-blue-500 mt-1">
-                Puedes ir alternando las opciones para ir combinando equipos y productos o servicios en la lista.
+                Agrega productos o servicios de forma personalizada.
               </span>
+              <label className="font-semibold text-blue-700"><span className="text-gray-500 font-normal">(Máximo 12 por Nota de remisión)</span>
+              </label>
             </div>
-            {opcion === 'catalogo' ? (
-              <TableListCatalogo lista={lista} setLista={setLista} />
-            ) : (
-              <TableListPersonalizado lista={lista} setLista={setLista} />
-            )}
+           <TableListPersonalizado lista={lista} setLista={setLista} />
             {/* Mensaje y flecha indicativa en móvil */}
             {lista.length > 0 && (
               <div className="overflow-x-auto">

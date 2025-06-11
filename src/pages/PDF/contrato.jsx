@@ -34,7 +34,7 @@ const contrato = ({ _id }) => {
     }
   }
 const generateQR = async () => {
-    const link = `https://rentas.rentamecarmen.com.mx/collection/${_id}`;
+    const link = `https://rentas.rentamecarmen.com.mx/collection_rentas/${_id}`;
     const qrDataURL = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(link)}`;
   try {
     const response = await fetch(qrDataURL);

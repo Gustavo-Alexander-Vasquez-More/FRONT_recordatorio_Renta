@@ -731,8 +731,10 @@ export default function createRenta() {
         <div className="flex flex-col w-full md:w-[60%] min-h-screen bg-transparent">
           <div className="flex flex-col gap-6 px-6 py-8 rounded-xl w-full">
             <div className="flex flex-col gap-2 mt-2">
-              <label className="font-semibold text-blue-700">
-                *¿Qué deseas agregar a la lista? <span className="text-gray-500 font-normal">(Máximo 12 artículos por renta)</span>
+              <span className="font-semibold text-[0.95rem] text-blue-500 mt-1">
+                Agrega Los equipos del catalogo RM a tu lista de Renta.
+              </span>
+              <label className="font-semibold text-blue-700"><span className="text-gray-500 font-normal">(Máximo 12 equipos)</span>
               </label>
             </div>
               <TableListCatalogo lista={lista} setLista={setLista} />
